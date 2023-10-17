@@ -1,4 +1,4 @@
-# socioverse
+# SocioVerse
 
 A new Flutter project.
 
