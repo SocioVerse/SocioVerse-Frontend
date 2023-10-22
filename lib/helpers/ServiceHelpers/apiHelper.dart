@@ -22,11 +22,12 @@ class ApiHelper {
     try {
       Uri uri =
           Uri.https(ApiStringConstants.testBaseUrl, "/api/$path", querryParam);
+      log(uri.toString());
       final response = await http.get(
         uri,
         headers: headers,
       );
-      print(response.statusCode);
+      log(uri.toString());
 
       if (response.statusCode == 401) {
         print("here 1");
@@ -46,7 +47,10 @@ class ApiHelper {
         print(response.statusCode);
         _response = _returnResponse(response, uri, querryParam);
       }
-    } catch (e) {}
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
     return _response;
   }
 

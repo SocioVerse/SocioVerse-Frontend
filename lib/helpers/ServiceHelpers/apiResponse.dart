@@ -3,6 +3,7 @@ class ApiResponse {
   dynamic data;
   dynamic otp;
   dynamic error;
+  
   ApiResponse({
     this.message,
     this.data,
