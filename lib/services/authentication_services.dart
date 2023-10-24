@@ -1,0 +1,63 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Models/userModel.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/helpers/api_constants.dart';
+
+class AuthServices {
+  final ApiHelper _helper = ApiHelper();
+  Future<bool> isEmailExists({required String email}) async {
+    ApiResponse response = await _helper.get(
+      ApiStringConstants.isEmailExists,
+      querryParam: {"email": email},
+      isPublic: true,
+    );
+    return response.data["email_exists"];
+  }
+
+  Future<ApiResponse?> userSignUp({required SignupUser signupUser}) async {
+    print(signupUser.toJson());
+    ApiResponse? response = await _helper.post(
+      ApiStringConstants.userSignUp,
+      querryParam: signupUser.toJson(),
+      isPublic: true,
+    );
+    if (response.success) {
+      UserModel user = UserModel.fromJson(response.data);
+      setStringIntoCache(
+          SharedPreferenceString.refreshToken, user.refreshToken);
+      setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
+      setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
+      setStringIntoCache(SharedPreferenceString.userId, user.id);
+    }
+
+    return response;
+  }
+
+  Future<ApiResponse?> userLogin({required LoginUser loginUser}) async {
+    print(loginUser.toJson().toString());
+    ApiResponse? response = await _helper.post(
+      ApiStringConstants.userLogin,
+      querryParam: loginUser.toJson(),
+      isPublic: true,
+    );
+    if (response.success) {
+      UserModel user = UserModel.fromJson(response.data);
+      setStringIntoCache(
+          SharedPreferenceString.refreshToken, user.refreshToken);
+      setStringIntoCache(
+          SharedPreferenceString.accessToken, user.accessToken);
+      setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
+      setStringIntoCache(SharedPreferenceString.userId, user.id);
+
+    }
+
+    return response;
+  }
+}
