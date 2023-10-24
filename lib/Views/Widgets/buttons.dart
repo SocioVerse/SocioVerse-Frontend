@@ -12,12 +12,11 @@ Widget MyElevatedButton1(
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 15),
-        
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      onPressed: () {
+      onPressed: () async {
         onPressed();
       },
       child: Text(title,

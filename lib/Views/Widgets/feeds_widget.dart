@@ -1,4 +1,5 @@
 
+import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
@@ -171,12 +172,18 @@ class _ThreadLayoutState extends State<ThreadLayout> {
           alignment: Alignment.centerLeft,
           child: Padding(
             padding: const EdgeInsets.only(left: 50, top: 10, bottom: 20),
-            child: Text(
-              "467 replies 368 likes",
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 14,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
+            child: TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ThreadReply()));
+              },
+              child: Text(
+                "467 replies 368 likes",
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+              ),
             ),
           ),
         )

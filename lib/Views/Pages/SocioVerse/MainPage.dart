@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/staticPagesClass.dart';
 
 class MainPage extends StatefulWidget {
-  bool isThread = false;
-  MainPage({super.key});
+  MainPage({super.key });
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -52,7 +51,7 @@ class _MainPageState extends State<MainPage> {
           currentIndex: _selectedIndex,
           unselectedLabelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 height: 2,
               ),

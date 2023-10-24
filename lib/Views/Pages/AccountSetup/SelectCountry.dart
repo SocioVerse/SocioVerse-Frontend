@@ -1,11 +1,16 @@
+import 'dart:developer';
+
+import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Utils/CountryList.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 
 import '../../Widgets/buttons.dart';
 
 class SelectCountryPage extends StatefulWidget {
-  const SelectCountryPage({super.key});
+  final SignupUser signupUser;
+  SelectCountryPage({super.key, required this.signupUser});
 
   @override
   State<SelectCountryPage> createState() => _SelectCountryPageState();
@@ -28,7 +33,19 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8, top: 0),
         child: MyElevatedButton1(
-            title: "Continue", onPressed: () {}, ctx: context),
+            title: "Continue",
+            onPressed: () {
+              widget.signupUser.country = CountryList[selectCountry].value;
+              
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FillProfilePage(
+                        signupUser: widget.signupUser,
+                           
+                          )));
+            },
+            ctx: context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
@@ -117,7 +134,6 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
                               })
                             },
                             shape: RoundedRectangleBorder(
-                              //<-- SEE HERE
                               side: selectCountry == index
                                   ? BorderSide(
                                       width: 2,

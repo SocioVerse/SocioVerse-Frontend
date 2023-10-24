@@ -3,4 +3,5 @@ class ApiStringConstants {
   static const String refreshToken = "token/refresh";
   static const String isEmailExists = "users/verify-email-exists";
   static const String userSignUp = "users/signup";
+  static const String userLogin = "users/login";
 }

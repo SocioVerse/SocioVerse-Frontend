@@ -2,17 +2,29 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:face_camera/face_camera.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 
 class FaceDetectionPage extends StatefulWidget {
-  const FaceDetectionPage({super.key});
+  final SignupUser signupUser;
+
+  FaceDetectionPage({super.key, required this.signupUser});
 
   @override
   State<FaceDetectionPage> createState() => _FaceDetectionPageState();
 }
 
 class _FaceDetectionPageState extends State<FaceDetectionPage> {
-  File? faceImage;
+  List<File?>? faceImage;
+  int numOfPics = 0;
+  @override
+  void initState() {
+    numOfPics = 0;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     faceImage = null;
@@ -28,21 +40,20 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
             showCameraLensControl: false,
             showFlashControl: false,
             indicatorShape: IndicatorShape.defaultShape,
-            onFaceDetected: (face) => {
-              if (face == null)
-                {
-                  print('No face detected'),
-                }
-              else
-                {
-                  log('Face detected ${face.toString()}'),
-                }
-            },
             onCapture: (File? image) {
-              setState(() {
-                log(image.toString());
-                faceImage = image;
-              });
+              if (numOfPics < 4) {
+                setState(() {
+                  faceImage!.add(image);
+                });
+                numOfPics++;
+              } else {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => MainPage(),
+                    ),
+                    (route) => route.isFirst);
+              }
             },
           ),
           Center(

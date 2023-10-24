@@ -1,14 +1,15 @@
 class ApiResponse {
   dynamic message;
+  dynamic error;
+  dynamic success;
   dynamic data;
   dynamic otp;
-  dynamic error;
-  
   ApiResponse({
     this.message,
     this.data,
     this.otp,
-    this.error
+    this.success,
+    this.error,
   });
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
@@ -17,13 +18,26 @@ class ApiResponse {
       data: json["data"],
       otp: json["otp"],
       error: json["error"],
+      success: json["success"],
     );
   }
 
   Map<String, dynamic> apiBaseResponseToJson(ApiResponse instance) {
     return <String, dynamic>{
       'message': instance.message,
-      "data":instance.data
+      "data": instance.data,
+      "otp": instance.otp,
+      "error": instance.error
+    };
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "message": message ?? "",
+      "data": data ?? "",
+      "otp": otp ?? "",
+      "error": error ?? "",
+      "success": success ?? "",
     };
   }
 }

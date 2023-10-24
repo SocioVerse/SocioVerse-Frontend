@@ -1,9 +1,15 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/Authentication/forgotPassword.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/services/authentication_services.dart';
 
 import '../../Widgets/buttons.dart';
 
@@ -15,7 +21,17 @@ class PasswordSignInPage extends StatefulWidget {
 }
 
 class _PasswordSignInPageState extends State<PasswordSignInPage> {
+  TextEditingController userNameOrEmailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool isPasswordVisible = true;
+
   bool isChecked = false;
+  @override
+  void initState() {
+    setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +63,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                 height: 40,
               ),
               TextField(
+                controller: userNameOrEmailController,
                 cursorOpacityAnimates: true,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16, color: Theme.of(context).colorScheme.surface),
@@ -91,10 +108,11 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                 height: 20,
               ),
               TextField(
+                controller: passwordController,
                 cursorOpacityAnimates: true,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16, color: Theme.of(context).colorScheme.surface),
-                obscureText: true,
+                obscureText: isPasswordVisible ? true : false,
                 decoration: InputDecoration(
                   filled: true,
                   prefixIcon: Padding(
@@ -111,10 +129,17 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       .textTheme
                       .bodyMedium!
                       .copyWith(fontSize: 16),
-                  suffixIcon: const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Icon(
-                      Icons.visibility_rounded,
+                  suffixIcon: IconButton(
+                    padding: EdgeInsets.only(right: 20),
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -170,11 +195,43 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
               ),
               MyElevatedButton1(
                   title: "Sign in",
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) => PasswordSignUpPage()));
+                  onPressed: () async {
+                    if (userNameOrEmailController.text.trim().isEmpty ||
+                        passwordController.text.trim().isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "Fill all details",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        fontSize: 16.0,
+                      );
+                      return;
+                    } else {
+                      ApiResponse? response = await AuthServices().userLogin(
+                        loginUser: LoginUser(
+                            usernameAndEmail:
+                                userNameOrEmailController.text.trim(),
+                            password: passwordController.text.trim()),
+                      );
+                      if (response!.success == true && context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => MainPage()),
+                            (route) => false);
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: response!.message.toString(),
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.white,
+                          textColor: Colors.black,
+                          fontSize: 16.0,
+                        );
+                      }
+                    }
                   },
                   ctx: context),
               SizedBox(

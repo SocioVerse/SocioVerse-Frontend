@@ -5,8 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/services/authentication_services.dart';
 
 class PasswordSignUpPage extends StatefulWidget {
@@ -19,8 +23,15 @@ class PasswordSignUpPage extends StatefulWidget {
 class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
+  bool isPasswordVisible = true;
   bool isChecked = false;
+  @override
+  void initState() {
+    
+    
+    setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +112,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                 cursorOpacityAnimates: true,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     fontSize: 16, color: Theme.of(context).colorScheme.surface),
-                obscureText: true,
+                obscureText: isPasswordVisible ? true : false,
                 decoration: InputDecoration(
                   filled: true,
                   prefixIcon: Padding(
@@ -118,10 +129,17 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       .textTheme
                       .bodyMedium!
                       .copyWith(fontSize: 16),
-                  suffixIcon: const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Icon(
-                      Icons.visibility_rounded,
+                  suffixIcon: IconButton(
+                    padding: EdgeInsets.only(right: 20),
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isPasswordVisible
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -188,12 +206,14 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                     bool isExists = await AuthServices()
                         .isEmailExists(email: emailController.text.trim());
                     if (!isExists) {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => FillProfilePage(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim(),
+                              builder: (context) => SelectCountryPage(
+                                    signupUser: SignupUser(
+                                        email: emailController.text.trim(),
+                                        password:
+                                            passwordController.text.trim()),
                                   )));
                     } else {
                       Fluttertoast.showToast(
