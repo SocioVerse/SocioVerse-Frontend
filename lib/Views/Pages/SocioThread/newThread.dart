@@ -1,16 +1,34 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:pinput/pinput.dart';
+import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Models/userModel.dart';
+import 'package:socioverse/Models/userSignUpModel.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/services/user_services.dart';
+import 'package:uuid/uuid.dart';
 
 class ThreadData {
   int line;
   late bool isSelected;
   late TextEditingController textEditingController;
   double verticalDividerLength;
+  List<String> images;
+  bool isUploading = false;
 
   ThreadData(
       {required this.line,
       required this.isSelected,
       required this.textEditingController,
-      required this.verticalDividerLength});
+      required this.verticalDividerLength,
+      required this.images});
 }
 
 class NewThread extends StatefulWidget {
@@ -25,19 +43,29 @@ class _NewThreadState extends State<NewThread> {
   bool _showAddThread = false;
   List<ThreadData> threads = [];
   List<FocusNode> focusNodes = [];
-
+  bool _privateThread = false;
+  List<UserModel> user = [];
   @override
   void initState() {
     super.initState();
+    fetchUserdata();
+
     threads.add(ThreadData(
       line: 1,
       isSelected: true,
       textEditingController: TextEditingController(),
       verticalDividerLength: 45,
+      images: [],
     ));
     for (int i = 0; i < threads.length; i++) {
       focusNodes.add(FocusNode());
     }
+  }
+
+  void fetchUserdata() async {
+    user = await UserServices().getUserDetails();
+
+    setState(() {});
   }
 
   void updateLineCount(int index) {
@@ -81,6 +109,7 @@ class _NewThreadState extends State<NewThread> {
         isSelected: true,
         textEditingController: newController,
         verticalDividerLength: 45,
+        images: [],
       ));
       focusNodes.add(FocusNode());
       FocusScope.of(context).requestFocus(focusNodes[threads.length - 1]);
@@ -90,231 +119,407 @@ class _NewThreadState extends State<NewThread> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF1a1a22),
-        elevation: 0.15,
-        shadowColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(
-            Icons.close,
-            size: 23,
-          ),
-          onPressed: () {
-            Navigator.pop(context); // Handle close button action
-          },
-        ),
-        title: Text(
-          'New thread',
-          style: TextStyle(
-            fontSize: 18.5,
-            color: Colors.white,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.post_add,
-              size: 23,
-              color: threads[0].textEditingController.text.isNotEmpty
-                  ? Colors.white
-                  : Colors.grey.shade700,
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Column(
-              children: threads.asMap().entries.map((entry) {
-                final index = entry.key;
-                final thread = entry.value;
-                return Padding(
-                  key: ValueKey<int>(index),
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 15),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        children: [
-                          ClipOval(
-                            child: Image.asset(
-                              'assets/Country_flag/ad.png',
-                              height: 35,
-                              width: 35,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 10),
-                            height: thread.isSelected
-                                ? thread.verticalDividerLength
-                                : thread.verticalDividerLength - 38,
-                            width: 2,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade700,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(left: 15),
-                        width: MediaQuery.of(context).size.width - 74,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'kushalgupta2510',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                thread.textEditingController.text.isEmpty
-                                    ? SizedBox(width: 1)
-                                    : Padding(
-                                        padding: EdgeInsets.only(right: 10),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            if (thread.textEditingController
-                                                    .text.isNotEmpty &&
-                                                threads.length > 1) {
-                                              setState(() {
-                                                thread.textEditingController
-                                                    .clear();
-                                                threads.removeAt(index);
-                                                focusNodes.removeAt(index);
-                                              });
-                                            } else if (threads.length == 1) {
-                                              setState(() {
-                                                thread.textEditingController
-                                                    .clear();
-                                                thread.isSelected = true;
-                                                _showAddThread = false;
-                                              });
-                                            }
-                                          },
-                                          child: Icon(
-                                            Icons.close,
-                                            size: 18,
-                                            color: Colors.grey.shade700,
-                                          ),
-                                        ),
-                                      ),
-                              ],
-                            ),
-                            TextFormField(
-                              controller: thread.textEditingController,
-                              showCursor: thread.isSelected,
-                              focusNode: focusNodes[index],
-                              autofocus: true,
-                              maxLines: null,
-                              cursorColor: Colors.white,
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.white,
-                              ),
-                              decoration: InputDecoration(
-                                isDense: true,
-                                hintText: 'Start a thread...',
-                                hintStyle: TextStyle(
-                                  color: Colors.grey.shade600,
-                                ),
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 5),
-                                focusedBorder: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                              ),
-                              onChanged: (text) {
-                                updateLineCount(index);
-                                if (threads.last.textEditingController.text
-                                    .isNotEmpty) {
-                                  setState(() {
-                                    _showAddThread = true;
-                                  });
-                                } else {
-                                  setState(() {
-                                    _showAddThread = false;
-                                  });
-                                }
-                              },
-                              onTap: () {
-                                for (final thread in threads) {
-                                  thread.isSelected = false;
-                                }
-                                setState(() {
-                                  thread.isSelected = true;
-                                  focusNodes[index].requestFocus();
-                                });
-                              },
-                            ),
-                            thread.isSelected
-                                ? Padding(
-                                    padding: const EdgeInsets.only(top: 12),
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.photo_library_rounded,
-                                          color: Colors.white54,
-                                        ),
-                                        SizedBox(width: 17),
-                                        Icon(
-                                          Icons.mic,
-                                          color: Colors.white54,
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                : SizedBox(height: 1),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-            GestureDetector(
-              onTap: () {
-                if (_showAddThread) {
-                  addNewThread();
-                }
-              },
-              child: ListTile(
-                contentPadding: const EdgeInsets.only(left: 19),
-                minLeadingWidth: 25,
-                leading: Padding(
-                  padding: const EdgeInsets.only(top: 1),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/Country_flag/ad.png',
-                      height: 20,
-                      width: 20,
-                      fit: BoxFit.cover,
-                      color: _showAddThread ? null : Colors.grey.shade800,
-                      colorBlendMode: _showAddThread ? null : BlendMode.darken,
-                    ),
-                  ),
+    return user.isEmpty
+        ? const Scaffold(
+            body:
+                SpinKitWave(color: Colors.white, type: SpinKitWaveType.center))
+        : Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xFF1a1a22),
+              elevation: 0.15,
+              shadowColor: Colors.white,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.close,
+                  size: 23,
                 ),
-                title: Text(
-                  'Add to thread',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: _showAddThread ? Colors.grey : Colors.grey.shade800,
-                  ),
+                onPressed: () {
+                  Navigator.pop(context); // Handle close button action
+                },
+              ),
+              title: Text(
+                'New thread',
+                style: TextStyle(
+                  fontSize: 18.5,
+                  color: Colors.white,
                 ),
               ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: ((context) {
+                          return StatefulBuilder(
+                              builder: (context, innerSetState) {
+                            return AlertDialog(
+                              backgroundColor: Color(0xFF1a1a22),
+                              title: Text(
+                                'Create thread',
+                                style: TextStyle(
+                                  fontSize: 18.5,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              content: Row(
+                                children: [
+                                  Text("Private thread"),
+                                  Switch(
+                                    value: _privateThread,
+                                    onChanged: (value) {
+                                      innerSetState(() {
+                                        _privateThread = value;
+                                      });
+                                    },
+                                    activeTrackColor:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    activeColor:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () async {
+                                    CreateThreadModel createThreadModel =
+                                        CreateThreadModel(
+                                      content:
+                                          threads[0].textEditingController.text,
+                                      images: threads[0].images,
+                                      isPrivate: _privateThread,
+                                      isBase: true,
+                                      comments: [],
+                                    );
+                                    for (final thread in threads) {
+                                      createThreadModel.comments
+                                          .add(CommentModel(
+                                        content:
+                                            thread.textEditingController.text,
+                                        images: thread.images,
+                                      ));
+                                    }
+                                    showDialog(
+                                        context: context,
+                                        builder: (_) => const SpinKitWave(
+                                            color: Colors.white,
+                                            type: SpinKitWaveType.center));
+                                    await ThreadServices().createThread(
+                                        createThreadModel: createThreadModel);
+                                    Navigator.pop(context);
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      CupertinoPageRoute(
+                                          builder: (context) => MainPage()),
+                                      (route) => route.isFirst,
+                                    );
+                                  },
+                                  child: const Text(
+                                    'Create',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          });
+                        }));
+                  },
+                  icon: Icon(
+                    Icons.post_add,
+                    size: 23,
+                    color: threads[0].textEditingController.text.isNotEmpty
+                        ? Colors.white
+                        : Colors.grey.shade700,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Column(
+                    children: threads.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final thread = entry.value;
+                      return Padding(
+                        key: ValueKey<int>(index),
+                        padding:
+                            const EdgeInsets.only(left: 12, right: 12, top: 15),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                ClipOval(
+                                  child: Image.network(
+                                    user[0].profilePic,
+                                    height: 35,
+                                    width: 35,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.only(top: 10),
+                                  height: thread.isSelected
+                                      ? thread.verticalDividerLength
+                                      : thread.verticalDividerLength - 38,
+                                  width: 2,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade700,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(left: 15),
+                              width: MediaQuery.of(context).size.width - 74,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '${user[0].username}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      thread.textEditingController.text.isEmpty
+                                          ? SizedBox(width: 1)
+                                          : Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 10),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  if (thread
+                                                          .textEditingController
+                                                          .text
+                                                          .isNotEmpty &&
+                                                      threads.length > 1) {
+                                                    setState(() {
+                                                      thread
+                                                          .textEditingController
+                                                          .clear();
+                                                      threads.removeAt(index);
+                                                      focusNodes
+                                                          .removeAt(index);
+                                                    });
+                                                  } else if (threads.length ==
+                                                      1) {
+                                                    setState(() {
+                                                      thread
+                                                          .textEditingController
+                                                          .clear();
+                                                      thread.isSelected = true;
+                                                      _showAddThread = false;
+                                                    });
+                                                  }
+                                                },
+                                                child: Icon(
+                                                  Icons.close,
+                                                  size: 18,
+                                                  color: Colors.grey.shade700,
+                                                ),
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                  TextFormField(
+                                    controller: thread.textEditingController,
+                                    showCursor: thread.isSelected,
+                                    focusNode: focusNodes[index],
+                                    autofocus: true,
+                                    maxLines: null,
+                                    cursorColor: Colors.white,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                    ),
+                                    decoration: InputDecoration(
+                                      isDense: true,
+                                      hintText: 'Start a thread...',
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 5),
+                                      focusedBorder: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                    ),
+                                    onChanged: (text) {
+                                      updateLineCount(index);
+                                      if (threads.last.textEditingController
+                                          .text.isNotEmpty) {
+                                        setState(() {
+                                          _showAddThread = true;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          _showAddThread = false;
+                                        });
+                                      }
+                                    },
+                                    onTap: () {
+                                      for (final thread in threads) {
+                                        thread.isSelected = false;
+                                      }
+                                      setState(() {
+                                        thread.isSelected = true;
+                                        focusNodes[index].requestFocus();
+                                      });
+                                    },
+                                  ),
+                                  SizedBox(height: 10),
+                                  thread.isUploading == true
+                                      ? LinearProgressIndicator(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          backgroundColor: Colors.grey.shade700,
+                                          minHeight: 2,
+                                        )
+                                      : GridView.builder(
+                                          shrinkWrap: true,
+                                          itemCount: thread.images.length,
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3,
+                                            crossAxisSpacing: 5,
+                                            mainAxisSpacing: 5,
+                                          ),
+                                          itemBuilder: (context, index) {
+                                            return Stack(children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                child: Image.network(
+                                                  thread.images[index],
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.topRight,
+                                                child: IconButton(
+                                                    onPressed: () {
+                                                      FirebaseHelper
+                                                          .deleteFileByUrl(
+                                                              thread.images[
+                                                                  index]);
+                                                      setState(() {
+                                                        thread.images
+                                                            .removeAt(index);
+                                                      });
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.remove_circle,
+                                                      color: Colors.red,
+                                                    )),
+                                              ),
+                                            ]);
+                                          },
+                                        ),
+                                  thread.isSelected
+                                      ? Padding(
+                                          padding: EdgeInsets.only(top: 12),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              List<File>? images =
+                                                  await ImagePickerFunctionsHelper()
+                                                      .pickMultipleImage(
+                                                          context);
+
+                                              if (images != null) {
+                                                setState(() {
+                                                  thread.isUploading = true;
+                                                });
+                                                for (int i = 0;
+                                                    i < images.length;
+                                                    i++) {
+                                                  String url = await FirebaseHelper
+                                                      .uploadFile(
+                                                          images[i].path,
+                                                          "${Uuid().v4()}",
+                                                          "${user[0].email}/threads");
+                                                  thread.images.add(url);
+                                                }
+                                              }
+
+                                              setState(() {
+                                                thread.isUploading = false;
+                                              });
+                                            },
+                                            icon: Icon(
+                                              Icons.photo_library_rounded,
+                                              color: Color.fromARGB(
+                                                  137, 245, 201, 201),
+                                            ),
+                                          ),
+                                        )
+                                      : SizedBox(height: 1),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (_showAddThread) {
+                        addNewThread();
+                      }
+                    },
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.only(left: 19),
+                      minLeadingWidth: 25,
+                      leading: Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: ClipOval(
+                          child: Image.network(
+                            user[0].profilePic,
+                            height: 20,
+                            width: 20,
+                            fit: BoxFit.cover,
+                            color: _showAddThread ? null : Colors.grey.shade800,
+                            colorBlendMode:
+                                _showAddThread ? null : BlendMode.darken,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        'Add to thread',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _showAddThread
+                              ? Colors.grey
+                              : Colors.grey.shade800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
   }
 }

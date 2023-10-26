@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:socioverse/Models/authUser_models.dart';
-import 'package:socioverse/Models/userModel.dart';
+import 'package:socioverse/Models/userSignUpModel.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
@@ -29,7 +29,7 @@ class AuthServices {
       isPublic: true,
     );
     if (response.success) {
-      UserModel user = UserModel.fromJson(response.data);
+      UserSignUpModel user = UserSignUpModel.fromJson(response.data);
       setStringIntoCache(
           SharedPreferenceString.refreshToken, user.refreshToken);
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
@@ -48,13 +48,15 @@ class AuthServices {
       isPublic: true,
     );
     if (response.success) {
-      UserModel user = UserModel.fromJson(response.data);
+      UserSignUpModel user = UserSignUpModel.fromJson(response.data);
       setStringIntoCache(
           SharedPreferenceString.refreshToken, user.refreshToken);
       setStringIntoCache(
           SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
+
+
 
     }
 

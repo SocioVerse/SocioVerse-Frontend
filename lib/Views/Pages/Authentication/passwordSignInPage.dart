@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/authUser_models.dart';
@@ -209,6 +210,11 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       );
                       return;
                     } else {
+                      showDialog(
+                          context: context,
+                          builder: (_) => const SpinKitWave(
+                              color: Colors.white,
+                              type: SpinKitWaveType.center));
                       ApiResponse? response = await AuthServices().userLogin(
                         loginUser: LoginUser(
                             usernameAndEmail:
@@ -221,8 +227,9 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                             MaterialPageRoute(builder: (context) => MainPage()),
                             (route) => false);
                       } else {
+                        Navigator.pop(context);
                         Fluttertoast.showToast(
-                          msg: response!.message.toString(),
+                          msg: response.message.toString(),
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
