@@ -33,4 +33,12 @@ class FirebaseHelper {
     }
 
   }
+  static Future<void> deleteFileByUrl(String fileURL)async {
+    try {
+      Reference ref = FirebaseStorage.instance.refFromURL(fileURL);
+      await ref.delete();
+    } catch (e) {
+      print(e);
+    }
+  }
 }

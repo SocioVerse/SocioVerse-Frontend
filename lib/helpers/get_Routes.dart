@@ -34,7 +34,7 @@ class GetInitPage extends StatelessWidget {
             }
           }
         } else {
-          return Scaffold(
+          return const Scaffold(
               body: SpinKitWave(
                   color: Colors.white, type: SpinKitWaveType.center));
         }
