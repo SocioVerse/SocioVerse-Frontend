@@ -64,7 +64,6 @@ class _NewThreadState extends State<NewThread> {
 
   void fetchUserdata() async {
     user = await UserServices().getUserDetails();
-
     setState(() {});
   }
 
@@ -79,14 +78,14 @@ class _NewThreadState extends State<NewThread> {
         textDirection: TextDirection.ltr,
         maxLines: 100,
       );
-      textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 76);
+      textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 80);
       final newLineCount = textPainter.computeLineMetrics().length;
       if (newLineCount - thread.line == 1) {
         setState(() {
           thread.line++;
           thread.verticalDividerLength += 20;
         });
-      } else if (thread.line - newLineCount == 1) {
+      } else if (thread.line - newLineCount == 1 && newLineCount != 0) {
         setState(() {
           thread.line--;
           thread.verticalDividerLength -= 20;
@@ -310,18 +309,9 @@ class _NewThreadState extends State<NewThread> {
                                                   EdgeInsets.only(right: 10),
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (thread
-                                                          .textEditingController
-                                                          .text
-                                                          .isNotEmpty &&
-                                                      threads.length > 1) {
+                                                  if (threads.length > 1) {
                                                     setState(() {
-                                                      thread
-                                                          .textEditingController
-                                                          .clear();
                                                       threads.removeAt(index);
-                                                      focusNodes
-                                                          .removeAt(index);
                                                     });
                                                   } else if (threads.length ==
                                                       1) {
@@ -329,6 +319,17 @@ class _NewThreadState extends State<NewThread> {
                                                       thread
                                                           .textEditingController
                                                           .clear();
+                                                      for (int i = 0;
+                                                          i <
+                                                              thread.images
+                                                                  .length;
+                                                          i++) {
+                                                        thread.images
+                                                            .removeAt(i);
+                                                      }
+                                                      thread.verticalDividerLength =
+                                                          45;
+                                                      thread.line = 1;
                                                       thread.isSelected = true;
                                                       _showAddThread = false;
                                                     });
@@ -388,7 +389,7 @@ class _NewThreadState extends State<NewThread> {
                                       });
                                     },
                                   ),
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 0),
                                   thread.isUploading == true
                                       ? LinearProgressIndicator(
                                           color: Theme.of(context)
@@ -407,24 +408,34 @@ class _NewThreadState extends State<NewThread> {
                                             mainAxisSpacing: 5,
                                           ),
                                           itemBuilder: (context, index) {
-                                            return Stack(children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                child: Image.network(
-                                                  thread.images[index],
-                                                  fit: BoxFit.cover,
+                                            return Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  child: Image.network(
+                                                    thread.images[index],
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.topRight,
-                                                child: IconButton(
+                                                Align(
+                                                  alignment: Alignment.topRight,
+                                                  child: IconButton(
                                                     onPressed: () {
                                                       FirebaseHelper
                                                           .deleteFileByUrl(
                                                               thread.images[
                                                                   index]);
                                                       setState(() {
+                                                        if (thread.images
+                                                                    .length %
+                                                                3 ==
+                                                            1) {
+                                                          thread.verticalDividerLength -=
+                                                              (100);
+                                                          _showAddThread =
+                                                              false;
+                                                        }
                                                         thread.images
                                                             .removeAt(index);
                                                       });
@@ -432,16 +443,18 @@ class _NewThreadState extends State<NewThread> {
                                                     icon: Icon(
                                                       Icons.remove_circle,
                                                       color: Colors.red,
-                                                    )),
-                                              ),
-                                            ]);
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
                                           },
                                         ),
                                   thread.isSelected
                                       ? Padding(
                                           padding: EdgeInsets.only(top: 12),
-                                          child: IconButton(
-                                            onPressed: () async {
+                                          child: GestureDetector(
+                                            onTap: () async {
                                               List<File>? images =
                                                   await ImagePickerFunctionsHelper()
                                                       .pickMultipleImage(
@@ -450,6 +463,13 @@ class _NewThreadState extends State<NewThread> {
                                               if (images != null) {
                                                 setState(() {
                                                   thread.isUploading = true;
+                                                  _showAddThread = true;
+                                                  if (thread.images.length %
+                                                          3 ==
+                                                      0) {
+                                                    thread.verticalDividerLength +=
+                                                        (100);
+                                                  }
                                                 });
                                                 for (int i = 0;
                                                     i < images.length;
@@ -462,19 +482,18 @@ class _NewThreadState extends State<NewThread> {
                                                   thread.images.add(url);
                                                 }
                                               }
-
                                               setState(() {
                                                 thread.isUploading = false;
                                               });
                                             },
-                                            icon: Icon(
+                                            child: Icon(
                                               Icons.photo_library_rounded,
                                               color: Color.fromARGB(
                                                   137, 245, 201, 201),
                                             ),
                                           ),
                                         )
-                                      : SizedBox(height: 1),
+                                      : SizedBox(height: 0),
                                 ],
                               ),
                             )

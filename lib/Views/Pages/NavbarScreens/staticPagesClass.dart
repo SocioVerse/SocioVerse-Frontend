@@ -11,7 +11,6 @@ class NavigatorPage {
     FeedsPage(),
     SearchFeedsPage(),
     NewThread(),
-    // PickImagePage(),
     ActivityPage(),
     UserProfilePage(
       owner: true,
