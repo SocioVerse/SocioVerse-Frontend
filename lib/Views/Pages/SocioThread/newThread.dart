@@ -127,15 +127,6 @@ class _NewThreadState extends State<NewThread> {
               backgroundColor: Color(0xFF1a1a22),
               elevation: 0.15,
               shadowColor: Colors.white,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.close,
-                  size: 23,
-                ),
-                onPressed: () {
-                  Navigator.pop(context); // Handle close button action
-                },
-              ),
               title: Text(
                 'New thread',
                 style: TextStyle(
@@ -414,6 +405,27 @@ class _NewThreadState extends State<NewThread> {
                                                   borderRadius:
                                                       BorderRadius.circular(5),
                                                   child: Image.network(
+                                                    loadingBuilder: (BuildContext
+                                                            context,
+                                                        Widget child,
+                                                        ImageChunkEvent?
+                                                            loadingProgress) {
+                                                      if (loadingProgress ==
+                                                          null) return child;
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          value: loadingProgress
+                                                                      .expectedTotalBytes !=
+                                                                  null
+                                                              ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                              : null,
+                                                        ),
+                                                      );
+                                                    },
                                                     thread.images[index],
                                                     fit: BoxFit.cover,
                                                   ),
@@ -515,6 +527,19 @@ class _NewThreadState extends State<NewThread> {
                         padding: const EdgeInsets.only(top: 1),
                         child: ClipOval(
                           child: Image.network(
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
                             user[0].profilePic,
                             height: 20,
                             width: 20,
