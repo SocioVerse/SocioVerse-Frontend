@@ -1,4 +1,3 @@
-
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 import 'buttons.dart';
 
@@ -111,16 +111,18 @@ class ThreadLayout extends StatefulWidget {
 }
 
 class _ThreadLayoutState extends State<ThreadLayout> {
+  bool _havereplies = true;
+  int replies = 3;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Divider(
-          height: 10,
+          height: 0,
           color: Theme.of(context).colorScheme.tertiary,
         ),
         ListTile(
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: EdgeInsets.zero,
           leading: CircleAvatar(
             radius: 20,
             backgroundColor: Theme.of(context).colorScheme.onBackground,
@@ -148,46 +150,139 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             ),
           ),
         ),
-        SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl.",
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, top: 10),
-          child: getFooter(isPost: false),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 50, top: 10, bottom: 20),
-            child: TextButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ThreadReply()));
-              },
-              child: Text(
-                "467 replies 368 likes",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.tertiary,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _havereplies
+                ? Container(
+                    height: 234,
+                    width: 1.5,
+                    margin: EdgeInsets.only(left: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade500,
+                      borderRadius: BorderRadius.circular(4),
                     ),
+                  )
+                : SizedBox(),
+            Expanded(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 35),
+                    child: Text(
+                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl.",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 33, top: 20),
+                    child: getFooter(isPost: false),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            if (replies == 3)
+              UserProfileImageStackOf3()
+            else if (replies == 2)
+              UserProfileImageStackOf2(isShowIcon: false)
+            else if (replies == 1)
+              ReplyUserProfileImage(
+                rightPadding: 0,
+                userProfileImagePath: 'assets/Country_flag/ad.png',
+              )
+            else
+              SizedBox(),
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ThreadReply(
+                                    text: 'Ad Flag Image',
+                                    imageUrl: 'assets/Country_flag/ao.png',
+                                  )));
+                    },
+                    child: Text(
+                      "467 replies 368 likes",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8)
+      ],
+    );
+  }
+}
+
+class UserProfileImageStackOf3 extends StatelessWidget {
+  const UserProfileImageStackOf3({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 8),
+      height: 30,
+      width: 31,
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/Country_flag/ad.png',
+                fit: BoxFit.cover,
+                height: 16,
+                width: 16,
               ),
             ),
           ),
-        )
-      ],
+          Positioned(
+            left: 0,
+            top: 10,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/Country_flag/ad.png',
+                fit: BoxFit.cover,
+                height: 10.5,
+                width: 10.5,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 9.2,
+            top: 21,
+            child: ClipOval(
+              child: Image.asset(
+                'assets/Country_flag/ad.png',
+                fit: BoxFit.cover,
+                height: 8.5,
+                width: 8.5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -202,155 +297,161 @@ StatefulBuilder getFooter({required bool isPost}) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    isLiked = !isLiked;
-                  });
-                },
-                icon: Icon(
-                  isLiked ? Ionicons.heart : Ionicons.heart_outline,
-                  color: isLiked
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onPrimary,
-                  size: 30,
+          Container(
+            width: 100,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      isLiked = !isLiked;
+                    });
+                  },
+                  child: Icon(
+                    isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                    color: isLiked
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onPrimary,
+                    size: 23,
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: ((context) {
-                    return CommentPage();
-                  })));
-                },
-                icon: Icon(
-                  Ionicons.chatbubble_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  size: 30,
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        CupertinoPageRoute(builder: ((context) {
+                      return CommentPage();
+                    })));
+                  },
+                  child: Icon(
+                    Ionicons.chatbubble_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 23,
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+                InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 15.0, right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.horizontal_rule_rounded,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              TextFieldBuilder(
-                                tcontroller: postMessage,
-                                hintTexxt: "Write a message...",
-                                onChangedf: () {},
-                              ),
-                              const SizedBox(
-                                height: 20,
-                                child: Divider(
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        context: context,
+                        builder: (context) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(left: 15.0, right: 15),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.horizontal_rule_rounded,
+                                  size: 50,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                const SizedBox(
                                   height: 10,
                                 ),
-                              ),
-                              TextFieldBuilder(
-                                  tcontroller: search,
-                                  hintTexxt: "Search",
+                                TextFieldBuilder(
+                                  tcontroller: postMessage,
+                                  hintTexxt: "Write a message...",
                                   onChangedf: () {},
-                                  prefixxIcon: Icon(
-                                    Ionicons.search,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  )),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: 10,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        leading: CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          child: CircleAvatar(
-                                              radius: 28,
-                                              backgroundImage: AssetImage(
-                                                "assets/Country_flag/in.png",
-                                              )),
-                                        ),
-                                        title: Text(
-                                          "Fatima",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                fontSize: 16,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              ),
-                                        ),
-                                        subtitle: Text(
-                                          "Occupation",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 14,
-                                              ),
-                                        ),
-                                        trailing: MyEleButtonsmall(
-                                            title2: "Sent",
-                                            title: "Send",
-                                            onPressed: () {},
-                                            ctx: context),
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                },
-                icon: Icon(
-                  Ionicons.paper_plane_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  size: 30,
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                  child: Divider(
+                                    height: 10,
+                                  ),
+                                ),
+                                TextFieldBuilder(
+                                    tcontroller: search,
+                                    hintTexxt: "Search",
+                                    onChangedf: () {},
+                                    prefixxIcon: Icon(
+                                      Ionicons.search,
+                                      size: 20,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: 10,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          leading: CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            child: CircleAvatar(
+                                                radius: 28,
+                                                backgroundImage: AssetImage(
+                                                  "assets/Country_flag/in.png",
+                                                )),
+                                          ),
+                                          title: Text(
+                                            "Fatima",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                          ),
+                                          subtitle: Text(
+                                            "Occupation",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: 14,
+                                                ),
+                                          ),
+                                          trailing: MyEleButtonsmall(
+                                              title2: "Sent",
+                                              title: "Send",
+                                              onPressed: () {},
+                                              ctx: context),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                  },
+                  child: Icon(
+                    Ionicons.paper_plane_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 23,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          IconButton(
-            onPressed: () {
+          InkWell(
+            onTap: () {
               setState(() {
                 savedPost = !savedPost;
               });
             },
-            icon: Icon(
+            child: Icon(
               savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
               color: Theme.of(context).colorScheme.onPrimary,
-              size: 30,
+              size: 24,
             ),
           ),
         ],
