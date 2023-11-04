@@ -2,6 +2,9 @@ import 'dart:developer';
 import 'package:socioverse/Views/Pages/SocioThread/newThread.dart';
 
 import 'package:socioverse/Views/Pages/SettingsPages/settings.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -469,7 +472,29 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       fontSize: 16),
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  AlertBoxes.acceptRejectAlertBox(
+                    context: context,
+                    title: "Log Out",
+                    content: Text(" Are you sure you want to log out?"),
+                    onAccept: () async {
+                      setStringIntoCache(
+                          SharedPreferenceString.accessToken, null);
+
+                      setBooleanIntoCache(
+                          SharedPreferenceString.isLoggedIn, false);
+
+                      setStringIntoCache(
+                          SharedPreferenceString.refreshToken, null);
+
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyApp()),
+                          (route) => false);
+                    },
+                    onReject: () {
+                      Navigator.pop(context);
+                    },
+                  );
                 },
               ),
             ],

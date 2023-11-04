@@ -225,7 +225,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => MainPage()),
-                            (route) => false);
+                            (route) => route.isFirst);
                       } else {
                         Navigator.pop(context);
                         Fluttertoast.showToast(

@@ -1,4 +1,5 @@
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:socioverse/services/thread_services.dart';
 
 import 'buttons.dart';
 
@@ -104,7 +106,8 @@ class _StoriesScrollerState extends State<StoriesScroller> {
 }
 
 class ThreadLayout extends StatefulWidget {
-  const ThreadLayout({super.key});
+  ThreadModel thread;
+  ThreadLayout({super.key, required this.thread});
 
   @override
   State<ThreadLayout> createState() => _ThreadLayoutState();
@@ -121,23 +124,41 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         ),
         ListTile(
           contentPadding: EdgeInsets.all(0),
-          leading: CircleAvatar(
-            radius: 20,
-            backgroundColor: Theme.of(context).colorScheme.onBackground,
-            child: Icon(
-              Ionicons.person,
-              color: Theme.of(context).colorScheme.background,
-              size: 20,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: ClipOval(
+                child: Image.network(
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  widget.thread.user.profilePic,
+                  height: 35,
+                  width: 35,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           title: Text(
-            "Username",
+            widget.thread.user.username,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onPrimary),
           ),
           subtitle: Text(
-            "Occupation",
+            widget.thread.user.occupation,
             style: Theme.of(context).textTheme.bodySmall,
           ),
           trailing: IconButton(
@@ -148,17 +169,55 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 40),
-          child: Text(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl. Nulla eget nunc vitae tortor aliquam aliquet. Sed euismod, nisl eget aliquam ultricies, nisl nisl aliquet nisl, vitae aliquam nisl nisl vitae nisl.",
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onPrimary,
+          padding: const EdgeInsets.only(left: 50),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.thread.content,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              GridView.builder(
+                shrinkWrap: true,
+                itemCount: widget.thread.images.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
                 ),
+                itemBuilder: (context, index) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: Image.network(
+                      widget.thread.images[index],
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
         SizedBox(
@@ -166,7 +225,18 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 50, top: 10),
-          child: getFooter(isPost: false),
+          child: getFooter(
+            isPost: false,
+            onLike: () async {
+              await ThreadServices()
+                  .toogleLikeThreads(threadId: widget.thread.id);
+            },
+            onComment: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (context) => CommentPage()));
+            },
+            onSave: () {},
+          ),
         ),
         Align(
           alignment: Alignment.centerLeft,
@@ -178,7 +248,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     MaterialPageRoute(builder: (context) => ThreadReply()));
               },
               child: Text(
-                "467 replies 368 likes",
+                "467 replies ${widget.thread.likeCount}  ${widget.thread.likeCount > 1 ? "likes" : "like"}",
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                       fontSize: 14,
                       color: Theme.of(context).colorScheme.tertiary,
@@ -186,13 +256,18 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 }
 
-StatefulBuilder getFooter({required bool isPost}) {
+StatefulBuilder getFooter({
+  required bool isPost,
+  required Function onLike,
+  required Function onComment,
+  required Function onSave,
+}) {
   TextEditingController postMessage = TextEditingController();
   TextEditingController search = TextEditingController();
   bool savedPost = false;
@@ -209,6 +284,7 @@ StatefulBuilder getFooter({required bool isPost}) {
                   setState(() {
                     isLiked = !isLiked;
                   });
+                  onLike();
                 },
                 icon: Icon(
                   isLiked ? Ionicons.heart : Ionicons.heart_outline,
@@ -220,10 +296,7 @@ StatefulBuilder getFooter({required bool isPost}) {
               ),
               IconButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: ((context) {
-                    return CommentPage();
-                  })));
+                  onComment();
                 },
                 icon: Icon(
                   Ionicons.chatbubble_outline,
@@ -346,6 +419,7 @@ StatefulBuilder getFooter({required bool isPost}) {
               setState(() {
                 savedPost = !savedPost;
               });
+              onSave();
             },
             icon: Icon(
               savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
@@ -463,7 +537,15 @@ class _PostLayoutState extends State<PostLayout> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: getFooter(isPost: true),
+          child: getFooter(
+            isPost: true,
+            onLike: () {},
+            onComment: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (context) => CommentPage()));
+            },
+            onSave: () {},
+          ),
         ),
       ],
     );
@@ -478,16 +560,42 @@ class ThreadViewBuilder extends StatefulWidget {
 }
 
 class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
+  bool threadFetched = false;
+  List<ThreadModel> allThreads = [];
+  @override
+  void initState() {
+    fetchFollowingThraad();
+    super.initState();
+  }
+
+  fetchFollowingThraad() async {
+    setState(() {
+      threadFetched = false;
+    });
+    allThreads = await ThreadServices().getFollowingThreads();
+    setState(() {
+      threadFetched = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ThreadLayout();
-      },
-    );
+    return threadFetched
+        ? ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: allThreads.length,
+            itemBuilder: (context, index) {
+              return ThreadLayout(
+                thread: allThreads[index],
+              );
+            },
+          )
+        : LinearProgressIndicator(
+            color: Theme.of(context).colorScheme.primary,
+            backgroundColor: Colors.grey.shade700,
+            minHeight: 2,
+          );
   }
 }
 

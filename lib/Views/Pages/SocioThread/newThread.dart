@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:pinput/pinput.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
@@ -126,8 +127,9 @@ class _NewThreadState extends State<NewThread> {
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
               elevation: 0.15,
+              automaticallyImplyLeading: false,
               shadowColor: Colors.white,
-              title: Text(
+              title: const Text(
                 'New thread',
                 style: TextStyle(
                   fontSize: 18.5,
@@ -143,17 +145,43 @@ class _NewThreadState extends State<NewThread> {
                           return StatefulBuilder(
                               builder: (context, innerSetState) {
                             return AlertDialog(
-                              backgroundColor: Color(0xFF1a1a22),
-                              title: Text(
-                                'Create thread',
-                                style: TextStyle(
-                                  fontSize: 18.5,
-                                  color: Colors.white,
-                                ),
+                              backgroundColor:
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actionsPadding: EdgeInsets.all(20),
+                              title: Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text('Create thread'),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        icon: Icon(
+                                          Ionicons.close,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                ],
                               ),
                               content: Row(
                                 children: [
                                   Text("Private thread"),
+                                  const Spacer(),
                                   Switch(
                                     value: _privateThread,
                                     onChanged: (value) {
@@ -169,59 +197,93 @@ class _NewThreadState extends State<NewThread> {
                                 ],
                               ),
                               actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Cancel',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade700,
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 40,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            side: BorderSide(
+                                                width: 1,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                style: BorderStyle.solid),
+                                          ),
+                                          onPressed: () async {
+                                            CreateThreadModel
+                                                createThreadModel =
+                                                CreateThreadModel(
+                                              content: threads[0]
+                                                  .textEditingController
+                                                  .text,
+                                              images: threads[0].images,
+                                              isPrivate: _privateThread,
+                                              isBase: true,
+                                              comments: [],
+                                            );
+                                            for (int i = 1;
+                                                i < threads.length;
+                                                i++) {
+                                              final thread = threads[i];
+                                              log(thread
+                                                  .textEditingController.text
+                                                  .toString());
+                                              createThreadModel.comments
+                                                  .add(CommentModel(
+                                                content: thread
+                                                    .textEditingController.text,
+                                                images: thread.images,
+                                              ));
+                                            }
+                                            showDialog(
+                                                context: context,
+                                                builder: (_) =>
+                                                    const SpinKitWave(
+                                                        color: Colors.white,
+                                                        type: SpinKitWaveType
+                                                            .center));
+                                            await ThreadServices().createThread(
+                                                createThreadModel:
+                                                    createThreadModel);
+                                            Navigator.pop(context);
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              CupertinoPageRoute(
+                                                  builder: (context) =>
+                                                      MainPage()),
+                                              (route) => route.isFirst,
+                                            );
+                                          },
+                                          child: Text(
+                                            'Post',
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    CreateThreadModel createThreadModel =
-                                        CreateThreadModel(
-                                      content:
-                                          threads[0].textEditingController.text,
-                                      images: threads[0].images,
-                                      isPrivate: _privateThread,
-                                      isBase: true,
-                                      comments: [],
-                                    );
-                                    for (final thread in threads) {
-                                      createThreadModel.comments
-                                          .add(CommentModel(
-                                        content:
-                                            thread.textEditingController.text,
-                                        images: thread.images,
-                                      ));
-                                    }
-                                    showDialog(
-                                        context: context,
-                                        builder: (_) => const SpinKitWave(
-                                            color: Colors.white,
-                                            type: SpinKitWaveType.center));
-                                    await ThreadServices().createThread(
-                                        createThreadModel: createThreadModel);
-                                    Navigator.pop(context);
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) => MainPage()),
-                                      (route) => route.isFirst,
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Create',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
+                                    const SizedBox(
+                                      width: 10,
                                     ),
-                                  ),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 40,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             );
@@ -256,6 +318,23 @@ class _NewThreadState extends State<NewThread> {
                               children: [
                                 ClipOval(
                                   child: Image.network(
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
                                     user[0].profilePic,
                                     height: 35,
                                     width: 35,
@@ -544,9 +623,6 @@ class _NewThreadState extends State<NewThread> {
                             height: 20,
                             width: 20,
                             fit: BoxFit.cover,
-                            color: _showAddThread ? null : Colors.grey.shade800,
-                            colorBlendMode:
-                                _showAddThread ? null : BlendMode.darken,
                           ),
                         ),
                       ),
