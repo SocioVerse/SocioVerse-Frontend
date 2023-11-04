@@ -21,7 +21,7 @@ class ApiHelper {
     if (!isPublic) headers = ({"Authorization": "Bearer $token"});
     try {
       Uri uri =
-          Uri.https(ApiStringConstants.baseUrl, "/api/$path", querryParam);
+          Uri.http(ApiStringConstants.baseUrl, "/api/$path", querryParam);
       final response = await http.get(
         uri,
         headers: headers,
@@ -43,7 +43,6 @@ class ApiHelper {
       }
     } catch (e) {}
 
-    
     return _response;
   }
 
@@ -51,6 +50,7 @@ class ApiHelper {
       http.Response response, dynamic uri, dynamic querryParam) {
     ApiResponse baseRes =
         ApiResponse.fromJson(json.decode(response.body.toString()));
+    log(baseRes.toJson().toString());
 
     switch (response.statusCode) {
       case 200:
@@ -76,14 +76,15 @@ class ApiHelper {
   Future<ApiResponse> post(String path,
       {dynamic querryParam, bool isPublic = false}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
+      log(uri.toString());
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
       if (!isPublic) headers = ({"Authorization": "Bearer $token"});
       if (!isPublic) headers = await GetContentType(headers);
       if (isPublic) headers = {'Content-Type': 'application/json'};
-
+      log(querryParam.toString());
       var response =
           await http.post(uri, body: jsonEncode(querryParam), headers: headers);
       if (response.statusCode == 401) {
@@ -104,6 +105,7 @@ class ApiHelper {
         _response = _returnResponse(response, uri, querryParam);
       }
     } catch (e) {
+      log(e.toString());
       rethrow;
     }
 
@@ -123,7 +125,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -177,7 +179,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -228,7 +230,7 @@ class ApiHelper {
 
   Future<ApiResponse> put(String path, {dynamic querryParam}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? _headers;

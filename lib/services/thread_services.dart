@@ -7,20 +7,39 @@ import 'package:socioverse/helpers/api_constants.dart';
 
 class ThreadServices {
   ApiHelper _helper = ApiHelper();
-  ApiResponse response = ApiResponse();
+  ApiResponse _response = ApiResponse();
   Future<ApiResponse> createThread(
       {required CreateThreadModel createThreadModel}) async {
     try {
-      response = await _helper.post(
+      _response = await _helper.post(
         ApiStringConstants.createThread,
         isPublic: false,
         querryParam: createThreadModel.toJson(),
       );
-      log(response.data);
-      return response;
+      log(_response.data);
+      return _response;
     } catch (e) {
       print(e);
-      return response;
+      return _response;
     }
+  }
+
+  Future<List<ThreadModel>> getFollowingThreads() async {
+    List<ThreadModel> fetchedThreads = [];
+    _response = await _helper.get(ApiStringConstants.getFollowingThread);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedThreads.add(ThreadModel.fromJson(thread));
+      }
+    }
+    return fetchedThreads;
+  }
+
+  Future<bool> toogleLikeThreads({
+    required String threadId,
+  }) async {
+    _response = await _helper.post(ApiStringConstants.toogleLikeThread,
+        querryParam: {'threadId': threadId});
+    return _response.success;
   }
 }

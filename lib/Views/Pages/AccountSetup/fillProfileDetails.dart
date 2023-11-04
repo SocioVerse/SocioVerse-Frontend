@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:face_camera/face_camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
@@ -72,8 +73,10 @@ class _FillProfilePageState extends State<FillProfilePage> {
           .bodyMedium!
           .copyWith(fontSize: 16, color: Theme.of(context).colorScheme.surface),
       maxLines: 1,
+      maxLength: hintTexxt == "Phone number" ? 10 : null,
       decoration: InputDecoration(
         suffixIcon: suffixxIcon,
+        counter: Offstage(),
         contentPadding: EdgeInsets.all(20),
         filled: true,
         fillColor: Theme.of(context).colorScheme.secondary,
@@ -139,9 +142,6 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             radius: 150,
                             backgroundColor:
                                 Theme.of(context).colorScheme.onBackground,
-                            backgroundImage: currentImage == null
-                                ? null
-                                : NetworkImage(currentImage!),
                             child: currentImage == null
                                 ? Icon(
                                     Ionicons.person,
@@ -154,7 +154,31 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                     ? Center(
                                         child: CircularProgressIndicator(),
                                       )
-                                    : null,
+                                    : ClipOval(
+                                        child: Image.network(
+                                          currentImage!,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent?
+                                                  loadingProgress) {
+                                            if (loadingProgress == null)
+                                              return child;
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value: loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                            .cumulativeBytesLoaded /
+                                                        loadingProgress
+                                                            .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
                           ),
                           Positioned(
                             bottom: 10,

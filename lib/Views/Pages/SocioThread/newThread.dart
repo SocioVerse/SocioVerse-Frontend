@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:pinput/pinput.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
@@ -64,7 +65,6 @@ class _NewThreadState extends State<NewThread> {
 
   void fetchUserdata() async {
     user = await UserServices().getUserDetails();
-
     setState(() {});
   }
 
@@ -79,14 +79,14 @@ class _NewThreadState extends State<NewThread> {
         textDirection: TextDirection.ltr,
         maxLines: 100,
       );
-      textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 76);
+      textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 80);
       final newLineCount = textPainter.computeLineMetrics().length;
       if (newLineCount - thread.line == 1) {
         setState(() {
           thread.line++;
           thread.verticalDividerLength += 20;
         });
-      } else if (thread.line - newLineCount == 1) {
+      } else if (thread.line - newLineCount == 1 && newLineCount != 0) {
         setState(() {
           thread.line--;
           thread.verticalDividerLength -= 20;
@@ -127,17 +127,9 @@ class _NewThreadState extends State<NewThread> {
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
               elevation: 0.15,
+              automaticallyImplyLeading: false,
               shadowColor: Colors.white,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.close,
-                  size: 23,
-                ),
-                onPressed: () {
-                  Navigator.pop(context); // Handle close button action
-                },
-              ),
-              title: Text(
+              title: const Text(
                 'New thread',
                 style: TextStyle(
                   fontSize: 18.5,
@@ -153,17 +145,43 @@ class _NewThreadState extends State<NewThread> {
                           return StatefulBuilder(
                               builder: (context, innerSetState) {
                             return AlertDialog(
-                              backgroundColor: Color(0xFF1a1a22),
-                              title: Text(
-                                'Create thread',
-                                style: TextStyle(
-                                  fontSize: 18.5,
-                                  color: Colors.white,
-                                ),
+                              backgroundColor:
+                                  Theme.of(context).scaffoldBackgroundColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              actionsPadding: EdgeInsets.all(20),
+                              title: Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text('Create thread'),
+                                      const Spacer(),
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        icon: Icon(
+                                          Ionicons.close,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                ],
                               ),
                               content: Row(
                                 children: [
                                   Text("Private thread"),
+                                  const Spacer(),
                                   Switch(
                                     value: _privateThread,
                                     onChanged: (value) {
@@ -179,59 +197,93 @@ class _NewThreadState extends State<NewThread> {
                                 ],
                               ),
                               actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    'Cancel',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade700,
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 40,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context)
+                                                .scaffoldBackgroundColor,
+                                            side: BorderSide(
+                                                width: 1,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .primary,
+                                                style: BorderStyle.solid),
+                                          ),
+                                          onPressed: () async {
+                                            CreateThreadModel
+                                                createThreadModel =
+                                                CreateThreadModel(
+                                              content: threads[0]
+                                                  .textEditingController
+                                                  .text,
+                                              images: threads[0].images,
+                                              isPrivate: _privateThread,
+                                              isBase: true,
+                                              comments: [],
+                                            );
+                                            for (int i = 1;
+                                                i < threads.length;
+                                                i++) {
+                                              final thread = threads[i];
+                                              log(thread
+                                                  .textEditingController.text
+                                                  .toString());
+                                              createThreadModel.comments
+                                                  .add(CommentModel(
+                                                content: thread
+                                                    .textEditingController.text,
+                                                images: thread.images,
+                                              ));
+                                            }
+                                            showDialog(
+                                                context: context,
+                                                builder: (_) =>
+                                                    const SpinKitWave(
+                                                        color: Colors.white,
+                                                        type: SpinKitWaveType
+                                                            .center));
+                                            await ThreadServices().createThread(
+                                                createThreadModel:
+                                                    createThreadModel);
+                                            Navigator.pop(context);
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              CupertinoPageRoute(
+                                                  builder: (context) =>
+                                                      MainPage()),
+                                              (route) => route.isFirst,
+                                            );
+                                          },
+                                          child: Text(
+                                            'Post',
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                TextButton(
-                                  onPressed: () async {
-                                    CreateThreadModel createThreadModel =
-                                        CreateThreadModel(
-                                      content:
-                                          threads[0].textEditingController.text,
-                                      images: threads[0].images,
-                                      isPrivate: _privateThread,
-                                      isBase: true,
-                                      comments: [],
-                                    );
-                                    for (final thread in threads) {
-                                      createThreadModel.comments
-                                          .add(CommentModel(
-                                        content:
-                                            thread.textEditingController.text,
-                                        images: thread.images,
-                                      ));
-                                    }
-                                    showDialog(
-                                        context: context,
-                                        builder: (_) => const SpinKitWave(
-                                            color: Colors.white,
-                                            type: SpinKitWaveType.center));
-                                    await ThreadServices().createThread(
-                                        createThreadModel: createThreadModel);
-                                    Navigator.pop(context);
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) => MainPage()),
-                                      (route) => route.isFirst,
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Create',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
+                                    const SizedBox(
+                                      width: 10,
                                     ),
-                                  ),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 40,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             );
@@ -266,6 +318,23 @@ class _NewThreadState extends State<NewThread> {
                               children: [
                                 ClipOval(
                                   child: Image.network(
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
                                     user[0].profilePic,
                                     height: 35,
                                     width: 35,
@@ -310,18 +379,9 @@ class _NewThreadState extends State<NewThread> {
                                                   EdgeInsets.only(right: 10),
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  if (thread
-                                                          .textEditingController
-                                                          .text
-                                                          .isNotEmpty &&
-                                                      threads.length > 1) {
+                                                  if (threads.length > 1) {
                                                     setState(() {
-                                                      thread
-                                                          .textEditingController
-                                                          .clear();
                                                       threads.removeAt(index);
-                                                      focusNodes
-                                                          .removeAt(index);
                                                     });
                                                   } else if (threads.length ==
                                                       1) {
@@ -329,6 +389,17 @@ class _NewThreadState extends State<NewThread> {
                                                       thread
                                                           .textEditingController
                                                           .clear();
+                                                      for (int i = 0;
+                                                          i <
+                                                              thread.images
+                                                                  .length;
+                                                          i++) {
+                                                        thread.images
+                                                            .removeAt(i);
+                                                      }
+                                                      thread.verticalDividerLength =
+                                                          45;
+                                                      thread.line = 1;
                                                       thread.isSelected = true;
                                                       _showAddThread = false;
                                                     });
@@ -388,7 +459,7 @@ class _NewThreadState extends State<NewThread> {
                                       });
                                     },
                                   ),
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 0),
                                   thread.isUploading == true
                                       ? LinearProgressIndicator(
                                           color: Theme.of(context)
@@ -407,24 +478,55 @@ class _NewThreadState extends State<NewThread> {
                                             mainAxisSpacing: 5,
                                           ),
                                           itemBuilder: (context, index) {
-                                            return Stack(children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                child: Image.network(
-                                                  thread.images[index],
-                                                  fit: BoxFit.cover,
+                                            return Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  child: Image.network(
+                                                    loadingBuilder: (BuildContext
+                                                            context,
+                                                        Widget child,
+                                                        ImageChunkEvent?
+                                                            loadingProgress) {
+                                                      if (loadingProgress ==
+                                                          null) return child;
+                                                      return Center(
+                                                        child:
+                                                            CircularProgressIndicator(
+                                                          value: loadingProgress
+                                                                      .expectedTotalBytes !=
+                                                                  null
+                                                              ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                              : null,
+                                                        ),
+                                                      );
+                                                    },
+                                                    thread.images[index],
+                                                    fit: BoxFit.cover,
+                                                  ),
                                                 ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.topRight,
-                                                child: IconButton(
+                                                Align(
+                                                  alignment: Alignment.topRight,
+                                                  child: IconButton(
                                                     onPressed: () {
                                                       FirebaseHelper
                                                           .deleteFileByUrl(
                                                               thread.images[
                                                                   index]);
                                                       setState(() {
+                                                        if (thread.images
+                                                                    .length %
+                                                                3 ==
+                                                            1) {
+                                                          thread.verticalDividerLength -=
+                                                              (100);
+                                                          _showAddThread =
+                                                              false;
+                                                        }
                                                         thread.images
                                                             .removeAt(index);
                                                       });
@@ -432,16 +534,18 @@ class _NewThreadState extends State<NewThread> {
                                                     icon: Icon(
                                                       Icons.remove_circle,
                                                       color: Colors.red,
-                                                    )),
-                                              ),
-                                            ]);
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
                                           },
                                         ),
                                   thread.isSelected
                                       ? Padding(
                                           padding: EdgeInsets.only(top: 12),
-                                          child: IconButton(
-                                            onPressed: () async {
+                                          child: GestureDetector(
+                                            onTap: () async {
                                               List<File>? images =
                                                   await ImagePickerFunctionsHelper()
                                                       .pickMultipleImage(
@@ -450,6 +554,13 @@ class _NewThreadState extends State<NewThread> {
                                               if (images != null) {
                                                 setState(() {
                                                   thread.isUploading = true;
+                                                  _showAddThread = true;
+                                                  if (thread.images.length %
+                                                          3 ==
+                                                      0) {
+                                                    thread.verticalDividerLength +=
+                                                        (100);
+                                                  }
                                                 });
                                                 for (int i = 0;
                                                     i < images.length;
@@ -462,19 +573,18 @@ class _NewThreadState extends State<NewThread> {
                                                   thread.images.add(url);
                                                 }
                                               }
-
                                               setState(() {
                                                 thread.isUploading = false;
                                               });
                                             },
-                                            icon: Icon(
+                                            child: Icon(
                                               Icons.photo_library_rounded,
                                               color: Color.fromARGB(
                                                   137, 245, 201, 201),
                                             ),
                                           ),
                                         )
-                                      : SizedBox(height: 1),
+                                      : SizedBox(height: 0),
                                 ],
                               ),
                             )
@@ -496,13 +606,23 @@ class _NewThreadState extends State<NewThread> {
                         padding: const EdgeInsets.only(top: 1),
                         child: ClipOval(
                           child: Image.network(
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
                             user[0].profilePic,
                             height: 20,
                             width: 20,
                             fit: BoxFit.cover,
-                            color: _showAddThread ? null : Colors.grey.shade800,
-                            colorBlendMode:
-                                _showAddThread ? null : BlendMode.darken,
                           ),
                         ),
                       ),
