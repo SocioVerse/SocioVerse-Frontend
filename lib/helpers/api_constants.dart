@@ -8,4 +8,6 @@ class ApiStringConstants {
   static const String createThread = "threads/create-new-thread";
   static const String getFollowingThread = "threads/fetch-following-threads";
   static const String toogleLikeThread = "threads/toggle-thread-like";
+  static const String toogleFollowReq = "threads/create-follow-request";
+  static const String searchUser = "threads/searchAPI";
 }

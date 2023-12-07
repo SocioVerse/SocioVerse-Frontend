@@ -1,7 +1,13 @@
+import 'dart:developer';
+
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/services/follow_unfollow_services.dart';
+import 'package:socioverse/services/search_bar_services.dart';
 
 import '../../Widgets/buttons.dart';
 import '../../Widgets/textfield_widgets.dart';
@@ -15,6 +21,9 @@ class SearchFeedsPage extends StatefulWidget {
 
 class _SearchFeedsPageState extends State<SearchFeedsPage>
     with SingleTickerProviderStateMixin {
+  List<SearchedUser> searchedUser = [];
+  bool isUserFetched = false;
+
   late TabController _tabController;
   TextEditingController searchText = TextEditingController();
   List<String> sections = [
@@ -111,6 +120,17 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     );
   }
 
+  Future<void> getQueryUser() async {
+    setState(() {
+      isUserFetched = false;
+    });
+    searchedUser = await SearchBarServices()
+        .fetchSearchedUser(searchQuery: searchText.text.trim());
+    setState(() {
+      isUserFetched = true;
+    });
+  }
+
   Widget searchEnabled() {
     return Column(
       children: [
@@ -138,16 +158,21 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                           unselectedLabelColor:
                               Theme.of(context).colorScheme.tertiary,
                           indicatorColor: Theme.of(context).colorScheme.primary,
+                          onTap: (value) {
+                            if (value == 0) {
+                              getQueryUser();
+                            }
+                          },
                           tabs: const [
                             Tab(
                               child: Icon(
-                                Ionicons.grid_outline,
+                                Ionicons.person,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
-                                Ionicons.person,
+                                Ionicons.grid_outline,
                                 size: 20,
                               ),
                             ),
@@ -174,6 +199,37 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 ),
                 AutoScaleTabBarView(
                   children: [
+                    isUserFetched == false
+                        ? Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: searchedUser.length,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return Column(children: [
+                                personListTile(
+                                    user: searchedUser[index],
+                                    ttl1:
+                                        searchedUser[index].isConfirmed == null
+                                            ? "Follow"
+                                            : searchedUser[index].isConfirmed ==
+                                                    true
+                                                ? "Following"
+                                                : "Requested",
+                                    isPressed:
+                                        searchedUser[index].isConfirmed == null
+                                            ? false
+                                            : true,
+                                    ttl2:
+                                        searchedUser[index].isConfirmed == null
+                                            ? "Requested"
+                                            : "Follow"),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              ]);
+                            },
+                          ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: GridView.builder(
@@ -200,22 +256,6 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                               ),
                             );
                           }),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: 10,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Column(children: [
-                          personListTile(
-                              occupation: "Occupation",
-                              ttl1: "follow",
-                              ttl2: "following"),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ]);
-                      },
                     ),
                     ListView.builder(
                       shrinkWrap: true,
@@ -329,43 +369,59 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
   ListTile personListTile(
       {required String ttl1,
       required String ttl2,
-      required String occupation}) {
+      required SearchedUser user,
+      required bool isPressed}) {
     return ListTile(
-      leading: CircleAvatar(
-        radius: 30,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: CircleAvatar(
-            radius: 28,
-            backgroundImage: AssetImage(
-              "assets/Country_flag/in.png",
-            )),
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SizedBox(
+          height: 40,
+          width: 40,
+          child: ClipOval(
+            child: Image.network(
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent? loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                  ),
+                );
+              },
+              user.profilePic,
+              height: 35,
+              width: 35,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
       ),
       title: Text(
-        "Fatima",
+        user.name,
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
       ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Started following you",
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-          Text(
-            occupation,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-        ],
+      subtitle: Text(
+        user.username,
+        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              fontSize: 12,
+            ),
       ),
       trailing: MyEleButtonsmall(
-          title2: ttl2, title: ttl1, onPressed: () {}, ctx: context),
+          title2: ttl2,
+          title: ttl1,
+          ispressed: isPressed,
+          onPressed: () async {
+            await FollowUnfollowServices().toogleFollow(
+              userId: user.id,
+            );
+          },
+          ctx: context),
     );
   }
 
@@ -382,9 +438,9 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   tcontroller: searchText,
                   hintTexxt: "Search",
                   onChangedf: () {
-                    if (searchText.text.trim().length == 1)
-                      setState(() {});
-                    else if (searchText.text.trim().length == 0)
+                    if (searchText.text.trim().length >= 1) {
+                      getQueryUser();
+                    } else if (searchText.text.trim().length == 0)
                       setState(() {});
                   },
                   prefixxIcon: Icon(Ionicons.search),

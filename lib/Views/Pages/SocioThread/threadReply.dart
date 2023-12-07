@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/SocioThread/newThread.dart';
+import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 class ThreadReply extends StatefulWidget {
-  const ThreadReply({super.key});
-
+  const ThreadReply({required this.text, required this.imageUrl});
+  final String text;
+  final String imageUrl;
   @override
   State<ThreadReply> createState() => _ThreadReplyState();
 }
 
 class _ThreadReplyState extends State<ThreadReply> {
-  bool _isExtended = true;
+  double verticalDividerLength1 = 38;
+  double verticalDividerLength2 = 38;
+  bool _isExtended = false;
   bool _haveReplies = true;
   final List<String> extendedReplies = [
     'Extended Reply 1',
@@ -25,7 +29,7 @@ class _ThreadReplyState extends State<ThreadReply> {
       physics: NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+          padding: EdgeInsets.symmetric(horizontal: 15),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,15 +67,17 @@ class _ThreadReplyState extends State<ThreadReply> {
                       )
                     ],
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    height: 70,
-                    width: 2,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade700,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
+                  index == extendedReplies.length - 1
+                      ? SizedBox()
+                      : Container(
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          height: verticalDividerLength2 + 45,
+                          width: 2,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade700,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
                 ],
               ),
               Padding(
@@ -136,23 +142,30 @@ class _ThreadReplyState extends State<ThreadReply> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 15),
-                    Row(
-                      children: [
-                        Text(
-                          '2 replies ',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
+                    index == extendedReplies.length - 1
+                        ? SizedBox(height: 10)
+                        : SizedBox(height: 15),
+                    index == extendedReplies.length - 1
+                        ? SizedBox()
+                        : Row(
+                            children: [
+                              UserProfileImageStackOf2(
+                                isShowIcon: false,
+                              ),
+                              Text(
+                                '2 replies ',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                              Text(
+                                '• 78 likes',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                ),
+                              )
+                            ],
                           ),
-                        ),
-                        Text(
-                          '• 78 likes',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        )
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -170,7 +183,13 @@ class _ThreadReplyState extends State<ThreadReply> {
         backgroundColor: Color(0xFF1a1a22),
         elevation: 0.15,
         shadowColor: Colors.white,
-        leading: Icon(Icons.arrow_back),
+        leading: IconButton(
+            onPressed: () {
+              setState(() {
+                _isExtended = !_isExtended;
+              });
+            },
+            icon: Icon(Icons.arrow_back)),
         title: Text(
           'Thread',
           style: TextStyle(
@@ -213,23 +232,26 @@ class _ThreadReplyState extends State<ThreadReply> {
                                     fit: BoxFit.cover,
                                   ),
                                 ),
-                                Positioned(
-                                  right: 0,
-                                  bottom: 0,
-                                  child: Container(
-                                    height: 16,
-                                    width: 16,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 15,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                )
+                                _haveReplies
+                                    ? Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          height: 16,
+                                          width: 16,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 15,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      )
+                                    : SizedBox()
                               ],
                             ),
                             SizedBox(width: 10),
@@ -254,7 +276,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                     ),
                     SizedBox(height: 15),
                     Text(
-                      'Ad Flag image',
+                      widget.text,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -264,13 +286,13 @@ class _ThreadReplyState extends State<ThreadReply> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Image.asset(
-                        'assets/Country_flag/aq.png',
+                        widget.imageUrl,
                         height: 300,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 20),
                     Container(
                       width: 135,
                       child: Row(
@@ -374,9 +396,10 @@ class _ThreadReplyState extends State<ThreadReply> {
                                       ],
                                     ),
                                     Container(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 10),
-                                      height: 38,
+                                      margin: _isExtended
+                                          ? EdgeInsets.only(top: 10, bottom: 5)
+                                          : EdgeInsets.symmetric(vertical: 10),
+                                      height: verticalDividerLength1,
                                       width: 2,
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade700,
@@ -388,84 +411,21 @@ class _ThreadReplyState extends State<ThreadReply> {
                                             onTap: () {
                                               setState(() {
                                                 _isExtended = !_isExtended;
+                                                _isExtended
+                                                    ? verticalDividerLength1 +=
+                                                        40
+                                                    : null;
                                               });
                                             },
-                                            child: Container(
-                                              height: 20,
-                                              width: 41,
-                                              child: Stack(
-                                                children: [
-                                                  Positioned(
-                                                    right: 20.5,
-                                                    child: Container(
-                                                      height: 20,
-                                                      width: 20,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                          color: Colors.black87,
-                                                          width: 2,
-                                                        ),
-                                                      ),
-                                                      child: ClipOval(
-                                                        child: Image.asset(
-                                                          'assets/Country_flag/ad.png',
-                                                          fit: BoxFit.fill,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 10.5,
-                                                    child: Container(
-                                                      height: 20,
-                                                      width: 20,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                          width: 2,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                      child: ClipOval(
-                                                        child: Image.asset(
-                                                          'assets/Country_flag/ad.png',
-                                                          fit: BoxFit.fill,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 0,
-                                                    child: Container(
-                                                      height: 20,
-                                                      width: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(10),
-                                                        border: Border.all(
-                                                          width: 2,
-                                                          color: Colors.black87,
-                                                        ),
-                                                      ),
-                                                      child: Icon(
-                                                        Icons.arrow_drop_down,
-                                                        color: Colors.black,
-                                                        size: 18.5,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                            child: !_isExtended
+                                                ? UserProfileImageStackOf2(
+                                                  
+
+                                                    isShowIcon: true,
+                                                  )
+                                                : SizedBox(),
                                           )
-                                        : SizedBox(height: 0),
+                                        : SizedBox(),
                                   ],
                                 ),
                                 Padding(
@@ -530,21 +490,36 @@ class _ThreadReplyState extends State<ThreadReply> {
                                         ),
                                       ),
                                       SizedBox(height: 15),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '2 replies ',
-                                            style: TextStyle(
-                                              color: Colors.grey.shade600,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) => ThreadReply(
+                                                  text: 'none', imageUrl: 'no'),
                                             ),
-                                          ),
-                                          Text(
-                                            '• 78 likes',
-                                            style: TextStyle(
-                                              color: Colors.grey.shade600,
+                                          );
+                                        },
+                                        child: Row(
+                                          children: [
+                                            _isExtended
+                                                ? UserProfileImageStackOf2(
+                                                    isShowIcon: false,
+                                                  )
+                                                : SizedBox(),
+                                            Text(
+                                              '2 replies ',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                              ),
                                             ),
-                                          )
-                                        ],
+                                            Text(
+                                              '• 78 likes',
+                                              style: TextStyle(
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),

@@ -1,4 +1,5 @@
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'dart:developer';
+
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
@@ -7,10 +8,10 @@ import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 import 'buttons.dart';
 
@@ -114,16 +115,209 @@ class ThreadLayout extends StatefulWidget {
 }
 
 class _ThreadLayoutState extends State<ThreadLayout> {
+  bool _havereplies = true;
+  int replies = 0;
+  bool liked = false;
+  @override
+  void initState() {
+    if (widget.thread.commentUsers.length == 0) {
+      _havereplies = false;
+    } else {
+      replies = widget.thread.commentUsers.length;
+    }
+    super.initState();
+  }
+
+  StatefulBuilder getThreadFooter({
+    required bool isPost,
+    required Function onLike,
+    required Function onComment,
+    required Function onSave,
+  }) {
+    TextEditingController postMessage = TextEditingController();
+    TextEditingController search = TextEditingController();
+    bool savedPost = false;
+    bool isLiked = false;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [ 
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    onLike();
+                    setState(() {
+                      isLiked = !isLiked;
+
+                      if (isLiked) {
+                        widget.thread.likeCount++;
+                      } else {
+                        widget.thread.likeCount--;
+                      }
+                    });
+                  },
+                  icon: Icon(
+                    isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                    color: isLiked
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onPrimary,
+                    size: 30,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    onComment();
+                  },
+                  icon: Icon(
+                    Ionicons.chatbubble_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 30,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        context: context,
+                        builder: (context) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(left: 15.0, right: 15),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.horizontal_rule_rounded,
+                                  size: 50,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                TextFieldBuilder(
+                                  tcontroller: postMessage,
+                                  hintTexxt: "Write a message...",
+                                  onChangedf: () {},
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                  child: Divider(
+                                    height: 10,
+                                  ),
+                                ),
+                                TextFieldBuilder(
+                                    tcontroller: search,
+                                    hintTexxt: "Search",
+                                    onChangedf: () {},
+                                    prefixxIcon: Icon(
+                                      Ionicons.search,
+                                      size: 20,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: 10,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          leading: CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            child: CircleAvatar(
+                                                radius: 28,
+                                                backgroundImage: AssetImage(
+                                                  "assets/Country_flag/in.png",
+                                                )),
+                                          ),
+                                          title: Text(
+                                            "Fatima",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                          ),
+                                          subtitle: Text(
+                                            "Occupation",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: 14,
+                                                ),
+                                          ),
+                                          trailing: MyEleButtonsmall(
+                                              title2: "Sent",
+                                              title: "Send",
+                                              onPressed: () {},
+                                              ctx: context),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            ),
+                          );
+                        });
+                  },
+                  icon: Icon(
+                    Ionicons.paper_plane_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  savedPost = !savedPost;
+                });
+                onSave();
+              },
+              icon: Icon(
+                savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 30,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Divider(
-          height: 10,
+          height: 0,
           color: Theme.of(context).colorScheme.tertiary,
         ),
         ListTile(
-          contentPadding: EdgeInsets.all(0),
+          contentPadding: EdgeInsets.zero,
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
             child: SizedBox(
@@ -169,95 +363,232 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             ),
           ),
         ),
-        const SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.thread.content,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              GridView.builder(
-                shrinkWrap: true,
-                itemCount: widget.thread.images.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                ),
-                itemBuilder: (context, index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.network(
-                      widget.thread.images[index],
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 50,
+            ),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.thread.content,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          itemCount: widget.thread.images.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
                           ),
-                        );
+                          itemBuilder: (context, index) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.network(
+                                widget.thread.images[index],
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                    ),
+                                  );
+                                },
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25, top: 10),
+                    child: getThreadFooter(
+                      isPost: false,
+                      onLike: () async {
+                        await ThreadServices()
+                            .toogleLikeThreads(threadId: widget.thread.id);
                       },
-                      fit: BoxFit.cover,
+                      onComment: () {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => const CommentPage()));
+                      },
+                      onSave: () {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            if (replies == 3)
+              UserProfileImageStackOf3(
+                commenterProfilePics: widget.thread.commentUsers,
+              )
+            else if (replies == 2)
+              UserProfileImageStackOf2(
+                  commentUserProfilePic: widget.thread.commentUsers,
+                  isShowIcon: false)
+            else if (replies == 1)
+              ReplyUserProfileImage(
+                rightPadding: 0,
+                userProfileImagePath: widget.thread.commentUsers[0].profilePic,
+              )
+            else
+              SizedBox(),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ThreadReply(
+                                  text: 'Ad Flag Image',
+                                  imageUrl: 'assets/Country_flag/ao.png',
+                                )));
+                  },
+                  child: Text(
+                    "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} ${widget.thread.likeCount}  ${widget.thread.likeCount > 1 ? "likes" : "like"}",
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.tertiary,
+                        ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8)
+      ],
+    );
+  }
+}
+
+class UserProfileImageStackOf3 extends StatelessWidget {
+  List<CommentUser>? commenterProfilePics;
+  UserProfileImageStackOf3({super.key, this.commenterProfilePics});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 8),
+      height: 30,
+      width: 31,
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   );
                 },
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, top: 10),
-          child: getFooter(
-            isPost: false,
-            onLike: () async {
-              await ThreadServices()
-                  .toogleLikeThreads(threadId: widget.thread.id);
-            },
-            onComment: () {
-              Navigator.push(context,
-                  CupertinoPageRoute(builder: (context) => CommentPage()));
-            },
-            onSave: () {},
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 50, top: 10, bottom: 20),
-            child: TextButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ThreadReply()));
-              },
-              child: Text(
-                "467 replies ${widget.thread.likeCount}  ${widget.thread.likeCount > 1 ? "likes" : "like"}",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
+                commenterProfilePics![0].profilePic,
+                fit: BoxFit.cover,
+                height: 16,
+                width: 16,
               ),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            left: 0,
+            top: 10,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                commenterProfilePics![1].profilePic,
+                fit: BoxFit.cover,
+                height: 10.5,
+                width: 10.5,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 9.2,
+            top: 21,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                commenterProfilePics![2].profilePic,
+                fit: BoxFit.cover,
+                height: 8.5,
+                width: 8.5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -281,10 +612,10 @@ StatefulBuilder getFooter({
             children: [
               IconButton(
                 onPressed: () {
+                  onLike();
                   setState(() {
                     isLiked = !isLiked;
                   });
-                  onLike();
                 },
                 icon: Icon(
                   isLiked ? Ionicons.heart : Ionicons.heart_outline,

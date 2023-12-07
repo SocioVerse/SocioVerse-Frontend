@@ -1,35 +1,36 @@
 import 'dart:convert';
 
-import 'dart:convert';
-
-import 'dart:convert';
-
 class ThreadModel {
-  User user;
-  int likeCount;
   String id;
-  String userId;
   String content;
-  
   List<dynamic> images;
+  int likeCount;
   bool isPrivate;
   bool isBase;
   DateTime createdAt;
   DateTime updatedAt;
   int v;
+  String parentThread;
+  List<dynamic> userLikes;
+  List<CommentUser> commentUsers;
+  int commentCount;
+  User user;
 
   ThreadModel({
-    required this.user,
-    required this.likeCount,
     required this.id,
-    required this.userId,
     required this.content,
     required this.images,
+    required this.likeCount,
     required this.isPrivate,
     required this.isBase,
     required this.createdAt,
     required this.updatedAt,
     required this.v,
+    required this.parentThread,
+    required this.userLikes,
+    required this.commentUsers,
+    required this.commentCount,
+    required this.user,
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -38,31 +39,63 @@ class ThreadModel {
   String toRawJson() => json.encode(toJson());
 
   factory ThreadModel.fromJson(Map<String, dynamic> json) => ThreadModel(
-        user: User.fromJson(json["user"]),
-        likeCount: json["like_count"],
         id: json["_id"],
-        userId: json["user_id"],
         content: json["content"],
         images: List<dynamic>.from(json["images"].map((x) => x)),
+        likeCount: json["like_count"],
         isPrivate: json["is_private"],
         isBase: json["isBase"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
+        parentThread: json["parent_thread"],
+        userLikes: List<dynamic>.from(json["userLikes"].map((x) => x)),
+        commentUsers: List<CommentUser>.from(
+            json["commentUsers"].map((x) => CommentUser.fromJson(x))),
+        commentCount: json["comment_count"],
+        user: User.fromJson(json["user"]),
       );
 
   Map<String, dynamic> toJson() => {
-        "user": user.toJson(),
-        "like_count": likeCount,
         "_id": id,
-        "user_id": userId,
         "content": content,
         "images": List<dynamic>.from(images.map((x) => x)),
+        "like_count": likeCount,
         "is_private": isPrivate,
         "isBase": isBase,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
         "__v": v,
+        "parent_thread": parentThread,
+        "userLikes": List<dynamic>.from(userLikes.map((x) => x)),
+        "commentUsers": List<dynamic>.from(commentUsers.map((x) => x.toJson())),
+        "comment_count": commentCount,
+        "user": user.toJson(),
+      };
+}
+
+class CommentUser {
+  String id;
+  String profilePic;
+
+  CommentUser({
+    required this.id,
+    required this.profilePic,
+  });
+
+  factory CommentUser.fromRawJson(String str) =>
+      CommentUser.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory CommentUser.fromJson(Map<String, dynamic> json) => CommentUser(
+        id: json["_id"],
+        profilePic: json["profile_pic"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "_id": id,
+        "profile_pic": profilePic,
       };
 }
 
@@ -97,6 +130,7 @@ class User {
         "profile_pic": profilePic,
       };
 }
+
 
 class CreateThreadModel {
   String content;
