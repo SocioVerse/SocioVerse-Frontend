@@ -141,6 +141,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       isPasswordVisible
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
+                          color: Colors.white,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -174,8 +175,16 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       value: isChecked,
                       activeColor: Theme.of(context).colorScheme.primary,
                       checkColor: Theme.of(context).colorScheme.surface,
+                       fillColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.secondary),
+                  
+
                       shape: RoundedRectangleBorder(
+                        
                         borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(
+                          width: 2,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       onChanged: (value) {
                         setState(() {

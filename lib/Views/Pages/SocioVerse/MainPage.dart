@@ -51,7 +51,7 @@ class _MainPageState extends State<MainPage> {
           currentIndex: _selectedIndex,
           unselectedLabelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 10.5,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
                 height: 2,
               ),

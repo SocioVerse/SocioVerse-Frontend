@@ -124,10 +124,26 @@ class _ThreadLayoutState extends State<ThreadLayout> {
       _havereplies = false;
     } else {
       replies = widget.thread.commentUsers.length;
+      
+
     }
     super.initState();
   }
-
+   double updateDividerLength(String text, BuildContext context,int imageLength){
+    final textPainter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(fontSize: 16),
+        ),
+        textDirection: TextDirection.ltr,
+        maxLines: 100,
+      );
+      textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 80);
+      print(textPainter.computeLineMetrics().length.toString() + "cs");
+      final newLineCount = (textPainter.computeLineMetrics().length*10)+((imageLength/3).ceil()*100);
+      print(newLineCount);
+      return newLineCount.toDouble()+80;
+   }
   StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,
@@ -366,9 +382,15 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 50,
-            ),
+            Container(
+                                  margin: EdgeInsets.only(top: 10, left: 25),
+                                  height: updateDividerLength(widget.thread.content, context, widget.thread.images.length),
+                                  width: 2,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade700,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
             Flexible(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -457,6 +479,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         ),
         Row(
           children: [
+            
             if (replies == 3)
               UserProfileImageStackOf3(
                 commenterProfilePics: widget.thread.commentUsers,
@@ -466,9 +489,16 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   commentUserProfilePic: widget.thread.commentUsers,
                   isShowIcon: false)
             else if (replies == 1)
-              ReplyUserProfileImage(
-                rightPadding: 0,
-                userProfileImagePath: widget.thread.commentUsers[0].profilePic,
+              Row(
+                children: [
+                  SizedBox(
+              width: 20,
+            ),
+                  ReplyUserProfileImage(
+                    rightPadding: 0,
+                    userProfileImagePath: widget.thread.commentUsers[0].profilePic,
+                  ),
+                ],
               )
             else
               SizedBox(),
@@ -511,7 +541,7 @@ class UserProfileImageStackOf3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 8),
+      margin: EdgeInsets.only(left: 3),
       height: 30,
       width: 31,
       child: Stack(
@@ -895,11 +925,11 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
   List<ThreadModel> allThreads = [];
   @override
   void initState() {
-    fetchFollowingThraad();
+    fetchFollowingThread();
     super.initState();
   }
 
-  fetchFollowingThraad() async {
+  fetchFollowingThread() async {
     setState(() {
       threadFetched = false;
     });

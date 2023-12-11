@@ -141,12 +141,14 @@ class _NewThreadState extends State<NewThread> {
                   onPressed: () {
                     showDialog(
                         context: context,
-                        builder: ((context) {
+                        builder: ((ctx) {
                           return StatefulBuilder(
-                              builder: (context, innerSetState) {
+                              builder: (ctx, innerSetState) {
                             return AlertDialog(
                               backgroundColor:
                                   Theme.of(context).scaffoldBackgroundColor,
+                                  surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
+                                  
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -157,7 +159,13 @@ class _NewThreadState extends State<NewThread> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      Text('Create thread'),
+                                      Text('Create thread',
+                                          style: TextStyle(
+                                            fontSize: 18.5,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          )),
                                       const Spacer(),
                                       IconButton(
                                         onPressed: () {
@@ -180,7 +188,13 @@ class _NewThreadState extends State<NewThread> {
                               ),
                               content: Row(
                                 children: [
-                                  Text("Private thread"),
+                                  Text("Private thread",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      )),
                                   const Spacer(),
                                   Switch(
                                     value: _privateThread,
@@ -279,7 +293,12 @@ class _NewThreadState extends State<NewThread> {
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: Text('Cancel'),
+                                          child: Text('Cancel',
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                              )),
                                         ),
                                       ),
                                     ),
@@ -601,7 +620,6 @@ class _NewThreadState extends State<NewThread> {
                     },
                     child: ListTile(
                       contentPadding: const EdgeInsets.only(left: 19),
-                      minLeadingWidth: 25,
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: ClipOval(

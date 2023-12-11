@@ -1,12 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/postEditPage.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:video_player/video_player.dart';
 

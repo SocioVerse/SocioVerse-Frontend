@@ -286,221 +286,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
         });
   }
 
-  void isOwner() {
-    showModalBottomSheet(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        context: context,
-        builder: (context) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(
-                Icons.horizontal_rule_rounded,
-                size: 50,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              ListTile(
-                leading: const Icon(
-                  Ionicons.settings,
-                  color: Colors.white,
-                ),
-                title: Text(
-                  'Settings',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: ((context) => ProfileSettings())));
-                },
-              ),
-              ListTile(
-                leading: Icon(Ionicons.archive),
-                title: Text(
-                  'Archive',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Ionicons.bookmark_outline),
-                title: Text(
-                  'Saved',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Ionicons.heart),
-                title: Text(
-                  'Liked Post',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Ionicons.share),
-                title: Text(
-                  'Share this Profile',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {
-                  showModalBottomSheet(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 15.0, right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.horizontal_rule_rounded,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              textFieldBuilder(
-                                tcontroller: TextEditingController(),
-                                hintTexxt: "Write a message...",
-                                onChangedf: () {},
-                              ),
-                              const SizedBox(
-                                height: 20,
-                                child: Divider(
-                                  height: 10,
-                                ),
-                              ),
-                              textFieldBuilder(
-                                  tcontroller: TextEditingController(),
-                                  hintTexxt: "Search",
-                                  onChangedf: () {},
-                                  prefixxIcon: Icon(
-                                    Ionicons.search,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  )),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: 10,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        leading: CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          child: CircleAvatar(
-                                              radius: 28,
-                                              backgroundImage: AssetImage(
-                                                "assets/Country_flag/in.png",
-                                              )),
-                                        ),
-                                        title: Text(
-                                          "Fatima",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                fontSize: 16,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              ),
-                                        ),
-                                        subtitle: Text(
-                                          "Occupation",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 14,
-                                              ),
-                                        ),
-                                        trailing: MyEleButtonsmall(
-                                            title2: "Sent",
-                                            title: "Send",
-                                            onPressed: () {},
-                                            ctx: context),
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                },
-              ),
-              ListTile(
-                leading: new Icon(Ionicons.log_out_outline),
-                title: Text(
-                  'Log Out',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {
-                  AlertBoxes.acceptRejectAlertBox(
-                    context: context,
-                    title: "Log Out",
-                    content: Text(" Are you sure you want to log out?"),
-                    onAccept: () async {
-                      setStringIntoCache(
-                          SharedPreferenceString.accessToken, null);
-
-                      setBooleanIntoCache(
-                          SharedPreferenceString.isLoggedIn, false);
-
-                      setStringIntoCache(
-                          SharedPreferenceString.refreshToken, null);
-
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyApp()),
-                          (route) => false);
-                    },
-                    onReject: () {
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-            ],
-          );
-        });
-  }
+  
 
   bool _isExtended = true;
   bool _haveReplies = true;
@@ -655,7 +441,227 @@ class _UserProfilePageState extends State<UserProfilePage> {
       },
     );
   }
+void isOwner({required BuildContext context}) {
+    showModalBottomSheet(
+      
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.horizontal_rule_rounded,
+                size: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              ListTile(
+                leading: const Icon(
+                  Ionicons.settings,
+                  color: Colors.white,
+                ),
+                title: Text(
+                  'Settings',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: ((context) => ProfileSettings())));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Ionicons.archive, color: Colors.white,
+                ),
+                title: Text(
+                  'Archive',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading:const Icon(Ionicons.bookmark_outline ,color: Colors.white,
+                ),
+                title: Text(
+                  'Saved',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading:const  Icon(Ionicons.heart, color: Colors.white,
+                ),
+                title: Text(
+                  'Liked Post',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: const  Icon(Ionicons.share, color: Colors.white,
+                ),
+                title: Text(
+                  'Share this Profile',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  showModalBottomSheet(
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
+                      context: context,
+                      builder: (context) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 15.0, right: 15),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.horizontal_rule_rounded,
+                                size: 50,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              textFieldBuilder(
+                                tcontroller: TextEditingController(),
+                                hintTexxt: "Write a message...",
+                                onChangedf: () {},
+                              ),
+                              const SizedBox(
+                                height: 20,
+                                child: Divider(
+                                  height: 10,
+                                ),
+                              ),
+                              textFieldBuilder(
+                                  tcontroller: TextEditingController(),
+                                  hintTexxt: "Search",
+                                  onChangedf: () {},
+                                  prefixxIcon: Icon(
+                                    Ionicons.search,
+                                    size: 20,
+                                    color:
+                                        Theme.of(context).colorScheme.surface,
+                                  )),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Expanded(
+                                child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: 10,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        leading: CircleAvatar(
+                                          radius: 30,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                          child: CircleAvatar(
+                                              radius: 28,
+                                              backgroundImage: AssetImage(
+                                                "assets/Country_flag/in.png",
+                                              )),
+                                        ),
+                                        title: Text(
+                                          "Fatima",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                fontSize: 16,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary,
+                                              ),
+                                        ),
+                                        subtitle: Text(
+                                          "Occupation",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall!
+                                              .copyWith(
+                                                fontSize: 14,
+                                              ),
+                                        ),
+                                        trailing: MyEleButtonsmall(
+                                            title2: "Sent",
+                                            title: "Send",
+                                            onPressed: () {},
+                                            ctx: context),
+                                      );
+                                    }),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                },
+              ),
+              ListTile(
+                leading: const  Icon(Ionicons.log_out_outline, color: Colors.white,
+                ),
+                title: Text(
+                  'Log Out',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  AlertBoxes.acceptRejectAlertBox(
+                    context: context,
+                    title: "Log Out",
+                    
+                    content: Text(" Are you sure you want to log out?"),
+                    onAccept: () async {
+                      setStringIntoCache(
+                          SharedPreferenceString.accessToken, null);
 
+                      setBooleanIntoCache(
+                          SharedPreferenceString.isLoggedIn, false);
+
+                      setStringIntoCache(
+                          SharedPreferenceString.refreshToken, null);
+
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyApp()),
+                          (route) => false);
+                    },
+                    onReject: () {
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ],
+          );
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -683,7 +689,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       onPressed: () {
                         if (widget.owner == true) {
                           log("here ");
-                          isOwner();
+                          isOwner(
+                            context: context,
+                          );
                         } else {
                           isNotOwner();
                         }

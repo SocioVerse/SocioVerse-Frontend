@@ -22,12 +22,17 @@ class AlertBoxes {
                 borderRadius: BorderRadius.circular(10),
               ),
               actionsPadding: EdgeInsets.all(20),
+              surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
               title: Column(
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(title),
+                      Text(title,
+                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                fontSize: 20,
+                              )),
                       const Spacer(),
                       IconButton(
                         onPressed: () {
@@ -82,7 +87,10 @@ class AlertBoxes {
                           onPressed: () {
                             onReject();
                           },
-                          child: Text(rejectTitle ?? 'No'),
+                          child: Text(rejectTitle ?? 'No',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              )),
                         ),
                       ),
                     ),

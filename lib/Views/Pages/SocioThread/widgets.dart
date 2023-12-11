@@ -13,6 +13,7 @@ class UserProfileImageStackOf2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: const EdgeInsets.only(left: 5),
       height: 20,
       width: 41,
       child: Stack(
