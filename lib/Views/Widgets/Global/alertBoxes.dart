@@ -66,6 +66,7 @@ class AlertBoxes {
                                 style: BorderStyle.solid),
                           ),
                           onPressed: () {
+                            Navigator.pop(context);
                             onAccept();
                           },
                           child: Text(
@@ -85,7 +86,7 @@ class AlertBoxes {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            onReject();
+                            Navigator.pop(context);
                           },
                           child: Text(rejectTitle ?? 'No',
                               style: TextStyle(

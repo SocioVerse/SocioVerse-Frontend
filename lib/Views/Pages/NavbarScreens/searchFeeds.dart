@@ -56,6 +56,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5.0),
                 child: ChoiceChip(
+                  checkmarkColor: Theme.of(context).colorScheme.onPrimary,
                   label: Text(
                     sections[index],
                     style: GoogleFonts.openSans(
@@ -135,6 +136,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     return Column(
       children: [
         DefaultTabController(
+
             length: 4,
             child: Column(
               children: [
@@ -154,6 +156,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                           ],
                         ),
                         TabBar(
+                          
                           labelColor: Theme.of(context).colorScheme.primary,
                           unselectedLabelColor:
                               Theme.of(context).colorScheme.tertiary,
@@ -163,28 +166,32 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                               getQueryUser();
                             }
                           },
-                          tabs: const [
+                          tabs:  [
                             Tab(
                               child: Icon(
                                 Ionicons.person,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
                                 Ionicons.grid_outline,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
                                 Icons.tag,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
                                 Ionicons.location,
+                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             )
@@ -197,11 +204,9 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 SizedBox(
                   height: 20,
                 ),
-                AutoScaleTabBarView(
-                  children: [
-                    isUserFetched == false
+               searchText.text.isNotEmpty && isUserFetched == false
                         ? Center(child: CircularProgressIndicator())
-                        : ListView.builder(
+                        : searchText.text.isNotEmpty ?ListView.builder(
                             shrinkWrap: true,
                             itemCount: searchedUser.length,
                             physics: NeverScrollableScrollPhysics(),
@@ -229,7 +234,10 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                                 ),
                               ]);
                             },
-                          ),
+                          ):
+                          AutoScaleTabBarView(
+                  children: [
+                    
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: GridView.builder(
@@ -443,7 +451,8 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                     } else if (searchText.text.trim().length == 0)
                       setState(() {});
                   },
-                  prefixxIcon: Icon(Ionicons.search),
+                  prefixxIcon: Icon(Ionicons.search,
+                  color: Theme.of(context).colorScheme.onPrimary,),
                 ),
               ),
               SizedBox(

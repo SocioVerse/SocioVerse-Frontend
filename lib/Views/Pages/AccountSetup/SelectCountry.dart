@@ -1,10 +1,12 @@
 import 'dart:developer';
 
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Utils/CountryList.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 
 import '../../Widgets/buttons.dart';
 
@@ -40,10 +42,12 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => FillProfilePage(
-                        signupUser: widget.signupUser,
-                           
-                          )));
+                      builder: (context) => LoadingOverlayAlt(
+                        child: FillProfilePage(
+                          signupUser: widget.signupUser,
+                             
+                            ),
+                      )));
             },
             ctx: context),
       ),

@@ -93,7 +93,8 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Ionicons.logo_google),
+                    Icon(Ionicons.logo_google,
+                        color: Theme.of(context).colorScheme.onPrimary),
                     SizedBox(
                       width: 10,
                     ),
@@ -129,7 +130,8 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Ionicons.logo_apple),
+                    Icon(Ionicons.logo_apple,
+                        color: Theme.of(context).colorScheme.onPrimary),
                     SizedBox(
                       width: 10,
                     ),

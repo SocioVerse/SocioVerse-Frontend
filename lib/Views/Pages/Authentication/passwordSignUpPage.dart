@@ -9,6 +9,7 @@ import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
+import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/services/authentication_services.dart';
@@ -140,6 +141,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       isPasswordVisible
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
+                          color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -173,8 +175,16 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       value: isChecked,
                       activeColor: Theme.of(context).colorScheme.primary,
                       checkColor: Theme.of(context).colorScheme.surface,
+                       fillColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.secondary),
+                  
+
                       shape: RoundedRectangleBorder(
+                        
                         borderRadius: BorderRadius.circular(5),
+                        side: BorderSide(
+                          width: 2,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -203,9 +213,9 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                     ),
                   ),
                   onPressed: () async {
-                    bool isExists = await AuthServices()
+                    ApiResponse response = await AuthServices()
                         .isEmailExists(email: emailController.text.trim());
-                    if (!isExists) {
+                    if (response.success == true) {
                       Navigator.push(
                           context,
                           CupertinoPageRoute(
@@ -217,7 +227,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                                   )));
                     } else {
                       Fluttertoast.showToast(
-                          msg: "Email already exists",
+                          msg: response.message!,
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
@@ -293,8 +303,9 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         ),
                       ),
                       onPressed: () {},
-                      child: Icon(
+                      child:const Icon(
                         Ionicons.logo_google,
+                        color: Colors.white,
                         size: 35,
                       ),
                     ),
@@ -312,6 +323,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       onPressed: () {},
                       child: Icon(
                         Ionicons.logo_apple,
+                        color: Colors.white,
                         size: 35,
                       ),
                     ),

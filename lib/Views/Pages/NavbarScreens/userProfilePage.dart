@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'package:socioverse/Views/Pages/SocioThread/newThread.dart';
+import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
 
 import 'package:socioverse/Views/Pages/SettingsPages/settings.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
@@ -646,14 +646,13 @@ void isOwner({required BuildContext context}) {
 
                       setStringIntoCache(
                           SharedPreferenceString.refreshToken, null);
-
+  Navigator.pop(context);
                       Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(builder: (context) => MyApp()),
                           (route) => false);
                     },
                     onReject: () {
-                      Navigator.pop(context);
                     },
                   );
                 },

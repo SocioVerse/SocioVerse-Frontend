@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -36,6 +37,7 @@ class ImagePickerFunctionsHelper {
       );
       print(croppedFile?.path.toString());
       if (croppedFile != null) {
+        log(croppedFile.path.toString());
         return File(croppedFile.path);
       } else {
         return null;
@@ -45,7 +47,9 @@ class ImagePickerFunctionsHelper {
 
   Future<List<File>?> pickMultipleImage(BuildContext context) async {
     print("Image Uploadinng.....");
-    final pickedFile = await picker.pickMultiImage();
+    final pickedFile = await picker.pickMultiImage(
+      
+    );
 
     if (pickedFile != null) {
       List<File> croppedFileList = [];

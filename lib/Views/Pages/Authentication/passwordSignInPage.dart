@@ -7,6 +7,7 @@ import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/Authentication/forgotPassword.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
@@ -219,24 +220,20 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       );
                       return;
                     } else {
-                      showDialog(
-                          context: context,
-                          builder: (_) => const SpinKitWave(
-                              color: Colors.white,
-                              type: SpinKitWaveType.center));
+                      LoadingOverlayAlt.of(context).show();
                       ApiResponse? response = await AuthServices().userLogin(
                         loginUser: LoginUser(
                             usernameAndEmail:
                                 userNameOrEmailController.text.trim(),
                             password: passwordController.text.trim()),
                       );
+                            LoadingOverlayAlt.of(context).hide();
                       if (response!.success == true && context.mounted) {
                         Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: (context) => MainPage()),
-                            (route) => route.isFirst);
+                            (route) => false);
                       } else {
-                        Navigator.pop(context);
                         Fluttertoast.showToast(
                           msg: response.message.toString(),
                           toastLength: Toast.LENGTH_SHORT,
@@ -332,6 +329,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       onPressed: () {},
                       child: Icon(
                         Ionicons.logo_google,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         size: 35,
                       ),
                     ),
@@ -349,6 +347,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       onPressed: () {},
                       child: Icon(
                         Ionicons.logo_apple,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         size: 35,
                       ),
                     ),
@@ -370,7 +369,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => PasswordSignUpPage()));
+                                builder: (context) => LoadingOverlayAlt(child: PasswordSignUpPage())));
                       },
                       child: Text(
                         "Sign up",

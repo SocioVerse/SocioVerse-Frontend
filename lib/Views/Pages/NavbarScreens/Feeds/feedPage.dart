@@ -3,9 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/inboxPage.dart';
 
-import '../../Widgets/feeds_widget.dart';
+import '../../../Widgets/feeds_widget.dart';
 
 class FeedsPage extends StatefulWidget {
   const FeedsPage({super.key});
@@ -96,14 +97,14 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                         const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           width: 10,
                         ),
-                        SizedBox(
+                        const SizedBox(
                             width: double.infinity,
                             height: 150,
                             child: StoriesScroller()),
-                        _enableThread ? ThreadViewBuilder() : PostViewBuilder(),
+                        _enableThread ?  const ThreadViewBuilder() :const PostViewBuilder(),
                       ],
                     ),
                   ),

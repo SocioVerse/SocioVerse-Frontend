@@ -9,6 +9,7 @@ import 'package:pinput/pinput.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
+import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
@@ -16,21 +17,7 @@ import 'package:socioverse/services/thread_services.dart';
 import 'package:socioverse/services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
-class ThreadData {
-  int line;
-  late bool isSelected;
-  late TextEditingController textEditingController;
-  double verticalDividerLength;
-  List<String> images;
-  bool isUploading = false;
 
-  ThreadData(
-      {required this.line,
-      required this.isSelected,
-      required this.textEditingController,
-      required this.verticalDividerLength,
-      required this.images});
-}
 
 class NewThread extends StatefulWidget {
   const NewThread({super.key});
@@ -44,7 +31,6 @@ class _NewThreadState extends State<NewThread> {
   bool _showAddThread = false;
   List<ThreadData> threads = [];
   List<FocusNode> focusNodes = [];
-  bool _privateThread = false;
   List<UserModel> user = [];
   @override
   void initState() {
@@ -142,171 +128,9 @@ class _NewThreadState extends State<NewThread> {
                     showDialog(
                         context: context,
                         builder: ((ctx) {
-                          return StatefulBuilder(
-                              builder: (ctx, innerSetState) {
-                            return AlertDialog(
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                                  surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
-                                  
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              actionsPadding: EdgeInsets.all(20),
-                              title: Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text('Create thread',
-                                          style: TextStyle(
-                                            fontSize: 18.5,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          )),
-                                      const Spacer(),
-                                      IconButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        icon: Icon(
-                                          Ionicons.close,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Divider(
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ],
-                              ),
-                              content: Row(
-                                children: [
-                                  Text("Private thread",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary,
-                                      )),
-                                  const Spacer(),
-                                  Switch(
-                                    value: _privateThread,
-                                    onChanged: (value) {
-                                      innerSetState(() {
-                                        _privateThread = value;
-                                      });
-                                    },
-                                    activeTrackColor:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    activeColor:
-                                        Theme.of(context).colorScheme.primary,
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 40,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Theme.of(context)
-                                                .scaffoldBackgroundColor,
-                                            side: BorderSide(
-                                                width: 1,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                style: BorderStyle.solid),
-                                          ),
-                                          onPressed: () async {
-                                            CreateThreadModel
-                                                createThreadModel =
-                                                CreateThreadModel(
-                                              content: threads[0]
-                                                  .textEditingController
-                                                  .text,
-                                              images: threads[0].images,
-                                              isPrivate: _privateThread,
-                                              isBase: true,
-                                              comments: [],
-                                            );
-                                            for (int i = 1;
-                                                i < threads.length;
-                                                i++) {
-                                              final thread = threads[i];
-                                              log(thread
-                                                  .textEditingController.text
-                                                  .toString());
-                                              createThreadModel.comments
-                                                  .add(CommentModel(
-                                                content: thread
-                                                    .textEditingController.text,
-                                                images: thread.images,
-                                              ));
-                                            }
-                                            showDialog(
-                                                context: context,
-                                                builder: (_) =>
-                                                    const SpinKitWave(
-                                                        color: Colors.white,
-                                                        type: SpinKitWaveType
-                                                            .center));
-                                            await ThreadServices().createThread(
-                                                createThreadModel:
-                                                    createThreadModel);
-                                            Navigator.pop(context);
-                                            Navigator.pushAndRemoveUntil(
-                                              context,
-                                              CupertinoPageRoute(
-                                                  builder: (context) =>
-                                                      MainPage()),
-                                              (route) => route.isFirst,
-                                            );
-                                          },
-                                          child: Text(
-                                            'Post',
-                                            style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: 40,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text('Cancel',
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              )),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
-                          });
+                          return CreateNewThreadAlertBox(
+                              threads: threads
+                          );
                         }));
                   },
                   icon: Icon(
@@ -588,7 +412,9 @@ class _NewThreadState extends State<NewThread> {
                                                       .uploadFile(
                                                           images[i].path,
                                                           "${Uuid().v4()}",
-                                                          "${user[0].email}/threads");
+                                                          "${user[0].email}/threads",
+                                                          FirebaseHelper
+                                                              .Image);
                                                   thread.images.add(url);
                                                 }
                                               }

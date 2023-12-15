@@ -3,10 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 ThemeData theme() {
   return ThemeData(
-    bottomSheetTheme: BottomSheetThemeData(
+    
+    bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: Color(0xff1A1B22),
       surfaceTintColor: Color(0xff1A1B22),
-      shape: const RoundedRectangleBorder(
+      shape:  RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
         ),
