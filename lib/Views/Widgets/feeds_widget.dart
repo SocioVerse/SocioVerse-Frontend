@@ -1,5 +1,7 @@
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'dart:developer';
+
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
@@ -7,10 +9,10 @@ import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 import 'buttons.dart';
 
@@ -105,159 +107,93 @@ class _StoriesScrollerState extends State<StoriesScroller> {
   }
 }
 
-class ThreadLayout extends StatefulWidget {
-  ThreadModel thread;
-  ThreadLayout({super.key, required this.thread});
 
-  @override
-  State<ThreadLayout> createState() => _ThreadLayoutState();
-}
 
-class _ThreadLayoutState extends State<ThreadLayout> {
+class UserProfileImageStackOf3 extends StatelessWidget {
+  List<CommentUser>? commenterProfilePics;
+  UserProfileImageStackOf3({super.key, this.commenterProfilePics});
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Divider(
-          height: 10,
-          color: Theme.of(context).colorScheme.tertiary,
-        ),
-        ListTile(
-          contentPadding: EdgeInsets.all(0),
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              height: 40,
-              width: 40,
-              child: ClipOval(
-                child: Image.network(
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                  widget.thread.user.profilePic,
-                  height: 35,
-                  width: 35,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          title: Text(
-            widget.thread.user.username,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onPrimary),
-          ),
-          subtitle: Text(
-            widget.thread.user.occupation,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          trailing: IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Ionicons.ellipsis_horizontal_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.thread.content,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              GridView.builder(
-                shrinkWrap: true,
-                itemCount: widget.thread.images.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                ),
-                itemBuilder: (context, index) {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: Image.network(
-                      widget.thread.images[index],
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      fit: BoxFit.cover,
+    return Container(
+      margin: EdgeInsets.only(left: 3),
+      height: 30,
+      width: 31,
+      child: Stack(
+        children: [
+          Positioned(
+            right: 0,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   );
                 },
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 50, top: 10),
-          child: getFooter(
-            isPost: false,
-            onLike: () async {
-              await ThreadServices()
-                  .toogleLikeThreads(threadId: widget.thread.id);
-            },
-            onComment: () {
-              Navigator.push(context,
-                  CupertinoPageRoute(builder: (context) => CommentPage()));
-            },
-            onSave: () {},
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 50, top: 10, bottom: 20),
-            child: TextButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ThreadReply()));
-              },
-              child: Text(
-                "467 replies ${widget.thread.likeCount}  ${widget.thread.likeCount > 1 ? "likes" : "like"}",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
+                commenterProfilePics![0].profilePic,
+                fit: BoxFit.cover,
+                height: 16,
+                width: 16,
               ),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            left: 0,
+            top: 10,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                commenterProfilePics![1].profilePic,
+                fit: BoxFit.cover,
+                height: 10.5,
+                width: 10.5,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 9.2,
+            top: 21,
+            child: ClipOval(
+              child: Image.network(
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                    ),
+                  );
+                },
+                commenterProfilePics![2].profilePic,
+                fit: BoxFit.cover,
+                height: 8.5,
+                width: 8.5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -281,10 +217,10 @@ StatefulBuilder getFooter({
             children: [
               IconButton(
                 onPressed: () {
+                  onLike();
                   setState(() {
                     isLiked = !isLiked;
                   });
-                  onLike();
                 },
                 icon: Icon(
                   isLiked ? Ionicons.heart : Ionicons.heart_outline,
@@ -552,52 +488,6 @@ class _PostLayoutState extends State<PostLayout> {
   }
 }
 
-class ThreadViewBuilder extends StatefulWidget {
-  const ThreadViewBuilder({super.key});
-
-  @override
-  State<ThreadViewBuilder> createState() => _ThreadViewBuilderState();
-}
-
-class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
-  bool threadFetched = false;
-  List<ThreadModel> allThreads = [];
-  @override
-  void initState() {
-    fetchFollowingThraad();
-    super.initState();
-  }
-
-  fetchFollowingThraad() async {
-    setState(() {
-      threadFetched = false;
-    });
-    allThreads = await ThreadServices().getFollowingThreads();
-    setState(() {
-      threadFetched = true;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return threadFetched
-        ? ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: allThreads.length,
-            itemBuilder: (context, index) {
-              return ThreadLayout(
-                thread: allThreads[index],
-              );
-            },
-          )
-        : LinearProgressIndicator(
-            color: Theme.of(context).colorScheme.primary,
-            backgroundColor: Colors.grey.shade700,
-            minHeight: 2,
-          );
-  }
-}
 
 class PostViewBuilder extends StatefulWidget {
   const PostViewBuilder({super.key});

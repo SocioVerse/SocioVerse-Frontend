@@ -12,13 +12,13 @@ import 'package:socioverse/helpers/api_constants.dart';
 
 class AuthServices {
   final ApiHelper _helper = ApiHelper();
-  Future<bool> isEmailExists({required String email}) async {
+  Future<ApiResponse> isEmailExists({required String email}) async {
     ApiResponse response = await _helper.get(
       ApiStringConstants.isEmailExists,
       querryParam: {"email": email},
       isPublic: true,
     );
-    return response.data["email_exists"];
+    return response;
   }
 
   Future<ApiResponse?> userSignUp({required SignupUser signupUser}) async {

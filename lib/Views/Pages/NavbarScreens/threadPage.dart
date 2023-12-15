@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/feedPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/inboxPage.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 

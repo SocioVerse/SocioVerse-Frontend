@@ -51,6 +51,8 @@ class SignupUser {
         "country": country,
         "dob": dob!.toIso8601String(),
         "profile_pic": profilePic,
+        "face_image_dataset"  : faceImageDataset,
+
       };
 }
 
