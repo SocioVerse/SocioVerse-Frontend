@@ -262,4 +262,40 @@ class ApiHelper {
 
     return _response;
   }
+  Future<ApiResponse> delete(String path, {dynamic querryParam}) async {
+  try {
+    Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+    String token = await getStringFromCache(SharedPreferenceString.accessToken);
+    Map<String, String>? _headers;
+    _headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json'
+    };
+    var response = await http.delete(uri, 
+    body: jsonEncode(querryParam),
+    
+    headers: _headers);
+
+    if (response.statusCode == 401) {
+      String updatedToken = await RefreshToken().updateToken();
+
+      response = await http.delete(
+        uri,
+        body: jsonEncode(querryParam),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: "Bearer $updatedToken"
+        },
+      );
+
+      return _returnResponse(response, uri, querryParam);
+    } else {
+      return _returnResponse(response, uri, querryParam);
+    }
+  } catch (e) {
+    // Handle error appropriately or return an error response
+    rethrow; // Replace with appropriate error handling
+  }
+}
+
 }

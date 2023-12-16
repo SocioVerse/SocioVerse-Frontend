@@ -1,8 +1,15 @@
 import 'dart:developer';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Followers/followerPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Following/followingPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
 
 import 'package:socioverse/Views/Pages/SettingsPages/settings.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
@@ -10,7 +17,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
-import '../../Widgets/buttons.dart';
+import '../../../Widgets/buttons.dart';
 
 class UserProfilePage extends StatefulWidget {
   bool? owner;
@@ -21,30 +28,60 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
+
+  TextEditingController bioController = TextEditingController();
+
+   UserProfileDetailsModel? userProfileDetailsModel;
+  bool isLoading = false;
+  @override
+  void initState() {
+    getUserProfileDetails();
+    super.initState();
+  }
+  getUserProfileDetails() async {
+    setState(() {
+      isLoading = true;
+    });
+    userProfileDetailsModel = await UserProfileDetailsServices().fetchUserProfileDetails(null);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+
+
+
+
   Widget modifiedContainer(
-      {required String upperText, required String lowerText}) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            upperText,
-            style: Theme.of(context)
-                .textTheme
-                .bodyLarge!
-                .copyWith(fontSize: 25, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Text(
-            lowerText,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 13,
-                ),
-          ),
-        ],
+      {required String upperText, required String lowerText,
+      required Function onTap}) {
+    return GestureDetector(
+      onTap: () {
+        onTap();
+      },
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              upperText,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge!
+                  .copyWith(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              lowerText,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 13,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -664,7 +701,14 @@ void isOwner({required BuildContext context}) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: 
+      isLoading
+          ? const Center(
+              child: SpinKitWave(
+                  color: Colors.white, type: SpinKitWaveType.center),
+            )
+          :
+      SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Column(
@@ -674,7 +718,7 @@ void isOwner({required BuildContext context}) {
                 alignment: Alignment.topCenter,
                 child: AppBar(
                   title: Text(
-                    "amj24",
+                    userProfileDetailsModel!.user.username,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.w600,
                           fontSize: 23,
@@ -715,11 +759,11 @@ void isOwner({required BuildContext context}) {
                       radius: 75,
                       backgroundColor:
                           Theme.of(context).colorScheme.onBackground,
-                      child: Icon(
-                        Ionicons.person,
-                        color: Theme.of(context).colorScheme.background,
-                        size: 50,
-                      ),
+                      child: CircularNetworkImageWithoutSize(
+  imageUrl: userProfileDetailsModel!.user.profilePic,
+  fit: BoxFit.cover,
+),
+
                     ),
                     widget.owner == true
                         ? Positioned(
@@ -746,7 +790,7 @@ void isOwner({required BuildContext context}) {
                 height: 20,
               ),
               Text(
-                "Kunal Jain",
+                userProfileDetailsModel!.user.name,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 26,
@@ -756,7 +800,7 @@ void isOwner({required BuildContext context}) {
                 height: 10,
               ),
               Text(
-                "occupation",
+                userProfileDetailsModel!.user.occupation,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 18,
@@ -765,27 +809,99 @@ void isOwner({required BuildContext context}) {
               SizedBox(
                 height: 20,
               ),
-              Text(
-                "Officia sit culpa aute magna occaecat in. Eiusmod tempor non ex in deserunt proident cillum nulla qui elit. Officia irure magna sunt officia id mollit qui elit consequat. Excepteur ea duis pariatur esse eiusmod ex sunt deserunt tempor esse. Sit anim anim esse sint magna do nulla quis non pariatur mollit eiusmod.",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
+              userProfileDetailsModel!.user.bio == null 
+                  ? widget.owner != true ? const SizedBox.shrink():TextButton(
+        onPressed: () {
+          AlertBoxes.acceptRejectAlertBox(
+              context: context,
+              title: "Add Bio",
+              onAccept: () async {
+                if(bioController.text.trim()!="") {
+                  await UserProfileDetailsServices().addBio( bioController.text);
+                  setState(() {
+                    userProfileDetailsModel!.user.bio = bioController.text;
+                  });
+                  
+                }
+              },
+              onReject: () {},
+              content: SizedBox(
+                width: 100,
+
+                child: TextFormField(
+                  controller: bioController,
+                  maxLines: 5,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 13,
+                      ),
+                  
+                  decoration: InputDecoration(
+                    hintText: "Write your bio here...",
+                    hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 13,
+                        ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
                     ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ),
+                    focusColor: Theme.of(context).colorScheme.primary,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(
-                height: 20,
+              acceptTitle: "Add",
+              rejectTitle: "Cancel");
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Ionicons.add_circle,
+              color: Theme.of(context).colorScheme.primary,
+              size: 22,
+            ),
+            SizedBox(
+              width: 7,
+            ),
+            Text("Add Bio",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary))
+          ],
+        ))
+                  :
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ExpandableTextWidget(text: userProfileDetailsModel!.user.bio!,
+                maxLines: 3,
+                ),
               ),
-              Text(
-                "www.amj24.com",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                    color: Colors.blue),
-              ),
-              SizedBox(
+              // SizedBox(
+              //   height: 20,
+              // ),
+              // Text(
+              //   "www.amj24.com",
+              //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+              //       fontWeight: FontWeight.w600,
+              //       fontSize: 18,
+              //       color: Colors.blue),
+              // ),
+              const SizedBox(
                 height: 40,
               ),
               SizedBox(
@@ -794,8 +910,10 @@ void isOwner({required BuildContext context}) {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     modifiedContainer(
-                      upperText: "267",
-                      lowerText: "Posts",
+                      onTap: (){
+                      },
+                      upperText: userProfileDetailsModel!.user.postCount.toString(),
+                      lowerText: "Post${userProfileDetailsModel!.user.postCount>1?"s":""}",
                     ),
                     VerticalDivider(
                       color: Theme.of(context).colorScheme.tertiary,
@@ -803,8 +921,12 @@ void isOwner({required BuildContext context}) {
                       width: 30,
                     ),
                     modifiedContainer(
-                      upperText: "24,274",
-                      lowerText: "Followers",
+
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowersPage()));
+                      },
+                      upperText: userProfileDetailsModel!.user.followersCount.toString(),
+                      lowerText: "Follower${userProfileDetailsModel!.user.followersCount>1?"s":""}",
                     ),
                     VerticalDivider(
                       color: Theme.of(context).colorScheme.tertiary,
@@ -812,8 +934,11 @@ void isOwner({required BuildContext context}) {
                       width: 30,
                     ),
                     modifiedContainer(
-                      upperText: "237",
-                      lowerText: "Following",
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowingPage()));
+                      },
+                      upperText: userProfileDetailsModel!.user.followingCount.toString(),
+                      lowerText: "Following${userProfileDetailsModel!.user.followingCount>1?"s":""}",
                     )
                   ],
                 ),
@@ -885,7 +1010,27 @@ void isOwner({required BuildContext context}) {
                         unselectedLabelColor:
                             Theme.of(context).colorScheme.onPrimary,
                         indicatorColor: Theme.of(context).colorScheme.primary,
+                        automaticIndicatorColorAdjustment: true,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorWeight: 3,
+                        dividerColor: Theme.of(context).colorScheme.onPrimary,
+
                         tabs: const [
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Ionicons.text,
+                                  size: 20,
+                                ),
+                                SizedBox(
+                                    width:
+                                        5), // Add spacing between icon and text
+                                Text("Threads"),
+                              ],
+                            ),
+                          ),
                           Tab(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -906,28 +1051,13 @@ void isOwner({required BuildContext context}) {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Ionicons.people_circle_outline,
+                                  Ionicons.repeat_outline,
                                   size: 20,
                                 ),
                                 SizedBox(
                                     width:
                                         5), // Add spacing between icon and text
-                                Text("Tag"),
-                              ],
-                            ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Ionicons.people_circle_outline,
-                                  size: 20,
-                                ),
-                                SizedBox(
-                                    width:
-                                        5), // Add spacing between icon and text
-                                Text("Tag"),
+                                Text("Reposted"),
                               ],
                             ),
                           ),
@@ -935,291 +1065,11 @@ void isOwner({required BuildContext context}) {
                       ),
                       AutoScaleTabBarView(
                         children: [
-                          ListView.builder(
-                            itemCount: 4,
-                            shrinkWrap: true,
-                            physics:
-                                NeverScrollableScrollPhysics(), // Disable inner ListView scrolling
-                            itemBuilder: (context, index) {
-                              return Column(
-                                children: [
-                                  Column(
-                                    children: [
-                                      Divider(thickness: 0.5),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 5),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Column(
-                                              children: [
-                                                Stack(
-                                                  children: [
-                                                    ClipOval(
-                                                      child: Image.asset(
-                                                        'assets/Country_flag/ad.png',
-                                                        height: 35,
-                                                        width: 35,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      right: 0,
-                                                      bottom: 0,
-                                                      child: Container(
-                                                        height: 16,
-                                                        width: 16,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          border: Border.all(
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                        child: Icon(
-                                                          Icons.add,
-                                                          size: 15,
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Container(
-                                                  margin: EdgeInsets.symmetric(
-                                                      vertical: 10),
-                                                  height: 38,
-                                                  width: 2,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade700,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            3),
-                                                  ),
-                                                ),
-                                                _haveReplies
-                                                    ? GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            _isExtended =
-                                                                !_isExtended;
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          height: 20,
-                                                          width: 41,
-                                                          child: Stack(
-                                                            children: [
-                                                              Positioned(
-                                                                right: 20.5,
-                                                                child:
-                                                                    Container(
-                                                                  height: 20,
-                                                                  width: 20,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                    border:
-                                                                        Border
-                                                                            .all(
-                                                                      color: Colors
-                                                                          .black87,
-                                                                      width: 2,
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      ClipOval(
-                                                                    child: Image
-                                                                        .asset(
-                                                                      'assets/Country_flag/ad.png',
-                                                                      fit: BoxFit
-                                                                          .fill,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Positioned(
-                                                                right: 10.5,
-                                                                child:
-                                                                    Container(
-                                                                  height: 20,
-                                                                  width: 20,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                    border:
-                                                                        Border
-                                                                            .all(
-                                                                      width: 2,
-                                                                      color: Colors
-                                                                          .black87,
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      ClipOval(
-                                                                    child: Image
-                                                                        .asset(
-                                                                      'assets/Country_flag/ad.png',
-                                                                      fit: BoxFit
-                                                                          .fill,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              Positioned(
-                                                                right: 0,
-                                                                child:
-                                                                    Container(
-                                                                  height: 20,
-                                                                  width: 20,
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                    border:
-                                                                        Border
-                                                                            .all(
-                                                                      width: 2,
-                                                                      color: Colors
-                                                                          .black87,
-                                                                    ),
-                                                                  ),
-                                                                  child: Icon(
-                                                                    Icons
-                                                                        .arrow_drop_down,
-                                                                    color: Colors
-                                                                        .black,
-                                                                    size: 18.5,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      )
-                                                    : SizedBox(height: 0),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 10),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width -
-                                                            81,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Text(
-                                                          'lepan1m',
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          child: Row(
-                                                            children: [
-                                                              Text('41 m'),
-                                                              SizedBox(
-                                                                  width: 10),
-                                                              Icon(Icons
-                                                                  .more_horiz),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 3),
-                                                  Text('Nice Flag'),
-                                                  SizedBox(height: 13),
-                                                  Container(
-                                                    width: 135,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Icon(
-                                                          Icons
-                                                              .favorite_border_rounded,
-                                                          size: 23,
-                                                        ),
-                                                        Icon(
-                                                          Icons
-                                                              .mode_comment_outlined,
-                                                          size: 23,
-                                                        ),
-                                                        Icon(
-                                                          Icons.reply_all_sharp,
-                                                          size: 23,
-                                                        ),
-                                                        Icon(
-                                                          Icons.share,
-                                                          size: 23,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 15),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        '2 replies ',
-                                                        style: TextStyle(
-                                                          color: Colors
-                                                              .grey.shade600,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        '• 78 likes',
-                                                        style: TextStyle(
-                                                          color: Colors
-                                                              .grey.shade600,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      if (_isExtended)
-                                        Container(
-                                            width: MediaQuery.of(context)
-                                                .size
-                                                .width,
-                                            child: buildExtendedReplies()),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
+                          ThreadViewBuilder(
+                            allThreads: userProfileDetailsModel!.threadsWithUserDetails,
+                          
+                          )
+                          ,
                           GridView.builder(
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,

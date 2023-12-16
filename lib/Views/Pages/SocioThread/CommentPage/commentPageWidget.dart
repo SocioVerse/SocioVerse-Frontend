@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/services/thread_services.dart';
@@ -230,26 +231,11 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
             child: SizedBox(
               height: 40,
               width: 40,
-              child: ClipOval(
-                child: Image.network(
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                  widget.thread.user.profilePic,
-                  height: 35,
-                  width: 35,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              child: CircularNetworkImageWithLoading(
+  imageUrl: widget.thread.user.profilePic,
+  height: 35,
+  width:35,
+),
             ),
           ),
           title: Text(
@@ -305,30 +291,12 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
                           mainAxisSpacing: 5,
                         ),
                         itemBuilder: (context, index) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(5),
-                            child: Image.network(
-                              widget.thread.images[index],
-                              loadingBuilder: (BuildContext context,
-                                  Widget child,
-                                  ImageChunkEvent? loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                            : null,
-                                  ),
-                                );
-                              },
-                              fit: BoxFit.cover,
-                            ),
-                          );
+                          return RoundedNetworkImageWithLoading(
+  imageUrl: widget.thread.images[index],
+  borderRadius: 5, // Set the desired border radius
+  fit: BoxFit.cover,
+);
+
                         },
                       ),
                     ],

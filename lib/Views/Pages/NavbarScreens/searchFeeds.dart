@@ -6,6 +6,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/main.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
 import 'package:socioverse/services/search_bar_services.dart';
 
@@ -136,7 +138,6 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     return Column(
       children: [
         DefaultTabController(
-
             length: 4,
             child: Column(
               children: [
@@ -156,35 +157,35 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                           ],
                         ),
                         TabBar(
-                          
                           labelColor: Theme.of(context).colorScheme.primary,
-                          unselectedLabelColor:
-                              Theme.of(context).colorScheme.tertiary,
-                          indicatorColor: Theme.of(context).colorScheme.primary,
+                        unselectedLabelColor:
+                            Theme.of(context).colorScheme.onPrimary,
+                        indicatorColor: Theme.of(context).colorScheme.primary,
+                        automaticIndicatorColorAdjustment: true,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        indicatorWeight: 3,
+                        dividerColor: Theme.of(context).colorScheme.onPrimary,
                           onTap: (value) {
                             if (value == 0) {
                               getQueryUser();
                             }
                           },
-                          tabs:  [
+                          tabs: [
                             Tab(
                               child: Icon(
                                 Ionicons.person,
-                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
                                 Ionicons.grid_outline,
-                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
                             Tab(
                               child: Icon(
                                 Icons.tag,
-                                color: Theme.of(context).colorScheme.onPrimary,
                                 size: 20,
                               ),
                             ),
@@ -204,9 +205,20 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 SizedBox(
                   height: 20,
                 ),
-               searchText.text.isNotEmpty && isUserFetched == false
-                        ? Center(child: CircularProgressIndicator())
-                        : searchText.text.isNotEmpty ?ListView.builder(
+                
+                         AutoScaleTabBarView(
+                            children: [
+                              searchText.text.isNotEmpty && isUserFetched == false
+                    ? SizedBox(
+                        height: MyApp.height!/1.5,
+                      child: Center(
+                        child: SpinKitThreeBounce(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: 20,
+                        ),
+                      ),
+                    )
+                    : ListView.builder(
                             shrinkWrap: true,
                             itemCount: searchedUser.length,
                             physics: NeverScrollableScrollPhysics(),
@@ -214,90 +226,86 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                               return Column(children: [
                                 personListTile(
                                     user: searchedUser[index],
-                                    ttl1:
-                                        searchedUser[index].isConfirmed == null
-                                            ? "Follow"
-                                            : searchedUser[index].isConfirmed ==
-                                                    true
-                                                ? "Following"
-                                                : "Requested",
-                                    isPressed:
-                                        searchedUser[index].isConfirmed == null
-                                            ? false
-                                            : true,
-                                    ttl2:
-                                        searchedUser[index].isConfirmed == null
-                                            ? "Requested"
-                                            : "Follow"),
+                                    ttl1: searchedUser[index].state == 0
+                                        ? "Follow"
+                                        : searchedUser[index].state == 2
+                                            ? "Following"
+                                            : "Requested",
+                                    isPressed: searchedUser[index].state == 0
+                                        ? false
+                                        : true,
+                                    ttl2: searchedUser[index].state == 0
+                                        ? "Requested"
+                                        : "Follow"),
                                 SizedBox(
                                   height: 10,
                                 ),
                               ]);
                             },
-                          ):
-                          AutoScaleTabBarView(
-                  children: [
-                    
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: GridView.builder(
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 5,
-                            mainAxisSpacing: 5,
-                            childAspectRatio: 1,
                           ),
-                          itemCount: 100,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                    "assets/Country_flag/in.png",
-                                  ),
-                                  fit: BoxFit.cover,
-                                ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: GridView.builder(
+                                    physics:const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    gridDelegate:
+                                       const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 5,
+                                      mainAxisSpacing: 5,
+                                      childAspectRatio: 1,
+                                    ),
+                                    itemCount: 100,
+                                    itemBuilder: (context, index) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          image: const DecorationImage(
+                                            image: AssetImage(
+                                              "assets/Country_flag/in.png",
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      );
+                                    }),
                               ),
-                            );
-                          }),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: 10,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Column(children: [
-                          hashtagsTile(
-                            hashtagsTile: "kunal",
-                            posts: 357014568,
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: 10,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return Column(children: [
+                                    hashtagsTile(
+                                      hashtagsTile: "kunal",
+                                      posts: 357014568,
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                  ]);
+                                },
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: 10,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  return Column(children: [
+                                    locationTile(
+                                        address: "Jaipur, Rajasthan",
+                                        subAddress:
+                                            "129, Shri Ram Nagar, Jhotwara"),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                  ]);
+                                },
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ]);
-                      },
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: 10,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Column(children: [
-                          locationTile(
-                              address: "Jaipur, Rajasthan",
-                              subAddress: "129, Shri Ram Nagar, Jhotwara"),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ]);
-                      },
-                    ),
-                  ],
-                ),
               ],
             )),
       ],
@@ -385,25 +393,10 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
         child: SizedBox(
           height: 40,
           width: 40,
-          child: ClipOval(
-            child: Image.network(
-              loadingBuilder: (BuildContext context, Widget child,
-                  ImageChunkEvent? loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
-                        : null,
-                  ),
-                );
-              },
-              user.profilePic,
-              height: 35,
-              width: 35,
-              fit: BoxFit.cover,
-            ),
+          child: CircularNetworkImageWithLoading(
+            imageUrl: user.profilePic,
+            height: 35,
+            width: 35,
           ),
         ),
       ),
@@ -425,6 +418,17 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
           title: ttl1,
           ispressed: isPressed,
           onPressed: () async {
+            if (user.state == 2) {
+              await FollowUnfollowServices().unFollow(
+              userId: user.id,
+            );
+            setState(() {
+              
+              if (user.state == 2) {
+                user.state = 0;
+              }
+            });
+            }
             await FollowUnfollowServices().toogleFollow(
               userId: user.id,
             );
@@ -451,8 +455,10 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                     } else if (searchText.text.trim().length == 0)
                       setState(() {});
                   },
-                  prefixxIcon: Icon(Ionicons.search,
-                  color: Theme.of(context).colorScheme.onPrimary,),
+                  prefixxIcon: Icon(
+                    Ionicons.search,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
                 ),
               ),
               SizedBox(

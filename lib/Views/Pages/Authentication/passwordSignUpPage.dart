@@ -9,6 +9,7 @@ import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
@@ -345,7 +346,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => PasswordSignInPage()));
+                                builder: (context) => LoadingOverlayAlt(
+                                  child: PasswordSignInPage())));
                       },
                       child: Text(
                         "Sign in",
