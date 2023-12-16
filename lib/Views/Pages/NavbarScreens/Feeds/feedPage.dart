@@ -21,13 +21,12 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   double _previousOffset = 0;
   @override
+  late final TabController _tabController;
+
+  @override
   void initState() {
-    _showAppbar = true;
-    _enableThread = false;
-    _scrollController.addListener(() {
-      _scrollListener();
-    });
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   void _scrollListener() {
@@ -52,12 +51,11 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: <Widget>[
-            SliverAppBar(
-              automaticallyImplyLeading: false,
+       body: NestedScrollView(
+    headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+      return <Widget>[
+        SliverAppBar(
+           automaticallyImplyLeading: false,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               expandedHeight: 70,
               floating:
@@ -70,14 +68,14 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                         fontSize: 25,
                       )),
               actions: [
-                IconButton(
-                  onPressed: () {
-                    setState(() {
-                      _enableThread = !_enableThread;
-                    });
-                  },
-                  icon: Icon(Ionicons.link),
-                ),
+                // IconButton(
+                //   onPressed: () {
+                //     setState(() {
+                //       _enableThread = !_enableThread;
+                //     });
+                //   },
+                //   icon: Icon(Ionicons.link),
+                // ),
                 IconButton(
                   onPressed: () {
                     Navigator.push(context,
@@ -88,11 +86,11 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                   icon: Icon(Ionicons.chatbubble_ellipses_outline),
                 )
               ],
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Padding(
+        ),
+      ];
+    },
+    body:
+                   Padding(
                     padding:
                         const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                     child: Column(
@@ -102,19 +100,18 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                         ),
                         const SizedBox(
                             width: double.infinity,
-                            height: 150,
+                            height: 120,
                             child: StoriesScroller()),
-                        _enableThread ?  const ThreadViewBuilder() :const PostViewBuilder(),
+                            Divider(
+                              thickness: 1,
+                            color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                       const ThreadViewBuilder() ,
                       ],
                     ),
                   ),
-                  // Add more widgets as needed
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+
+       ),
+       );
   }
 }

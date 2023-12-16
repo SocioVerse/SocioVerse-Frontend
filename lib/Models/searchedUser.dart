@@ -6,7 +6,7 @@ class SearchedUser {
   String username;
   String occupation;
   String profilePic;
-  bool? isConfirmed;
+  int? state;
 
   SearchedUser({
     required this.id,
@@ -14,7 +14,7 @@ class SearchedUser {
     required this.username,
     required this.occupation,
     required this.profilePic,
-    this.isConfirmed,
+    this.state,
   });
 
   factory SearchedUser.fromRawJson(String str) =>
@@ -29,7 +29,7 @@ class SearchedUser {
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
 
-        isConfirmed: json["isFollowed"],
+        state: json["state"],
 
       );
 
@@ -39,6 +39,6 @@ class SearchedUser {
         "username": username,
         "occupation": occupation,
         "profile_pic": profilePic,
-        "isFollowed": isConfirmed,
+        "state": state,
       };
 }

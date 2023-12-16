@@ -33,4 +33,13 @@ class FollowRequestsServices{
       },
     );
   }
+
+  Future<void> rejectFollowRequest(String id) async {
+    _response = await _helper.delete(
+      ApiStringConstants.rejectFollowRequest,
+      querryParam: {
+        "targetUserId": id,
+      },
+    );
+  }
 }

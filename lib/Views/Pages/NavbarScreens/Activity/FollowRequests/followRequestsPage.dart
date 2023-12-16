@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestServices.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
 class FollowRequestsPage extends StatefulWidget {
   const FollowRequestsPage({super.key});
@@ -59,31 +60,11 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
           itemBuilder: (context, index) {
             return ListTile(
               
-              leading: ClipOval(
-                                        child: Image.network(
-                                          followRequestModel[index].profilePic,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (BuildContext context,
-                                              Widget child,
-                                              ImageChunkEvent?
-                                                  loadingProgress) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
+              leading: CircularNetworkImageWithoutSize(
+  imageUrl: followRequestModel[index].profilePic,
+  fit: BoxFit.cover,
+)
+,
               title: Text(
                 followRequestModel[index].username,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
@@ -112,6 +93,10 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
                                   style: BorderStyle.solid),
                             ),
                             onPressed: () {
+                              FollowRequestsServices().rejectFollowRequest(followRequestModel[index].id);
+                              setState(() {
+                                followRequestModel.removeAt(index);
+                              });
                             },
                             child: Text(
                               'Delete',

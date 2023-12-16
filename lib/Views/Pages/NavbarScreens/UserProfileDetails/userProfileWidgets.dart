@@ -1,106 +1,19 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
-import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/main.dart';
 import 'package:socioverse/services/thread_services.dart';
 
-
-class UserProfileImageStackOf2 extends StatelessWidget {
-  List<CommentUser>? commentUserProfilePic;
-
-  final bool isShowIcon;
-
-  UserProfileImageStackOf2({
-    this.commentUserProfilePic,
-    required this.isShowIcon,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 20,
-      width: 41,
-      child: Stack(
-        children: [
-          ReplyUserProfileImage(
-            rightPadding: 10.5,
-            userProfileImagePath: commentUserProfilePic![0].profilePic,
-          ),
-          ReplyUserProfileImage(
-            rightPadding: 0.5,
-            userProfileImagePath: commentUserProfilePic![1].profilePic,
-          ),
-          isShowIcon
-              ? Positioned(
-                  right: 0,
-                  child: Container(
-                    height: 20,
-                    width: 20,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        width: 2,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.black,
-                      size: 18.5,
-                    ),
-                  ),
-                )
-              : SizedBox(),
-        ],
-      ),
-    );
-  }
-}
-
-class ReplyUserProfileImage extends StatelessWidget {
-  const ReplyUserProfileImage({
-    required this.userProfileImagePath,
-    required this.rightPadding,
-    super.key,
-  });
-
-  final double rightPadding;
-  final String userProfileImagePath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      right: rightPadding,
-      child: Container(
-        height: 20,
-        width: 20,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.black87,
-            width: 2,
-          ),
-        ),
-        child: CircularNetworkImageWithoutSize(
-  imageUrl: userProfileImagePath,
-  fit: BoxFit.fill,
-),
-
-        
-      ),
-    );
-  }
-}
 class ThreadLayout extends StatefulWidget {
   final ThreadModel thread;
   ThreadLayout({super.key, required this.thread});
@@ -119,10 +32,25 @@ class _ThreadLayoutState extends State<ThreadLayout> {
       _havereplies = false;
     } else {
       replies = widget.thread.commentUsers.length;
-
     }
     super.initState();
   }
+
+  //  double updateDividerLength(String text, BuildContext context,int imageLength){
+  //   final textPainter = TextPainter(
+  //       text: TextSpan(
+  //         text: text,
+  //         style: TextStyle(fontSize: 16),
+  //       ),
+  //       textDirection: TextDirection.ltr,
+  //       maxLines: 100,
+  //     );
+  //     textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 80);
+  //     print(textPainter.computeLineMetrics().length.toString() + "cs");
+  //     final newLineCount = (textPainter.computeLineMetrics().length*10)+((imageLength/3).ceil()*100);
+  //     print(newLineCount);
+  //     return newLineCount.toDouble()+80;
+  //  }
   StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,
@@ -132,12 +60,12 @@ class _ThreadLayoutState extends State<ThreadLayout> {
     TextEditingController postMessage = TextEditingController();
     TextEditingController search = TextEditingController();
     bool savedPost = false;
-    bool isLiked = liked;
+    bool isLiked = widget.thread.isLiked!;
     return StatefulBuilder(
       builder: (context, setState) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [ 
+          children: [
             Row(
               children: [
                 IconButton(
@@ -145,7 +73,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     onLike();
                     setState(() {
                       isLiked = !isLiked;
-                      liked = isLiked;
+                      widget.thread.isLiked = isLiked;
 
                       if (isLiked) {
                         widget.thread.likeCount++;
@@ -316,10 +244,10 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               height: 40,
               width: 40,
               child: CircularNetworkImageWithLoading(
-  imageUrl: widget.thread.user.profilePic,
-  height: 35,
-  width:35,
-),
+                imageUrl: widget.thread.user.profilePic,
+                height: 35,
+                width: 35,
+              ),
             ),
           ),
           title: Text(
@@ -351,10 +279,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   children: [
                     Text(
                       widget.thread.content,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 16,
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
@@ -374,11 +299,10 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       ),
                       itemBuilder: (context, index) {
                         return RoundedNetworkImageWithLoading(
-  imageUrl: widget.thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-)
-;
+                          imageUrl: widget.thread.images[index],
+                          borderRadius: 5, // Set the desired border radius
+                          fit: BoxFit.cover,
+                        );
                       },
                     ),
                   ],
@@ -393,16 +317,15 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   await ThreadServices()
                       .toogleLikeThreads(threadId: widget.thread.id);
 
-                  setState(() {
-                  });
+                  setState(() {});
                 },
                 onComment: () {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) =>  ThreadCommentPage(
-                            threadModel : widget.thread,
-                          )));
+                          builder: (context) => ThreadCommentPage(
+                                threadModel: widget.thread,
+                              )));
                 },
                 onSave: () {},
               ),
@@ -411,7 +334,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         ),
         Row(
           children: [
-            
             if (replies == 3)
               UserProfileImageStackOf3(
                 commenterProfilePics: widget.thread.commentUsers,
@@ -424,11 +346,12 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               Row(
                 children: [
                   const SizedBox(
-              width: 8,
-            ),
+                    width: 8,
+                  ),
                   ReplyUserProfileImage(
                     rightPadding: 0,
-                    userProfileImagePath: widget.thread.commentUsers[0].profilePic,
+                    userProfileImagePath:
+                        widget.thread.commentUsers[0].profilePic,
                   ),
                 ],
               )
@@ -471,7 +394,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
 }
 
 class ThreadViewBuilder extends StatefulWidget {
-  const ThreadViewBuilder({super.key});
+  final List<ThreadModel> allThreads;
+  ThreadViewBuilder({required this.allThreads});
 
   @override
   State<ThreadViewBuilder> createState() => _ThreadViewBuilderState();
@@ -482,77 +406,126 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
   List<ThreadModel> allThreads = [];
   @override
   void initState() {
-    fetchFollowingThread();
+    allThreads = widget.allThreads;
     super.initState();
   }
 
-  fetchFollowingThread() async {
-    setState(() {
-      threadFetched = false;
-    });
-    allThreads = await ThreadServices().getFollowingThreads();
-    setState(() {
-      threadFetched = true;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return threadFetched
-        ? allThreads.isEmpty ?
-        const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AllCaughtUp(),
-            ],
-          ),
-        ) :
-        ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: allThreads.length,
-            itemBuilder: (context, index) {
-              return ThreadLayout(
-                thread: allThreads[index],
-              );
-            },
-          )
-        : const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SpinKitWave(
-                  color: Colors.white, type: SpinKitWaveType.center),
-            ],
-          ),
-        );
+    return allThreads.isEmpty
+        ? const NoPostYet()
+        : Column(mainAxisSize: MainAxisSize.min, children: [
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: allThreads.length,
+              itemBuilder: (context, index) {
+                return ThreadLayout(
+                  thread: allThreads[index],
+                );
+              },
+            ),
+            const SizedBox(height: 100),
+          ]);
   }
 }
-class AllCaughtUp extends StatelessWidget {
-  const AllCaughtUp({super.key});
+
+class NoPostYet extends StatelessWidget {
+  const NoPostYet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return  Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-    
       children: [
-        Icon(
-          Icons.check_circle_outline_rounded,
-          size: 70,
-          color: Theme.of(context).colorScheme.tertiary,
+        const SizedBox(
+          height: 30,
         ),
-       const SizedBox(
+        Icon(
+          Icons.hourglass_empty,
+          size: 70,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+        const SizedBox(
           height: 30,
         ),
         Text(
-          "All caught up",
+          "No posts yet",
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 20,
-                color: Theme.of(context).colorScheme.tertiary,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
         ),
+      ],
+    );
+  }
+}
+
+
+class ExpandableTextWidget extends StatefulWidget {
+  final String text;
+  final int maxLines;
+
+  const ExpandableTextWidget({
+    Key? key,
+    required this.text,
+    this.maxLines = 2,
+  }) : super(key: key);
+
+  @override
+  _ExpandableTextWidgetState createState() => _ExpandableTextWidgetState();
+}
+
+class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        AnimatedCrossFade(
+          duration: Duration(milliseconds: 300),
+          firstChild: Text(
+            widget.text,
+            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+            maxLines: isExpanded ? null : widget.maxLines,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+          ),
+          secondChild: GestureDetector(
+            onTap: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Text(
+              widget.text,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          crossFadeState:
+              isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        ),
+        if (!isExpanded)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  isExpanded = true;
+                });
+              },
+              child: Text('Read More'),
+            ),
+          ),
       ],
     );
   }

@@ -1,33 +1,27 @@
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestsPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
-
-
 String getTimeDiff(DateTime dateTime) {
-    DateTime now = DateTime.now();
-    Duration difference = now.difference(dateTime);
-    int hoursAgo = difference.inHours;
-    String time = '';
-    if (hoursAgo == 1) {
-      time = '1 hour ago';
-    } else if (hoursAgo < 24) {
-      time = '$hoursAgo hours ago';
-    } else {
-      int daysAgo = difference.inDays;
-      time = '$daysAgo days ago';
-    }
-    return time;
+  DateTime now = DateTime.now();
+  Duration difference = now.difference(dateTime);
+  int hoursAgo = difference.inHours;
+  String time = '';
+  if (hoursAgo == 1) {
+    time = '1 hour ago';
+  } else if (hoursAgo < 24) {
+    time = '$hoursAgo hours ago';
+  } else {
+    int daysAgo = difference.inDays;
+    time = '$daysAgo days ago';
   }
+  return time;
+}
 
 class FollowTile extends StatelessWidget {
-
-
   final String ttl1;
   final String ttl2;
   final String name;
@@ -45,8 +39,7 @@ class FollowTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String time = getTimeDiff(dateTime);
-    return 
-     ListTile(
+    return ListTile(
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -147,11 +140,11 @@ class LikedTile extends StatelessWidget {
     );
   }
 }
+
 class StackOfTwo extends StatelessWidget {
-   List<String> images ;
+  List<String> images;
 
   StackOfTwo({required this.images});
-
 
   @override
   Widget build(BuildContext context) {
@@ -162,85 +155,35 @@ class StackOfTwo extends StatelessWidget {
         children: [
           Positioned(
             left: 0,
-            child: ClipOval(
-                                      child: Image.network(
-                                        images[1],
-                                        fit: BoxFit.cover,
-                                        loadingBuilder: (BuildContext context,
-                                            Widget child,
-                                            ImageChunkEvent?
-                                                loadingProgress) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
+            child: CircularNetworkImageWithoutSize(
+              imageUrl: images[1],
+              fit: BoxFit.cover,
+            ),
           ),
           Positioned(
             left: 5,
             top: 5,
-            child: ClipOval(
-                                      child: Image.network(
-                                        images[0],
-                                        fit: BoxFit.cover,
-                                        loadingBuilder: (BuildContext context,
-                                            Widget child,
-                                            ImageChunkEvent?
-                                                loadingProgress) {
-                                          if (loadingProgress == null)
-                                            return child;
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              value: loadingProgress
-                                                          .expectedTotalBytes !=
-                                                      null
-                                                  ? loadingProgress
-                                                          .cumulativeBytesLoaded /
-                                                      loadingProgress
-                                                          .expectedTotalBytes!
-                                                  : null,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
+            child: CircularNetworkImageWithoutSize(
+              imageUrl: images[0],
+              fit: BoxFit.cover,
+            ),
           ),
-          
         ],
       ),
     );
   }
 }
 
-
 class RequestsTile extends StatelessWidget {
   LatestFollowRequestModel latestFollowRequestModel;
   RequestsTile({required this.latestFollowRequestModel});
 
-  String getText()
-  {
-    if(latestFollowRequestModel.followRequestCount == 1)
-    {
+  String getText() {
+    if (latestFollowRequestModel.followRequestCount == 1) {
       return "${latestFollowRequestModel.names[0]} sent you a request";
-    }
-    else if(latestFollowRequestModel.followRequestCount == 2)
-    {
+    } else if (latestFollowRequestModel.followRequestCount == 2) {
       return "${latestFollowRequestModel.names[0]} and ${latestFollowRequestModel.names[1]} sent you a request";
-    }
-    else
-    {
+    } else {
       return "${latestFollowRequestModel.names[0]}, ${latestFollowRequestModel.names[1]} and ${latestFollowRequestModel.followRequestCount - 2} others sent you a request";
     }
   }
@@ -249,98 +192,75 @@ class RequestsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-         ListTile(
+        ListTile(
           onTap: () {
             Navigator.push(
                 context,
                 CupertinoPageRoute(
-                    builder: ((context) => FollowRequestsPage()))
-            );
+                    builder: ((context) => FollowRequestsPage())));
           },
-                    leading: Stack(
-                      
-                      children: [latestFollowRequestModel.followRequestCount == 1?
-                       ClipOval(
-                                        child: Image.network(
-                                         latestFollowRequestModel.profilePics[0],
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (BuildContext context,
-                                              Widget child,
-                                              ImageChunkEvent?
-                                                  loadingProgress) {
-                                            if (loadingProgress == null)
-                                              return child;
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ): StackOfTwo(
-                        images: latestFollowRequestModel.profilePics,
-                      ),
-
-
-                      Positioned(child: 
-                      Container(
-                        height: 20,
-                        width: 20,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle
-                        ),
-                        child: Center(child: Text("${latestFollowRequestModel.followRequestCount}",style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+          leading: Stack(
+            children: [
+              latestFollowRequestModel.followRequestCount == 1
+                  ? CircularNetworkImageWithoutSize(
+                      imageUrl: latestFollowRequestModel.profilePics[0],
+                      fit: BoxFit.cover,
+                    )
+                  : StackOfTwo(
+                      images: latestFollowRequestModel.profilePics,
+                    ),
+              Positioned(
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle),
+                  child: Center(
+                      child: Text(
+                    "${latestFollowRequestModel.followRequestCount}",
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onPrimary,
-                        ),)),
-                      )
-                      ,top: 0,right: 0,)
-                      ],
-
-
-
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Requests",
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
                         ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          getText(),
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Divider(
-                  color: Theme.of(context).colorScheme.tertiary,
+                  )),
                 ),
+                top: 0,
+                right: 0,
               )
+            ],
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Requests",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                getText(),
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Divider(
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        )
       ],
     );
-              
-              
-              
   }
 }

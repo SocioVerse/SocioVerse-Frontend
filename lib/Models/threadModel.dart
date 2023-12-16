@@ -15,7 +15,7 @@ class ThreadModel {
   List<CommentUser> commentUsers;
   int commentCount;
   User user;
-
+  bool? isLiked;
   ThreadModel({
     required this.id,
     required this.content,
@@ -31,6 +31,10 @@ class ThreadModel {
     required this.commentUsers,
     required this.commentCount,
     required this.user,
+    this.isLiked,
+
+
+
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -49,11 +53,12 @@ class ThreadModel {
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
         parentThread: json["parent_thread"],
-        userLikes: List<dynamic>.from(json["userLikes"].map((x) => x)),
+        userLikes:json["userLikes"]!=null? List<dynamic>.from(json["userLikes"].map((x) => x)):[],
         commentUsers: List<CommentUser>.from(
             json["commentUsers"].map((x) => CommentUser.fromJson(x))),
         commentCount: json["comment_count"],
         user: User.fromJson(json["user"]),
+        isLiked: json["isLiked"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -71,6 +76,7 @@ class ThreadModel {
         "commentUsers": List<dynamic>.from(commentUsers.map((x) => x.toJson())),
         "comment_count": commentCount,
         "user": user.toJson(),
+        "isLiked": isLiked,
       };
 }
 

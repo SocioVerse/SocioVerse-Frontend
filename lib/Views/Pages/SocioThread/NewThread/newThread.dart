@@ -11,6 +11,7 @@ import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/services/thread_services.dart';
@@ -159,31 +160,12 @@ class _NewThreadState extends State<NewThread> {
                           children: [
                             Column(
                               children: [
-                                ClipOval(
-                                  child: Image.network(
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                              : null,
-                                        ),
-                                      );
-                                    },
-                                    user[0].profilePic,
-                                    height: 35,
-                                    width: 35,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                                CircularNetworkImageWithLoading(
+  imageUrl: user[0].profilePic,
+  height: 35,
+  width:35,
+),
+
                                 Container(
                                   margin: EdgeInsets.only(top: 10),
                                   height: thread.isSelected
@@ -323,35 +305,12 @@ class _NewThreadState extends State<NewThread> {
                                           itemBuilder: (context, index) {
                                             return Stack(
                                               children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  child: Image.network(
-                                                    loadingBuilder: (BuildContext
-                                                            context,
-                                                        Widget child,
-                                                        ImageChunkEvent?
-                                                            loadingProgress) {
-                                                      if (loadingProgress ==
-                                                          null) return child;
-                                                      return Center(
-                                                        child:
-                                                            CircularProgressIndicator(
-                                                          value: loadingProgress
-                                                                      .expectedTotalBytes !=
-                                                                  null
-                                                              ? loadingProgress
-                                                                      .cumulativeBytesLoaded /
-                                                                  loadingProgress
-                                                                      .expectedTotalBytes!
-                                                              : null,
-                                                        ),
-                                                      );
-                                                    },
-                                                    thread.images[index],
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
+                                                RoundedNetworkImageWithLoading(
+  imageUrl: thread.images[index],
+  borderRadius: 5, // Set the desired border radius
+  fit: BoxFit.cover,
+),
+
                                                 Align(
                                                   alignment: Alignment.topRight,
                                                   child: IconButton(
@@ -448,27 +407,11 @@ class _NewThreadState extends State<NewThread> {
                       contentPadding: const EdgeInsets.only(left: 19),
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
-                        child: ClipOval(
-                          child: Image.network(
-                            loadingBuilder: (BuildContext context, Widget child,
-                                ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              );
-                            },
-                            user[0].profilePic,
-                            height: 20,
-                            width: 20,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                        child: CircularNetworkImageWithLoading(
+  imageUrl: user[0].profilePic,
+  height: 20,
+  width:20,
+),
                       ),
                       title: Text(
                         'Add to thread',

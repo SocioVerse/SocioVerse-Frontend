@@ -1,10 +1,12 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -109,88 +111,47 @@ class _StoriesScrollerState extends State<StoriesScroller> {
 
 
 
+
+
 class UserProfileImageStackOf3 extends StatelessWidget {
-  List<CommentUser>? commenterProfilePics;
+  final List<CommentUser>? commenterProfilePics;
   UserProfileImageStackOf3({super.key, this.commenterProfilePics});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 3),
+    return SizedBox(
       height: 30,
       width: 31,
       child: Stack(
         children: [
           Positioned(
             right: 0,
-            child: ClipOval(
-              child: Image.network(
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-                commenterProfilePics![0].profilePic,
-                fit: BoxFit.cover,
-                height: 16,
-                width: 16,
-              ),
-            ),
+            child: CircularNetworkImageWithLoading(
+  imageUrl: commenterProfilePics![2].profilePic,
+  height:16,
+  width: 16,
+),
+
           ),
           Positioned(
             left: 0,
             top: 10,
-            child: ClipOval(
-              child: Image.network(
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-                commenterProfilePics![1].profilePic,
-                fit: BoxFit.cover,
-                height: 10.5,
-                width: 10.5,
-              ),
+            child: CircularNetworkImageWithLoading(
+  imageUrl: commenterProfilePics![1].profilePic,
+  height:10.5,
+  width: 10.5,
+
+
             ),
           ),
           Positioned(
             right: 9.2,
             top: 21,
-            child: ClipOval(
-              child: Image.network(
-                loadingBuilder: (BuildContext context, Widget child,
-                    ImageChunkEvent? loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
-                    ),
-                  );
-                },
-                commenterProfilePics![2].profilePic,
-                fit: BoxFit.cover,
-                height: 8.5,
-                width: 8.5,
-              ),
-            ),
+            child: CircularNetworkImageWithLoading(
+  imageUrl: commenterProfilePics![0].profilePic,
+  height:8.5,
+  width: 8.5,
+            )
           ),
         ],
       ),
