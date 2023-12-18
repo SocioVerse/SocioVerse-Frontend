@@ -1,120 +1,225 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-
-class CommentLayout extends StatefulWidget {
-  CommentLayout({super.key, required BuildContext context});
-  late BuildContext context;
+import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsModel.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
+import 'package:socioverse/services/thread_services.dart';
+class ThreadCommentLayout extends StatefulWidget {
+  final ThreadRepliesModel thread;
+  const ThreadCommentLayout({super.key, required this.thread});
 
   @override
-  State<CommentLayout> createState() => _CommentLayoutState();
+  State<ThreadCommentLayout> createState() => _ThreadCommentLayoutState();
 }
-
-class _CommentLayoutState extends State<CommentLayout> {
+class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
+ 
+  int replies = 0;
+  bool liked = false;
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          ListTile(
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundColor: Theme.of(context).colorScheme.onBackground,
-              child: Icon(
-                Ionicons.person,
-                color: Theme.of(context).colorScheme.background,
+  void initState() {
+    super.initState();
+    replies = widget.thread.commentCount;
+    liked = widget.thread.isLiked;
+  }
+  StatefulBuilder getThreadFooter({
+    required bool isPost,
+    required Function onLike,
+    required Function onComment,
+    required Function onSave,
+  }) {
+    bool isLiked = liked;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            IconButton(
+              onPressed: () {
+                onLike();
+                setState(() {
+                  isLiked = !isLiked;
+                  liked = isLiked;
+        
+                  if (isLiked) {
+                    widget.thread.likeCount++;
+                  } else {
+                    widget.thread.likeCount--;
+                  }
+                });
+              },
+              icon: Icon(
+                isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                color: isLiked
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onPrimary,
                 size: 30,
               ),
             ),
-            title: Text(
-              "Username",
+            Text(
+              widget.thread.likeCount.toString(),
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
             ),
-            subtitle: Text(
-              "Occupation",
-              style: Theme.of(context).textTheme.bodySmall,
+            IconButton(
+              onPressed: () {
+                onComment();
+              },
+              icon: Icon(
+                Ionicons.chatbubble_outline,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 30,
+              ),
             ),
-            trailing: Icon(
+            Text(
+              widget.thread.commentCount.toString(),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+            ),
+            
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: CircularNetworkImageWithLoading(
+  imageUrl: widget.thread.userProfile,
+  height: 35,
+  width:35,
+),
+            ),
+          ),
+          title: Text(
+            widget.thread.username,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary),
+          ),
+          subtitle: Text(
+            widget.thread.occupation,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          trailing: IconButton(
+            onPressed: () {},
+            icon: Icon(
               Ionicons.ellipsis_horizontal_circle_outline,
               color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eget nunc vitae tortor aliquam aliquet. ",
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
+        ),
+        Flexible(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Ionicons.heart_outline,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
                     Text(
-                      "1.2k",
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      widget.thread.content,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium!
+                          .copyWith(
+                            fontSize: 16,
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
                     ),
-                    SizedBox(
-                      width: 20,
+                    const SizedBox(
+                      height: 10,
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Reply",
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      itemCount: widget.thread.images.length,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
                       ),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      "6 hrs ago",
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                      itemBuilder: (context, index) {
+                        return RoundedNetworkImageWithLoading(
+  imageUrl: widget.thread.images[index],
+  borderRadius: 5, // Set the desired border radius
+  fit: BoxFit.cover,
+)
+;
+                      },
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              getThreadFooter(
+                isPost: false,
+                onLike: () async {
+                  await ThreadServices()
+                      .toogleLikeThreads(threadId: widget.thread.commentId);
+
+                  setState(() {
+                  });
+                },
+                onComment: () {
+                  // Navigator.push(
+                  //     context,
+                  //     CupertinoPageRoute(
+                  //         builder: (context) =>  ThreadCommentPage(
+                  //           threadModel : widget.thread,
+                  //         )));
+                },
+                onSave: () {},
+              ),
+            ],
           ),
-          SizedBox(
-            height: 20,
-          )
-        ],
-      ),
+        ),
+        
+        SizedBox(height: 8),
+        Divider(
+          height: 0,
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+      ],
     );
   }
 }
 
+
 class CommentBuilder extends StatelessWidget {
-  const CommentBuilder({super.key});
+
+  final List<ThreadModel> threadReplies;
+  const CommentBuilder({super.key, required this.threadReplies});
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: 10,
+      itemCount: threadReplies.length,
       itemBuilder: (context, index) {
-        return CommentLayout(
-          context: context,
+        return ThreadLayout(
+          thread: threadReplies[index],
+        
         );
       },
     );

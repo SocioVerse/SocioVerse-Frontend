@@ -1,7 +1,11 @@
 import 'dart:developer';
 
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/commentPageWidget.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsModel.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsServices.dart';
 import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +22,42 @@ class ThreadCommentPage extends StatefulWidget {
 }
 
 class _ThreadCommentPageState extends State<ThreadCommentPage> {
+
+  List<ThreadModel> threadReplies = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    getThreadComments();
+    super.initState();
+  }
+
+  getThreadComments() async {
+    setState(() {
+      isLoading = true;
+    });
+    threadReplies = await ThreadCommentServices().fetchThreadReplies(widget.threadModel.id);
+    setState(() {
+      isLoading = false;
+    });
+  }
+  
   @override
   Widget build(BuildContext context) {
-    log("here");
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        
+        onPressed: () {
+         
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child:  Icon(
+          Ionicons.chatbubble,
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
+      ),
       appBar: AppBar(
         title: Text(
           "Comments",
@@ -30,31 +66,45 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
                 fontSize: 25,
               ),
         ),
-        toolbarHeight: 100,
+        toolbarHeight: 70,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
+    
+        
+        
       ),
-      body:  Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  CommentPageThreadLayout(
-                    thread: widget.threadModel,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  CommentBuilder(),
-                ],
+      body:  SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              ThreadLayout(
+                isComment: true,
+                thread: widget.threadModel,
               ),
-            ),
+              const SizedBox(
+                height: 20,
+              ),
+              isLoading==true?
+              Center(
+                    child: SpinKitThreeBounce(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 20,
+                    ),
+                  ):
+              
+               CommentBuilder(
+                threadReplies: threadReplies,
+               ),
+              const SizedBox(height: 20,)
+            ],
           ),
-          Align(alignment: Alignment.bottomCenter, child: CommentFeild()),
-        ],
+        ),
       ),
     );
   }
 }
+
+// const Align(alignment: Alignment.bottomCenter, child: CommentFeild(
+            
+          // )),

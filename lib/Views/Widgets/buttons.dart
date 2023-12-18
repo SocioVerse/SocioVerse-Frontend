@@ -33,7 +33,7 @@ class CustomOutlineButton extends StatefulWidget {
   String? title;
   Function? onPressed;
   BuildContext? ctx;
-  IconButton? iconButton1;
+  Widget? iconButton1;
   double? width1;
   double? fontSize;
   CustomOutlineButton(
@@ -50,7 +50,7 @@ class CustomOutlineButton extends StatefulWidget {
 
 class _CustomOutlineButtonState extends State<CustomOutlineButton> {
   String? rtitle;
-  IconButton? riconButton;
+  Widget? riconButton;
   @override
   void initState() {
     super.initState();

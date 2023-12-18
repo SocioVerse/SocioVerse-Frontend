@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
@@ -79,7 +80,24 @@ class ReplyUserProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return rightPadding ==0 ? Container(
+        height: 20,
+        width: 20,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.black87,
+            width: 2,
+          ),
+        ),
+        child: CircularNetworkImageWithoutSize(
+  imageUrl: userProfileImagePath,
+  fit: BoxFit.fill,
+),
+
+        
+      ):
+     Positioned(
       right: rightPadding,
       child: Container(
         height: 20,
@@ -103,7 +121,8 @@ class ReplyUserProfileImage extends StatelessWidget {
 }
 class ThreadLayout extends StatefulWidget {
   final ThreadModel thread;
-  ThreadLayout({super.key, required this.thread});
+  bool isComment = false;
+  ThreadLayout({super.key, required this.thread,this.isComment = false});
 
   @override
   State<ThreadLayout> createState() => _ThreadLayoutState();
@@ -140,8 +159,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
           children: [ 
             Row(
               children: [
-                IconButton(
-                  onPressed: () {
+                InkWell(
+                  onTap: () {
                     onLike();
                     setState(() {
                       isLiked = !isLiked;
@@ -154,26 +173,31 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       }
                     });
                   },
-                  icon: Icon(
+                  child: Icon(
                     isLiked ? Ionicons.heart : Ionicons.heart_outline,
                     color: isLiked
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
                     size: 30,
                   ),
+                ),const  SizedBox(
+                  width: 10,
                 ),
-                IconButton(
-                  onPressed: () {
+                InkWell(
+                  onTap: () {
                     onComment();
                   },
-                  icon: Icon(
+                  child: Icon(
                     Ionicons.chatbubble_outline,
                     color: Theme.of(context).colorScheme.onPrimary,
                     size: 30,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {
+               const  SizedBox(
+                  width: 10,
+                ),
+                InkWell(
+                  onTap: () {
                     showModalBottomSheet(
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
@@ -276,7 +300,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                           );
                         });
                   },
-                  icon: Icon(
+                  child: Icon(
                     Ionicons.paper_plane_outline,
                     color: Theme.of(context).colorScheme.onPrimary,
                     size: 30,
@@ -284,19 +308,19 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                 ),
               ],
             ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  savedPost = !savedPost;
-                });
-                onSave();
-              },
-              icon: Icon(
-                savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 30,
-              ),
-            ),
+            // IconButton(
+            //   onPressed: () {
+            //     setState(() {
+            //       savedPost = !savedPost;
+            //     });
+            //     onSave();
+            //   },
+            //   icon: Icon(
+            //     savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
+            //     color: Theme.of(context).colorScheme.onPrimary,
+            //     size: 30,
+            //   ),
+            // ),
           ],
         );
       },
@@ -309,6 +333,15 @@ class _ThreadLayoutState extends State<ThreadLayout> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>  UserProfilePage(
+                      userId : widget.thread.user.id,
+                    )));
+          
+          },
           contentPadding: EdgeInsets.zero,
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -340,129 +373,143 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             ),
           ),
         ),
-        Flexible(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.thread.content,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      itemCount: widget.thread.images.length,
-                      physics: NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 5,
-                        mainAxisSpacing: 5,
-                      ),
-                      itemBuilder: (context, index) {
-                        return RoundedNetworkImageWithLoading(
-  imageUrl: widget.thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-)
-;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              getThreadFooter(
-                isPost: false,
-                onLike: () async {
-                  await ThreadServices()
-                      .toogleLikeThreads(threadId: widget.thread.id);
-
-                  setState(() {
-                  });
-                },
-                onComment: () {
-                  Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (context) =>  ThreadCommentPage(
-                            threadModel : widget.thread,
-                          )));
-                },
-                onSave: () {},
-              ),
-            ],
-          ),
-        ),
         Row(
           children: [
-            
-            if (replies == 3)
-              UserProfileImageStackOf3(
-                commenterProfilePics: widget.thread.commentUsers,
-              )
-            else if (replies == 2)
-              UserProfileImageStackOf2(
-                  commentUserProfilePic: widget.thread.commentUsers,
-                  isShowIcon: false)
-            else if (replies == 1)
-              Row(
-                children: [
-                  const SizedBox(
-              width: 8,
+           widget.isComment ? const SizedBox.shrink(): const SizedBox(
+              width: 60,
             ),
-                  ReplyUserProfileImage(
-                    rightPadding: 0,
-                    userProfileImagePath: widget.thread.commentUsers[0].profilePic,
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 8,
+                      right: 8,
+                      top: 8,
+                      bottom: 0,
+                    
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.thread.content,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                        widget.thread.images.length == 0
+                            ? const SizedBox.shrink()
+                            :
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          itemCount: widget.thread.images.length,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
+                          ),
+                          itemBuilder: (context, index) {
+                            return RoundedNetworkImageWithLoading(
+                imageUrl: widget.thread.images[index],
+                borderRadius: 5, // Set the desired border radius
+                fit: BoxFit.cover,
+              )
+              ;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  widget.thread.images.length ==0 ?  
+                  const SizedBox.shrink():
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  getThreadFooter(
+                    isPost: false,
+                    onLike: () async {
+                      await ThreadServices()
+                          .toogleLikeThreads(threadId: widget.thread.id);
+              
+                      setState(() {
+                      });
+                    },
+                    onComment: () {
+                      Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) =>  ThreadCommentPage(
+                                threadModel : widget.thread,
+                              )));
+                    },
+                    onSave: () {},
                   ),
                 ],
-              )
-            else
-              SizedBox(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ThreadReply(
-                                  text: 'Ad Flag Image',
-                                  imageUrl: 'assets/Country_flag/ao.png',
-                                )));
-                  },
-                  child: Text(
-                    "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          fontSize: 14,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                  ),
-                ),
               ),
             ),
           ],
         ),
+        
+
+                    Row(
+                      children: [
+                        SizedBox(
+  width: 60,
+  child: replies == 3
+      ? Center(
+        child: UserProfileImageStackOf3(
+            commenterProfilePics: widget.thread.commentUsers,
+          ),
+      )
+      : replies == 2
+          ? UserProfileImageStackOf2(
+              commentUserProfilePic: widget.thread.commentUsers,
+              isShowIcon: false,
+            )
+          : replies == 1
+              ? Center(
+                child: ReplyUserProfileImage(
+                    rightPadding: 0,
+                    userProfileImagePath:
+                        widget.thread.commentUsers[0].profilePic,
+                  ),
+              )
+              : Container(), // Provide a default empty container for other cases
+),
+                        TextButton(
+                                 onPressed: () {
+                                   Navigator.push(
+                                       context,
+                                       MaterialPageRoute(
+                                           builder: (context) =>  ThreadCommentPage(
+                             threadModel : widget.thread,
+                           ) ));
+                                 },
+                                 child: Text(
+                                   "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
+                                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                                         fontSize: 14,
+                                         color: Theme.of(context).colorScheme.tertiary,
+                                       ),
+                                 ),
+                        ),
+                      ],
+                    ),
         SizedBox(height: 8),
         Divider(
           height: 0,
+          thickness: 0.2,
           color: Theme.of(context).colorScheme.tertiary,
         ),
       ],
@@ -511,8 +558,11 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
         ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
+            
+            padding: const EdgeInsets.only(top: 10),
             itemCount: allThreads.length,
             itemBuilder: (context, index) {
+
               return ThreadLayout(
                 thread: allThreads[index],
               );

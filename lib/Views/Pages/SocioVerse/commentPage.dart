@@ -26,16 +26,18 @@ class _CommentPageState extends State<CommentPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: Stack(
+      body: const Stack(
         children: [
-          const SingleChildScrollView(
+           SingleChildScrollView(
             child: Column(
               children: [
                 PostCaption(),
                 SizedBox(
                   height: 20,
                 ),
-                CommentBuilder(),
+                // CommentBuilder(
+                //   threadReplies: threadReplies,
+                // ),
               ],
             ),
           ),

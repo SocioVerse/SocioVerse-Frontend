@@ -17,11 +17,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
+import 'package:socioverse/services/follow_unfollow_services.dart';
 import '../../../Widgets/buttons.dart';
 
 class UserProfilePage extends StatefulWidget {
-  bool? owner;
-  UserProfilePage({super.key, this.owner});
+  final bool? owner;
+  final String? userId;
+  UserProfilePage({super.key, this.owner, this.userId});
 
   @override
   State<UserProfilePage> createState() => _UserProfilePageState();
@@ -42,7 +44,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
     setState(() {
       isLoading = true;
     });
-    userProfileDetailsModel = await UserProfileDetailsServices().fetchUserProfileDetails(null);
+    userProfileDetailsModel = await UserProfileDetailsServices().fetchUserProfileDetails(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -50,7 +52,36 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
 
 
-
+  Widget toogleFollowButton(
+      {required String ttl1,
+      required String ttl2,
+      required UserProfileDetailsModel userProfileDetailsModel,
+      required bool isPressed}) {
+    return MyEleButtonsmall(
+          title2: ttl2,
+          title: ttl1,
+          ispressed: isPressed,
+          
+          onPressed: () async {
+            if (userProfileDetailsModel.user.state == 2) {
+              await FollowUnfollowServices().unFollow(
+              userId: userProfileDetailsModel.user.id,
+            );
+            setState(() {
+              
+              if (userProfileDetailsModel.user.state  == 2) {
+                userProfileDetailsModel.user.state  = 0;
+              }
+            });
+            }
+            else {
+              await FollowUnfollowServices().toogleFollow(
+              userId: userProfileDetailsModel.user.id,
+            );
+            }
+          },
+          ctx: context);
+  }
 
   Widget modifiedContainer(
       {required String upperText, required String lowerText,
@@ -167,7 +198,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 onTap: () {},
               ),
               ListTile(
-                leading: Icon(Ionicons.remove_circle),
+                leading: Icon(Ionicons.remove_circle,
+                  color: Theme.of(context).colorScheme.onPrimary,),
                 title: Text(
                   'Block',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -177,7 +209,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 onTap: () {},
               ),
               ListTile(
-                leading: Icon(Ionicons.shield_outline),
+                leading: Icon(Ionicons.shield_outline,color: Theme.of(context).colorScheme.onPrimary),
                 title: Text(
                   'Restrict',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -187,7 +219,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 onTap: () {},
               ),
               ListTile(
-                leading: Icon(Ionicons.copy_outline),
+                leading: Icon(Ionicons.copy_outline,color: Theme.of(context).colorScheme.onPrimary),
                 title: Text(
                   'Copy Profile Link',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -197,7 +229,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 onTap: () {},
               ),
               ListTile(
-                leading: Icon(Ionicons.send),
+                leading: Icon(Ionicons.send,color: Theme.of(context).colorScheme.onPrimary),
                 title: Text(
                   'Share this Profile',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -307,7 +339,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 },
               ),
               ListTile(
-                leading: new Icon(Ionicons.eye_off_outline),
+                leading: new Icon(Ionicons.eye_off_outline,color: Theme.of(context).colorScheme.onPrimary),
                 title: Text(
                   'Hide Your Story',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -923,7 +955,11 @@ void isOwner({required BuildContext context}) {
                     modifiedContainer(
 
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowersPage()));
+                        if(userProfileDetailsModel!.user.state ==2 || widget.owner == true) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowersPage(
+                          userId: userProfileDetailsModel!.user.id,
+                        )));
+                        }
                       },
                       upperText: userProfileDetailsModel!.user.followersCount.toString(),
                       lowerText: "Follower${userProfileDetailsModel!.user.followersCount>1?"s":""}",
@@ -935,7 +971,11 @@ void isOwner({required BuildContext context}) {
                     ),
                     modifiedContainer(
                       onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowingPage()));
+                        if(userProfileDetailsModel!.user.state ==2||widget.owner == true) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowingPage(
+                          userId: userProfileDetailsModel!.user.id,
+                        )));
+                        }
                       },
                       upperText: userProfileDetailsModel!.user.followingCount.toString(),
                       lowerText: "Following${userProfileDetailsModel!.user.followingCount>1?"s":""}",
@@ -952,43 +992,34 @@ void isOwner({required BuildContext context}) {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Expanded(
-                          child: MyEleButtonsmall(
-                            iconButton1: IconButton(
-                                onPressed: () {},
-                                padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  Ionicons.person_add,
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                )),
-                            iconButton2: IconButton(
-                                onPressed: () {},
-                                padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  Icons.done,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )),
-                            width1: 160,
-                            width2: 160,
-                            title: "Follow",
-                            title2: "Following",
-                            onPressed: () {},
-                            fontSize: 16,
-                            ctx: context,
-                          ),
+                          child: toogleFollowButton(
+                  userProfileDetailsModel: userProfileDetailsModel!,
+                  ttl1: userProfileDetailsModel!.user.state == 0
+                      ? "Follow"
+                      : userProfileDetailsModel!.user.state == 2
+                          ? "Following"
+                          : "Requested",
+                  isPressed: userProfileDetailsModel!.user.state == 0
+                      ? false
+                      : true,
+                  ttl2: userProfileDetailsModel!.user.state == 0
+                      ? "Requested"
+                      : "Follow"),
                         ),
                         SizedBox(
                           width: 20,
                         ),
                         Expanded(
                           child: CustomOutlineButton(
-                            iconButton1: IconButton(
-                                onPressed: () {},
-                                padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  Ionicons.chatbox_ellipses,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )),
+                            iconButton1: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: InkWell(
+                                  onTap: () {},
+                                  child: Icon(
+                                    Ionicons.chatbox_ellipses,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  )),
+                            ),
                             width1: 160,
                             title: "Message",
                             onPressed: () {},

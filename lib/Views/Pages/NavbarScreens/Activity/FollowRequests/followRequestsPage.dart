@@ -96,6 +96,10 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
                               FollowRequestsServices().rejectFollowRequest(followRequestModel[index].id);
                               setState(() {
                                 followRequestModel.removeAt(index);
+                                if(followRequestModel.isEmpty)
+                                {
+                                  Navigator.pop(context);
+                                }
                               });
                             },
                             child: Text(
@@ -115,6 +119,11 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
                               FollowRequestsServices().acceptFollowRequest(followRequestModel[index].id);
                               setState(() {
                                 followRequestModel.removeAt(index);
+
+                                if(followRequestModel.isEmpty)
+                                {
+                                  Navigator.pop(context);
+                                }
                               });
                             },
                             child: Text( 'Accept',

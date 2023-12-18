@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
@@ -388,6 +389,20 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
       required SearchedUser user,
       required bool isPressed}) {
     return ListTile(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return UserProfilePage(
+            owner: false,
+            userId: user.id,
+          );
+        })).then((value) {
+          setState(() {
+            getQueryUser();
+          });
+        
+
+        });
+      },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
