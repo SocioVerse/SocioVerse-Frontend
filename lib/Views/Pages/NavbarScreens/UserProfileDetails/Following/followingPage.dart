@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersServices.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
 
 class FollowingPage extends StatefulWidget {
-  const FollowingPage({super.key});
+  final String? userId;
   
-  String? get userId => null;
+  const FollowingPage({this.userId, super.key});
 
   @override
   State<FollowingPage> createState() => _FollowingPageState();
@@ -40,6 +41,15 @@ class _FollowingPageState extends State<FollowingPage> {
       required FollowersModel followersModel,
       required bool isPressed}) {
     return ListTile(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserProfilePage(
+                      owner: false,
+                      userId: followersModel.user.id,
+                    )));
+      },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(

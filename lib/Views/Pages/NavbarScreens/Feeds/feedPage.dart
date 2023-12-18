@@ -90,26 +90,24 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
       ];
     },
     body:
-                   Padding(
-                    padding:
-                        const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        const SizedBox(
-                            width: double.infinity,
-                            height: 120,
-                            child: StoriesScroller()),
-                            Divider(
-                              thickness: 1,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                       const ThreadViewBuilder() ,
-                      ],
-                    ),
-                  ),
+                   Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                     children: [
+                       const SizedBox(
+                         width: 10,
+                       ),
+                       const SizedBox(
+                           width: double.infinity,
+                           height: 120,
+                           child: StoriesScroller()),
+                           Divider(
+                             thickness: 1,height: 0,
+                           color: Theme.of(context).colorScheme.tertiary,
+                           ),
+                           
+                      const ThreadViewBuilder() ,
+                     ],
+                   ),
 
        ),
        );

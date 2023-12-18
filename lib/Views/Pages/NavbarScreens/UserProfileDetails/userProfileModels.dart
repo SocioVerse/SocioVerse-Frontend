@@ -30,7 +30,6 @@ class UserProfileDetailsModel {
     };
 }
 
-
 class UserProfileDetailsModelUser {
     String id;
     String name;
@@ -40,7 +39,8 @@ class UserProfileDetailsModelUser {
     int followersCount;
     int followingCount;
     int postCount;
-    dynamic bio;
+    String? bio;
+    int? state;
 
     UserProfileDetailsModelUser({
         required this.id,
@@ -51,7 +51,8 @@ class UserProfileDetailsModelUser {
         required this.followersCount,
         required this.followingCount,
         required this.postCount,
-        required this.bio,
+         this.bio,
+         this.state,
     });
 
     factory UserProfileDetailsModelUser.fromJson(Map<String, dynamic> json) => UserProfileDetailsModelUser(
@@ -64,6 +65,7 @@ class UserProfileDetailsModelUser {
         followingCount: json["following_count"],
         postCount: json["post_count"],
         bio: json["bio"],
+        state: json["state"],
     );
 
     Map<String, dynamic> toJson() => {
@@ -76,5 +78,6 @@ class UserProfileDetailsModelUser {
         "following_count": followingCount,
         "post_count": postCount,
         "bio": bio,
+        "state": state,
     };
 }

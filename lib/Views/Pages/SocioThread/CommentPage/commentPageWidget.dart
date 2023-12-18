@@ -9,8 +9,8 @@ import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/services/thread_services.dart';
 
 class CommentPageThreadLayout extends StatefulWidget {
-  ThreadModel thread;
-   CommentPageThreadLayout({super.key,
+  final ThreadModel thread;
+   const CommentPageThreadLayout({super.key,
     required this.thread});
 
   @override

@@ -1,8 +1,10 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersServices.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
@@ -41,6 +43,15 @@ class _FollowersPageState extends State<FollowersPage> {
       required FollowersModel followersModel,
       required bool isPressed}) {
     return ListTile(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserProfilePage(
+                      owner: false,
+                      userId: followersModel.user.id,
+                    ))).then((value) => getFollowers());
+      },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
@@ -107,7 +118,12 @@ class _FollowersPageState extends State<FollowersPage> {
         elevation: 0,
       ),
       body: 
-      isLoading?Center(child: CircularProgressIndicator(),):ListView.builder(
+      isLoading?
+       Center(child: SpinKitThreeBounce(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: 20,
+                        )
+      ,):ListView.builder(
         itemCount: _followersModelList!.length,
         itemBuilder: (context, index) {
           return Column(

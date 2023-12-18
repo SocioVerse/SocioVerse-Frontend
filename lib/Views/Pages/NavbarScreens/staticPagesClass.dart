@@ -14,6 +14,7 @@ class NavigatorPage {
     ActivityPage(),
     UserProfilePage(
       owner: true,
+      userId: null,
     ),
   ];
 }
