@@ -42,4 +42,19 @@ class ThreadServices {
         querryParam: {'threadId': threadId});
     return _response.success;
   }
+
+
+  Future<void> createComment({required CreateThreadModel createThreadModel
+  }) async {
+    try {
+      _response = await _helper.post(
+        ApiStringConstants.createComment,
+        isPublic: false,
+        querryParam: createThreadModel.toJson(),
+      );
+      
+    } catch (e) {
+      print(e);
+    }
+  }
 }

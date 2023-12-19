@@ -139,6 +139,7 @@ class User {
 
 
 class CreateThreadModel {
+  String? threadId;
   String content;
   List<dynamic> images;
   bool isPrivate;
@@ -146,6 +147,7 @@ class CreateThreadModel {
   List<CommentModel> comments;
 
   CreateThreadModel({
+    this.threadId,
     required this.content,
     required this.images,
     required this.isPrivate,
@@ -169,6 +171,7 @@ class CreateThreadModel {
       );
 
   Map<String, dynamic> toJson() => {
+        "threadId": threadId,
         "content": content,
         "images": List<dynamic>.from(images.map((x) => x)),
         "is_private": isPrivate,

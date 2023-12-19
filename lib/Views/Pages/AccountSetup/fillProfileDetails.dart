@@ -385,12 +385,24 @@ class _FillProfilePageState extends State<FillProfilePage> {
                   child: MyElevatedButton1(
                       title: "Continue",
                       onPressed: () async {
+                        if(faceImageLoading == true){
+                          Fluttertoast.showToast(
+                            msg: "Wait for face images to upload",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0,
+                          );
+                          return;
+                        }
                         if (fullName.text.isEmpty ||
                             username.text.isEmpty ||
                             phone.text.isEmpty ||
                             occupation.text.isEmpty ||
                             dob.text.isEmpty ||
-                            currentImage == null) {
+                            currentImage == null ) {
                           Fluttertoast.showToast(
                             msg: "Fill all details",
                             toastLength: Toast.LENGTH_SHORT,

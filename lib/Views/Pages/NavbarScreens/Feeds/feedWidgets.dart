@@ -5,13 +5,17 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/services/thread_services.dart';
 
@@ -121,19 +125,21 @@ class ReplyUserProfileImage extends StatelessWidget {
 }
 class ThreadLayout extends StatefulWidget {
   final ThreadModel thread;
-  bool isComment = false;
-  ThreadLayout({super.key, required this.thread,this.isComment = false});
+    bool isComment = false;
+   ThreadLayout({super.key, required this.thread,this.isComment = false});
 
   @override
   State<ThreadLayout> createState() => _ThreadLayoutState();
 }
 
 class _ThreadLayoutState extends State<ThreadLayout> {
+  
   bool _havereplies = true;
   int replies = 0;
   bool liked = false;
   @override
   void initState() {
+   
     if (widget.thread.commentUsers.length == 0) {
       _havereplies = false;
     } else {
@@ -260,7 +266,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
                                                 .secondary,
-                                            child: CircleAvatar(
+                                            child: const CircleAvatar(
                                                 radius: 28,
                                                 backgroundImage: AssetImage(
                                                   "assets/Country_flag/in.png",
@@ -333,14 +339,18 @@ class _ThreadLayoutState extends State<ThreadLayout> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ListTile(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>  UserProfilePage(
-                      userId : widget.thread.user.id,
-                    )));
           
+          onTap: () async {
+            await getStringFromCache(SharedPreferenceString.userId).then((value) => Navigator.push(
+                context,
+                CupertinoPageRoute(
+                    builder: (context) =>  LoadingOverlayAlt(
+                      child: UserProfilePage(
+                        owner: value == widget.thread.user.id,
+                        userId: widget.thread.user.id,
+                      ),
+                    ))));
+                
           },
           contentPadding: EdgeInsets.zero,
           leading: Padding(
@@ -386,7 +396,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     padding: const EdgeInsets.only(
                       left: 8,
                       right: 8,
-                      top: 8,
+                      top: 0,
                       bottom: 0,
                     
                     ),
@@ -431,8 +441,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       ],
                     ),
                   ),
-                  widget.thread.images.length ==0 ?  
-                  const SizedBox.shrink():
+                 
                   const SizedBox(
                     height: 10,
                   ),
@@ -449,8 +458,10 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) =>  ThreadCommentPage(
-                                threadModel : widget.thread,
+                              builder: (context) =>  LoadingOverlayAlt(
+                                child: AddCommentPage(
+                                  thread : widget.thread,
+                                ),
                               )));
                     },
                     onSave: () {},
@@ -464,7 +475,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
 
                     Row(
                       children: [
-                        SizedBox(
+                       widget.isComment?SizedBox.shrink(): SizedBox(
   width: 60,
   child: replies == 3
       ? Center(
@@ -493,6 +504,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                        context,
                                        MaterialPageRoute(
                                            builder: (context) =>  ThreadCommentPage(
+                                        
                              threadModel : widget.thread,
                            ) ));
                                  },

@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.29.71:4000";
+  static const String baseUrl = "backend-socioverse.onrender.com";
   static const String refreshToken = "token/refresh";
   static const String isEmailExists = "users/verify-email-exists";
   static const String userSignUp = "users/signup";
@@ -20,4 +20,5 @@ class ApiStringConstants {
   static const String fetchFollowing = "users/fetch-following";
   static const String addBio = "users/add-bio";
   static const String fetchAllThreadComments = "threads/read-comment-replies";
+  static const String createComment = "threads/create-comment";
 }

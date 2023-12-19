@@ -793,7 +793,6 @@ void isOwner({required BuildContext context}) {
                           Theme.of(context).colorScheme.onBackground,
                       child: CircularNetworkImageWithoutSize(
   imageUrl: userProfileDetailsModel!.user.profilePic,
-  fit: BoxFit.cover,
 ),
 
                     ),
