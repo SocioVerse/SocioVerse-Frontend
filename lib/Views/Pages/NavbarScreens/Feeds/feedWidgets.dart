@@ -37,11 +37,11 @@ class UserProfileImageStackOf2 extends StatelessWidget {
       child: Stack(
         children: [
           ReplyUserProfileImage(
-            rightPadding: 10.5,
+            rightPadding: 15.5,
             userProfileImagePath: commentUserProfilePic![0].profilePic,
           ),
           ReplyUserProfileImage(
-            rightPadding: 0.5,
+            rightPadding: 5.5,
             userProfileImagePath: commentUserProfilePic![1].profilePic,
           ),
           isShowIcon
@@ -136,7 +136,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
   
   bool _havereplies = true;
   int replies = 0;
-  bool liked = false;
   @override
   void initState() {
    
@@ -157,7 +156,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
     TextEditingController postMessage = TextEditingController();
     TextEditingController search = TextEditingController();
     bool savedPost = false;
-    bool isLiked = liked;
+    bool isLiked = widget.thread.isLiked;
     return StatefulBuilder(
       builder: (context, setState) {
         return Row(
@@ -170,8 +169,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     onLike();
                     setState(() {
                       isLiked = !isLiked;
-                      liked = isLiked;
-
+                      widget.thread.isLiked = isLiked;
                       if (isLiked) {
                         widget.thread.likeCount++;
                       } else {
@@ -462,7 +460,10 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                 child: AddCommentPage(
                                   thread : widget.thread,
                                 ),
-                              )));
+                              ))).then((value) => 
+                              setState(() {
+                                
+                              }));
                     },
                     onSave: () {},
                   ),
@@ -475,7 +476,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
 
                     Row(
                       children: [
-                       widget.isComment?SizedBox.shrink(): SizedBox(
+                       widget.isComment? const SizedBox.shrink(): SizedBox(
   width: 60,
   child: replies == 3
       ? Center(
@@ -484,10 +485,12 @@ class _ThreadLayoutState extends State<ThreadLayout> {
           ),
       )
       : replies == 2
-          ? UserProfileImageStackOf2(
-              commentUserProfilePic: widget.thread.commentUsers,
-              isShowIcon: false,
-            )
+          ? Center(
+            child: UserProfileImageStackOf2(
+                commentUserProfilePic: widget.thread.commentUsers,
+                isShowIcon: false,
+              ),
+          )
           : replies == 1
               ? Center(
                 child: ReplyUserProfileImage(
@@ -506,7 +509,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                            builder: (context) =>  ThreadCommentPage(
                                         
                              threadModel : widget.thread,
-                           ) ));
+                           ) )).then((value) => 
+                           setState(() {  }));
                                  },
                                  child: Text(
                                    "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
@@ -559,13 +563,14 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
   Widget build(BuildContext context) {
     return threadFetched
         ? allThreads.isEmpty ?
-        const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AllCaughtUp(),
-            ],
-          ),
+        const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 50,
+            ),
+            AllCaughtUp(),
+          ],
         ) :
         ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -580,14 +585,15 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
               );
             },
           )
-        : const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SpinKitWave(
-                  color: Colors.white, type: SpinKitWaveType.center),
-            ],
-          ),
+        : const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 50,
+            ),
+            SpinKitWave(
+                color: Colors.white, type: SpinKitWaveType.center),
+          ],
         );
   }
 }

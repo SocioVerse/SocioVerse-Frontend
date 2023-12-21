@@ -957,7 +957,8 @@ void isOwner({required BuildContext context}) {
                         if(userProfileDetailsModel!.user.state ==2 || widget.owner == true) {
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowersPage(
                           userId: userProfileDetailsModel!.user.id,
-                        )));
+                        ))).then((value) => 
+                        getUserProfileDetails());
                         }
                       },
                       upperText: userProfileDetailsModel!.user.followersCount.toString(),
@@ -973,7 +974,8 @@ void isOwner({required BuildContext context}) {
                         if(userProfileDetailsModel!.user.state ==2||widget.owner == true) {
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>FollowingPage(
                           userId: userProfileDetailsModel!.user.id,
-                        )));
+                        ))).then((value) => 
+                        getUserProfileDetails());
                         }
                       },
                       upperText: userProfileDetailsModel!.user.followingCount.toString(),

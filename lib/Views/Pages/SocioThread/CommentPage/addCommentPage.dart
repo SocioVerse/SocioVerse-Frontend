@@ -127,6 +127,8 @@ class _AddCommentPageState extends State<AddCommentPage> {
                 IconButton(
                   onPressed: () async {
                     LoadingOverlayAlt.of(context).show();
+
+                        widget.thread.commentCount += threads.length;
                           CreateThreadModel
                                                 createThreadModel =
                                                 CreateThreadModel(

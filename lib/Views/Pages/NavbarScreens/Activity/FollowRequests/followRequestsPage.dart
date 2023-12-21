@@ -52,90 +52,96 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
               child: SpinKitWave(
                   color: Colors.white, type: SpinKitWaveType.center),
             )
-          :
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: ListView.builder(
-          itemCount: followRequestModel.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              
-              leading: CircularNetworkImageWithoutSize(
-  imageUrl: followRequestModel[index].profilePic,
-  fit: BoxFit.cover,
-)
-,
-              title: Text(
-                followRequestModel[index].username,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                    ),
-              ),
-              subtitle: Text(
-                followRequestModel[index].occupation,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      fontWeight: FontWeight.w300,
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              side: BorderSide(
-                                  width: 1,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  style: BorderStyle.solid),
-                            ),
-                            onPressed: () {
-                              FollowRequestsServices().rejectFollowRequest(followRequestModel[index].id);
-                              setState(() {
-                                followRequestModel.removeAt(index);
-                                if(followRequestModel.isEmpty)
-                                {
-                                  Navigator.pop(context);
-                                }
-                              });
-                            },
-                            child: Text(
-                              'Delete',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                  const SizedBox(
-                    width: 10,
+          : 
+      ListView.builder(
+        itemCount: followRequestModel.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            
+            leading: CircularNetworkImageWithLoading(
+        imageUrl: followRequestModel[index].profilePic,
+        width: 45,
+        height: 45,
+      )
+      ,
+            title: Text(
+              followRequestModel[index].username,
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 20,
                   ),
-                  ElevatedButton(
-                            onPressed: () {
-
-
-                              FollowRequestsServices().acceptFollowRequest(followRequestModel[index].id);
-                              setState(() {
-                                followRequestModel.removeAt(index);
-
-                                if(followRequestModel.isEmpty)
-                                {
-                                  Navigator.pop(context);
-                                }
-                              });
-                            },
-                            child: Text( 'Accept',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onPrimary,
-                                )),
+            ),
+            subtitle: Text(
+              followRequestModel[index].occupation,
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.w300,
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5),
+                            backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            side: BorderSide(
+                                width: 1,
+                                color: Theme.of(context).colorScheme.primary,
+                                style: BorderStyle.solid),
                           ),
-                ],
-              ),
-            );
-          },
-        ),
+                          onPressed: () {
+                            FollowRequestsServices().rejectFollowRequest(followRequestModel[index].id);
+                            setState(() {
+                              followRequestModel.removeAt(index);
+                              if(followRequestModel.isEmpty)
+                              {
+                                Navigator.pop(context);
+                              }
+                            });
+                          },
+                          child: Text(
+                            'Delete',
+                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
+                        ),
+                const SizedBox(
+                  width: 7,
+                ),
+                ElevatedButton(
+                   style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5),
+                            
+                          ),
+                          onPressed: () {
+      
+      
+                            FollowRequestsServices().acceptFollowRequest(followRequestModel[index].id);
+                            setState(() {
+                              followRequestModel.removeAt(index);
+      
+                              if(followRequestModel.isEmpty)
+                              {
+                                Navigator.pop(context);
+                              }
+                            });
+                          },
+                          child: Text( 'Accept',
+                              style:Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                ),),
+                        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -5,7 +5,7 @@ import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/api_constants.dart';
 
 class UserProfileDetailsServices{
-  ApiHelper _helper = ApiHelper();
+  final ApiHelper _helper = ApiHelper();
   ApiResponse _response = ApiResponse();
 
   Future<UserProfileDetailsModel?> fetchUserProfileDetails(String? id) async {

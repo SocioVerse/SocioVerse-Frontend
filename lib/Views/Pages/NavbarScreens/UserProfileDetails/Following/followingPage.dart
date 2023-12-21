@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
@@ -21,15 +22,15 @@ class _FollowingPageState extends State<FollowingPage> {
   @override
   void initState() {
 
-    getFollowers(); 
+    getFollowings(); 
     super.initState();
   }
 
-  getFollowers() async {
+  getFollowings() async {
     setState(() {
       isLoading = true;
     });
-    _followersModelList = await FollowersServices().fetchFollowers(widget.userId);
+    _followersModelList = await FollowersServices().fetchFollowing(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -48,7 +49,8 @@ class _FollowingPageState extends State<FollowingPage> {
                 builder: (context) => UserProfilePage(
                       owner: false,
                       userId: followersModel.user.id,
-                    )));
+                    ))).then((value) => 
+                    getFollowings());
       },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -116,7 +118,10 @@ class _FollowingPageState extends State<FollowingPage> {
         elevation: 0,
       ),
       body: 
-      isLoading?Center(child: CircularProgressIndicator(),):ListView.builder(
+      isLoading?Center(child: SpinKitThreeBounce(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: 20,
+                        )):ListView.builder(
         itemCount: _followersModelList!.length,
         itemBuilder: (context, index) {
           return Column(

@@ -15,7 +15,7 @@ class ThreadModel {
   List<CommentUser> commentUsers;
   int commentCount;
   User user;
-  bool? isLiked;
+  bool isLiked = false;
   ThreadModel({
     required this.id,
     required this.content,
@@ -31,7 +31,7 @@ class ThreadModel {
     required this.commentUsers,
     required this.commentCount,
     required this.user,
-    this.isLiked,
+     required this.isLiked,
 
 
 
@@ -58,7 +58,7 @@ class ThreadModel {
             json["commentUsers"].map((x) => CommentUser.fromJson(x))),
         commentCount: json["comment_count"],
         user: User.fromJson(json["user"]),
-        isLiked: json["isLiked"],
+        isLiked: json["isLiked"]??false,
       );
 
   Map<String, dynamic> toJson() => {

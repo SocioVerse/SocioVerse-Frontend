@@ -68,7 +68,7 @@ class _ActivityPageState extends State<ActivityPage> {
                   :
               RequestsTile(
                 latestFollowRequestModel: latestFollowRequestModel,
-              
+                onTap: getLatestFollowRequest(),
 
               ),
 

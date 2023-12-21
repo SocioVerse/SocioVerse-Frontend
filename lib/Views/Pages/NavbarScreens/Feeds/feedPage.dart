@@ -21,12 +21,13 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   double _previousOffset = 0;
   @override
-  late final TabController _tabController;
-
-  @override
   void initState() {
+    _showAppbar = true;
+    _enableThread = false;
+    _scrollController.addListener(() {
+      _scrollListener();
+    });
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
   }
 
   void _scrollListener() {
@@ -48,14 +49,16 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     _previousOffset = _scrollController.offset;
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       body: NestedScrollView(
-    headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-      return <Widget>[
-        SliverAppBar(
-           automaticallyImplyLeading: false,
+      body: SafeArea(
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: <Widget>[
+            SliverAppBar(
+              automaticallyImplyLeading: false,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               expandedHeight: 70,
               floating:
@@ -86,30 +89,32 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                   icon: Icon(Ionicons.chatbubble_ellipses_outline),
                 )
               ],
+            ),
+            
+            SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  const SizedBox(
+                    width: double.infinity,
+                    height: 120,
+                    child: StoriesScroller(),
+                  ),
+                  Divider(
+                    thickness: 1,
+                    height: 0,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  ThreadViewBuilder(),
+                  // Add more widgets as needed
+                ],
+              ),
+            ),
+          ],
         ),
-      ];
-    },
-    body:
-                   Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                     children: [
-                       const SizedBox(
-                         width: 10,
-                       ),
-                       const SizedBox(
-                           width: double.infinity,
-                           height: 120,
-                           child: StoriesScroller()),
-                           Divider(
-                             thickness: 1,height: 0,
-                           color: Theme.of(context).colorScheme.tertiary,
-                           ),
-                           
-                      const ThreadViewBuilder() ,
-                     ],
-                   ),
-
-       ),
-       );
+      ),
+    );
   }
 }

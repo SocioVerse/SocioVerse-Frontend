@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 
 class SocialMediaSignUpPage extends StatefulWidget {
   const SocialMediaSignUpPage({super.key});
@@ -182,7 +183,7 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => PasswordSignInPage()));
+                          builder: (context) => LoadingOverlayAlt(child: PasswordSignInPage())));
                 },
                 child: Text("Sign in with password",
                     style: GoogleFonts.openSans(
@@ -207,7 +208,7 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                       Navigator.pushReplacement(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => PasswordSignUpPage()));
+                              builder: (context) => LoadingOverlayAlt(child: PasswordSignUpPage())));
                     },
                     child: Text(
                       "Sign up",

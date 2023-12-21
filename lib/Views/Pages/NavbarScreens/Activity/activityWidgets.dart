@@ -156,17 +156,23 @@ class StackOfTwo extends StatelessWidget {
         children: [
           Positioned(
             left: 0,
-            child: CircularNetworkImageWithoutSize(
+            child: CircularNetworkImageWithLoading(
               imageUrl: images[1],
-              fit: BoxFit.cover,
+              height: 48,
+              width: 48,
             ),
           ),
           Positioned(
             left: 5,
             top: 5,
-            child: CircularNetworkImageWithoutSize(
-              imageUrl: images[0],
-              fit: BoxFit.cover,
+            child:CircleAvatar(
+              radius: 27,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              child: CircularNetworkImageWithLoading(
+                imageUrl: images[0],
+                height: 48,
+                width: 48,
+              ),
             ),
           ),
         ],
@@ -177,7 +183,8 @@ class StackOfTwo extends StatelessWidget {
 
 class RequestsTile extends StatelessWidget {
   LatestFollowRequestModel latestFollowRequestModel;
-  RequestsTile({required this.latestFollowRequestModel});
+  final Future<dynamic>? onTap;
+  RequestsTile({required this.latestFollowRequestModel, this.onTap});
 
   String getText() {
     if (latestFollowRequestModel.followRequestCount == 1) {
@@ -198,7 +205,8 @@ class RequestsTile extends StatelessWidget {
             Navigator.push(
                 context,
                 CupertinoPageRoute(
-                    builder: ((context) => FollowRequestsPage())));
+                    builder: ((context) => const FollowRequestsPage()))).then((value) => 
+                    onTap);
           },
           leading: Stack(
             children: [
@@ -210,8 +218,10 @@ class RequestsTile extends StatelessWidget {
                   : StackOfTwo(
                       images: latestFollowRequestModel.profilePics,
                     ),
-              Positioned(
-                child: Container(
+               Positioned(
+                top: 0,
+                right: 0,
+                child:  Container(
                   height: 20,
                   width: 20,
                   decoration: BoxDecoration(
@@ -226,8 +236,6 @@ class RequestsTile extends StatelessWidget {
                         ),
                   )),
                 ),
-                top: 0,
-                right: 0,
               )
             ],
           ),
