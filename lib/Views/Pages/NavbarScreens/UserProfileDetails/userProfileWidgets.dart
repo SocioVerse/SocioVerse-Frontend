@@ -324,7 +324,7 @@ import 'package:socioverse/services/thread_services.dart';
 //               onLike: () async {
 //                 await ThreadServices()
 //                     .toogleLikeThreads(threadId: widget.thread.id);
-        
+
 //                 setState(() {});
 //               },
 //               onComment: () {
@@ -465,7 +465,6 @@ class NoPostYet extends StatelessWidget {
     );
   }
 }
-
 
 class ExpandableTextWidget extends StatefulWidget {
   final String text;

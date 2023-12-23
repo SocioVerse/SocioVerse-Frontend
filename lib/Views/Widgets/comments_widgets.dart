@@ -7,6 +7,7 @@ import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsMod
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/services/thread_services.dart';
+
 class ThreadCommentLayout extends StatefulWidget {
   final ThreadRepliesModel thread;
   const ThreadCommentLayout({super.key, required this.thread});
@@ -14,8 +15,8 @@ class ThreadCommentLayout extends StatefulWidget {
   @override
   State<ThreadCommentLayout> createState() => _ThreadCommentLayoutState();
 }
+
 class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
- 
   int replies = 0;
   bool liked = false;
   @override
@@ -24,6 +25,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
     replies = widget.thread.commentCount;
     liked = widget.thread.isLiked;
   }
+
   StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,
@@ -42,7 +44,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                 setState(() {
                   isLiked = !isLiked;
                   liked = isLiked;
-        
+
                   if (isLiked) {
                     widget.thread.likeCount++;
                   } else {
@@ -80,7 +82,6 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
             ),
-            
           ],
         );
       },
@@ -100,10 +101,10 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
               height: 40,
               width: 40,
               child: CircularNetworkImageWithLoading(
-  imageUrl: widget.thread.userProfile,
-  height: 35,
-  width:35,
-),
+                imageUrl: widget.thread.userProfile,
+                height: 35,
+                width: 35,
+              ),
             ),
           ),
           title: Text(
@@ -135,10 +136,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                   children: [
                     Text(
                       widget.thread.content,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 16,
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
@@ -158,11 +156,10 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                       ),
                       itemBuilder: (context, index) {
                         return RoundedNetworkImageWithLoading(
-  imageUrl: widget.thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-)
-;
+                          imageUrl: widget.thread.images[index],
+                          borderRadius: 5, // Set the desired border radius
+                          fit: BoxFit.cover,
+                        );
                       },
                     ),
                   ],
@@ -177,8 +174,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                   await ThreadServices()
                       .toogleLikeThreads(threadId: widget.thread.commentId);
 
-                  setState(() {
-                  });
+                  setState(() {});
                 },
                 onComment: () {
                   // Navigator.push(
@@ -193,7 +189,6 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
             ],
           ),
         ),
-        
         SizedBox(height: 8),
         Divider(
           height: 0,
@@ -204,9 +199,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
   }
 }
 
-
 class CommentBuilder extends StatelessWidget {
-
   final List<ThreadModel> threadReplies;
   const CommentBuilder({super.key, required this.threadReplies});
 
@@ -219,7 +212,6 @@ class CommentBuilder extends StatelessWidget {
       itemBuilder: (context, index) {
         return ThreadLayout(
           thread: threadReplies[index],
-        
         );
       },
     );

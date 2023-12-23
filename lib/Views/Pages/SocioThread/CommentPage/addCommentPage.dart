@@ -27,8 +27,6 @@ class AddCommentPage extends StatefulWidget {
 }
 
 class _AddCommentPageState extends State<AddCommentPage> {
-
-
   bool _showAddThread = false;
   List<ThreadData> threads = [];
   List<FocusNode> focusNodes = [];
@@ -107,10 +105,12 @@ class _AddCommentPageState extends State<AddCommentPage> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ?  Scaffold(
-            body:
-                 SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1))):
-        Scaffold(
+        ? Scaffold(
+            body: SpinKitRing(
+                color: Theme.of(context).colorScheme.tertiary,
+                lineWidth: 1,
+                duration: const Duration(seconds: 1)))
+        : Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
               elevation: 0.15,
@@ -128,44 +128,30 @@ class _AddCommentPageState extends State<AddCommentPage> {
                   onPressed: () async {
                     LoadingOverlayAlt.of(context).show();
 
-                        widget.thread.commentCount += threads.length;
-                          CreateThreadModel
-                                                createThreadModel =
-                                                CreateThreadModel(
-                                                  threadId: widget.thread.id,
-                                              content: threads[0]
-                                                  .textEditingController
-                                                  .text,
-                                              images: threads[0].images,
-                                              isPrivate: false,
-                                              isBase: false,
-                                              comments: [],
-                                            );
-                                            for (int i = 1;
-                                                i < threads.length;
-                                                i++) {
-                                              final thread = threads[i];
-                                              log(thread
-                                                  .textEditingController.text
-                                                  .toString());
-                                              createThreadModel.comments
-                                                  .add(CommentModel(
-                                                content: thread
-                                                    .textEditingController.text,
-                                                images: thread.images,
-                                              ));
-                                            }
-                                            
-                                            await ThreadServices().createComment(
-                                                createThreadModel:
-                                                    createThreadModel).then((value)  {
-                                                      LoadingOverlayAlt.of(context).hide();
-                                                      Navigator.pop(context);
-                                                    });
+                    widget.thread.commentCount += threads.length;
+                    CreateThreadModel createThreadModel = CreateThreadModel(
+                      threadId: widget.thread.id,
+                      content: threads[0].textEditingController.text,
+                      images: threads[0].images,
+                      isPrivate: false,
+                      isBase: false,
+                      comments: [],
+                    );
+                    for (int i = 1; i < threads.length; i++) {
+                      final thread = threads[i];
+                      log(thread.textEditingController.text.toString());
+                      createThreadModel.comments.add(CommentModel(
+                        content: thread.textEditingController.text,
+                        images: thread.images,
+                      ));
+                    }
 
-                                           
-                                            
-                        
+                    await ThreadServices()
+                        .createComment(createThreadModel: createThreadModel)
+                        .then((value) {
+                      LoadingOverlayAlt.of(context).hide();
+                      Navigator.pop(context);
+                    });
                   },
                   icon: Icon(
                     Ionicons.send_outline,
@@ -181,7 +167,6 @@ class _AddCommentPageState extends State<AddCommentPage> {
               child: Column(
                 children: [
                   ThreadLayout(thread: widget.thread),
-                  
                   Column(
                     children: threads.asMap().entries.map((entry) {
                       final index = entry.key;
@@ -196,11 +181,10 @@ class _AddCommentPageState extends State<AddCommentPage> {
                             Column(
                               children: [
                                 CircularNetworkImageWithLoading(
-  imageUrl: user[0].profilePic,
-  height: 35,
-  width:35,
-),
-
+                                  imageUrl: user[0].profilePic,
+                                  height: 35,
+                                  width: 35,
+                                ),
                                 Container(
                                   margin: EdgeInsets.only(top: 10),
                                   height: thread.isSelected
@@ -341,11 +325,12 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                             return Stack(
                                               children: [
                                                 RoundedNetworkImageWithLoading(
-  imageUrl: thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-),
-
+                                                  imageUrl:
+                                                      thread.images[index],
+                                                  borderRadius:
+                                                      5, // Set the desired border radius
+                                                  fit: BoxFit.cover,
+                                                ),
                                                 Align(
                                                   alignment: Alignment.topRight,
                                                   child: IconButton(
@@ -407,8 +392,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                                           images[i].path,
                                                           "${Uuid().v4()}",
                                                           "${user[0].email}/threads",
-                                                          FirebaseHelper
-                                                              .Image);
+                                                          FirebaseHelper.Image);
                                                   thread.images.add(url);
                                                 }
                                               }
@@ -443,10 +427,10 @@ class _AddCommentPageState extends State<AddCommentPage> {
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: CircularNetworkImageWithLoading(
-  imageUrl: user[0].profilePic,
-  height: 20,
-  width:20,
-),
+                          imageUrl: user[0].profilePic,
+                          height: 20,
+                          width: 20,
+                        ),
                       ),
                       title: Text(
                         'Add to thread',

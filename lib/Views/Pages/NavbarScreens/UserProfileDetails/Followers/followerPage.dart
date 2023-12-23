@@ -19,11 +19,10 @@ class FollowersPage extends StatefulWidget {
 
 class _FollowersPageState extends State<FollowersPage> {
   List<FollowersModel>? _followersModelList;
-   bool isLoading = false;
+  bool isLoading = false;
   @override
   void initState() {
-
-    getFollowers(); 
+    getFollowers();
     super.initState();
   }
 
@@ -31,7 +30,8 @@ class _FollowersPageState extends State<FollowersPage> {
     setState(() {
       isLoading = true;
     });
-    _followersModelList = await FollowersServices().fetchFollowers(widget.userId);
+    _followersModelList =
+        await FollowersServices().fetchFollowers(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -77,31 +77,32 @@ class _FollowersPageState extends State<FollowersPage> {
               fontSize: 12,
             ),
       ),
-      trailing:followersModel.state ==3 ? const SizedBox.shrink():  MyEleButtonsmall(
-          title2: ttl2,
-          title: ttl1,
-          ispressed: isPressed,
-          onPressed: () async {
-            if (followersModel.state == 2) {
-              await FollowUnfollowServices().unFollow(
-              userId: followersModel.user.id,
-            );
-            setState(() {
-              
-              if (followersModel.state == 2) {
-                followersModel.state = 0;
-              }
-            });
-            }
-            else {
-              await FollowUnfollowServices().toogleFollow(
-              userId: followersModel.user.id,
-            );
-            }
-          },
-          ctx: context),
+      trailing: followersModel.state == 3
+          ? const SizedBox.shrink()
+          : MyEleButtonsmall(
+              title2: ttl2,
+              title: ttl1,
+              ispressed: isPressed,
+              onPressed: () async {
+                if (followersModel.state == 2) {
+                  await FollowUnfollowServices().unFollow(
+                    userId: followersModel.user.id,
+                  );
+                  setState(() {
+                    if (followersModel.state == 2) {
+                      followersModel.state = 0;
+                    }
+                  });
+                } else {
+                  await FollowUnfollowServices().toogleFollow(
+                    userId: followersModel.user.id,
+                  );
+                }
+              },
+              ctx: context),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,34 +118,39 @@ class _FollowersPageState extends State<FollowersPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: 
-      isLoading?
-       Center(child:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
-      ,):ListView.builder(
-        itemCount: _followersModelList!.length,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              personListTile(
-                  followersModel: _followersModelList![index],
-                  ttl1: _followersModelList![index].state == 0
-                      ? "Follow"
-                      : _followersModelList![index].state == 2
-                          ? "Following"
-                          : "Requested",
-                  isPressed: _followersModelList![index].state == 0
-                      ? false
-                      : true,
-                  ttl2: _followersModelList![index].state == 0
-                      ? "Requested"
-                      : "Follow"),
-              SizedBox(
-                height: 10,
+      body: isLoading
+          ? Center(
+              child: SpinKitRing(
+                color: Theme.of(context).colorScheme.tertiary,
+                lineWidth: 1,
+                duration: const Duration(seconds: 1),
               ),
-            ],
-          );
-        },
-      )
-      ,);
+            )
+          : ListView.builder(
+              itemCount: _followersModelList!.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    personListTile(
+                        followersModel: _followersModelList![index],
+                        ttl1: _followersModelList![index].state == 0
+                            ? "Follow"
+                            : _followersModelList![index].state == 2
+                                ? "Following"
+                                : "Requested",
+                        isPressed: _followersModelList![index].state == 0
+                            ? false
+                            : true,
+                        ttl2: _followersModelList![index].state == 0
+                            ? "Requested"
+                            : "Follow"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                );
+              },
+            ),
+    );
   }
 }

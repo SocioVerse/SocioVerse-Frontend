@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
+
 class LocationProfilePage extends StatefulWidget {
   String locationName;
   String city;

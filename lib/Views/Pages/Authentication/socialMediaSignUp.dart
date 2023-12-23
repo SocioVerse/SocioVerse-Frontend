@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -183,7 +182,8 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => LoadingOverlayAlt(child: PasswordSignInPage())));
+                          builder: (context) =>
+                              LoadingOverlayAlt(child: PasswordSignInPage())));
                 },
                 child: Text("Sign in with password",
                     style: GoogleFonts.openSans(
@@ -208,7 +208,8 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                       Navigator.pushReplacement(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => LoadingOverlayAlt(child: PasswordSignUpPage())));
+                              builder: (context) => LoadingOverlayAlt(
+                                  child: PasswordSignUpPage())));
                     },
                     child: Text(
                       "Sign up",

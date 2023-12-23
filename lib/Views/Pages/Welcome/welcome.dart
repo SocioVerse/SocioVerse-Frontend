@@ -31,6 +31,7 @@ class _WelcomePageState extends State<WelcomePage> {
     cnt = 0;
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

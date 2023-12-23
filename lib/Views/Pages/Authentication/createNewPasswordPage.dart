@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -187,7 +186,8 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                 Navigator.push(
                     context,
                     CupertinoPageRoute(
-                        builder: (context) => LoadingOverlayAlt(child: PasswordSignUpPage())));
+                        builder: (context) =>
+                            LoadingOverlayAlt(child: PasswordSignUpPage())));
               },
             ),
             // SizedBox(

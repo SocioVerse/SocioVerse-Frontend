@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -49,7 +48,6 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     _previousOffset = _scrollController.offset;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,7 +88,6 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                 )
               ],
             ),
-            
             SliverList(
               delegate: SliverChildListDelegate(
                 [

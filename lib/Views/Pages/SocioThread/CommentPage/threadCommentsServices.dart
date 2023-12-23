@@ -5,7 +5,7 @@ import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/api_constants.dart';
 
-class ThreadCommentServices{
+class ThreadCommentServices {
   ApiHelper _helper = ApiHelper();
   ApiResponse _response = ApiResponse();
 
@@ -20,6 +20,5 @@ class ThreadCommentServices{
       threadReplies.add(ThreadModel.fromJson(element));
     });
     return threadReplies;
-
   }
 }

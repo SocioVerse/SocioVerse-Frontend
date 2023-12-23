@@ -28,7 +28,7 @@ class _CommentPageState extends State<CommentPage> {
       ),
       body: const Stack(
         children: [
-           SingleChildScrollView(
+          SingleChildScrollView(
             child: Column(
               children: [
                 PostCaption(),

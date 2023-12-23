@@ -5,7 +5,7 @@ import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/staticPagesClass.dart';
 
 class MainPage extends StatefulWidget {
-  MainPage({super.key });
+  MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();

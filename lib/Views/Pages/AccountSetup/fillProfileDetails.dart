@@ -193,7 +193,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                     return null;
                                   }
                                 });
-                    
+
                                 print(currentImage.toString());
                                 if (currentImage != null) {
                                   setState(() {
@@ -286,7 +286,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               );
                             },
                           );
-                    
+
                           if (picked != null && picked != birthDate) {
                             setState(() {
                               birthDate = picked;
@@ -385,7 +385,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                   child: MyElevatedButton1(
                       title: "Continue",
                       onPressed: () async {
-                        if(faceImageLoading == true){
+                        if (faceImageLoading == true) {
                           Fluttertoast.showToast(
                             msg: "Wait for face images to upload",
                             toastLength: Toast.LENGTH_SHORT,
@@ -402,7 +402,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             phone.text.isEmpty ||
                             occupation.text.isEmpty ||
                             dob.text.isEmpty ||
-                            currentImage == null ) {
+                            currentImage == null) {
                           Fluttertoast.showToast(
                             msg: "Fill all details",
                             toastLength: Toast.LENGTH_SHORT,

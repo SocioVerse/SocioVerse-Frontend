@@ -165,7 +165,7 @@ class StackOfTwo extends StatelessWidget {
           Positioned(
             left: 5,
             top: 5,
-            child:CircleAvatar(
+            child: CircleAvatar(
               radius: 27,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               child: CircularNetworkImageWithLoading(
@@ -203,10 +203,10 @@ class RequestsTile extends StatelessWidget {
         ListTile(
           onTap: () {
             Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: ((context) => const FollowRequestsPage()))).then((value) => 
-                    onTap);
+                    context,
+                    CupertinoPageRoute(
+                        builder: ((context) => const FollowRequestsPage())))
+                .then((value) => onTap);
           },
           leading: Stack(
             children: [
@@ -218,10 +218,10 @@ class RequestsTile extends StatelessWidget {
                   : StackOfTwo(
                       images: latestFollowRequestModel.profilePics,
                     ),
-               Positioned(
+              Positioned(
                 top: 0,
                 right: 0,
-                child:  Container(
+                child: Container(
                   height: 20,
                   width: 20,
                   decoration: BoxDecoration(

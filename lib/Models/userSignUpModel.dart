@@ -42,7 +42,8 @@ class UserSignUpModel {
 
   String toRawJson() => json.encode(toJson());
 
-  factory UserSignUpModel.fromJson(Map<String, dynamic> json) => UserSignUpModel(
+  factory UserSignUpModel.fromJson(Map<String, dynamic> json) =>
+      UserSignUpModel(
         message: json["message"],
         name: json["name"],
         email: json["email"],

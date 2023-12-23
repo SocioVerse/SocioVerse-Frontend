@@ -56,6 +56,7 @@ class TextFieldBuilder extends StatelessWidget {
     );
   }
 }
+
 class TextFieldBuilder2 extends StatelessWidget {
   TextEditingController tcontroller;
   String hintTexxt;
@@ -85,7 +86,7 @@ class TextFieldBuilder2 extends StatelessWidget {
           .textTheme
           .bodyMedium!
           .copyWith(fontSize: 16, color: Theme.of(context).colorScheme.surface),
-       // Allow the widget to expand vertically
+      // Allow the widget to expand vertically
       decoration: InputDecoration(
         prefixIcon: prefixxIcon,
         contentPadding: EdgeInsets.all(20),
@@ -117,4 +118,3 @@ class TextFieldBuilder2 extends StatelessWidget {
     );
   }
 }
-

@@ -32,11 +32,8 @@ class ThreadModel {
     required this.commentUsers,
     required this.commentCount,
     required this.user,
-     required this.isLiked,
-     required this.isReposted,
-
-
-
+    required this.isLiked,
+    required this.isReposted,
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -55,13 +52,15 @@ class ThreadModel {
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
         parentThread: json["parent_thread"],
-        userLikes:json["userLikes"]!=null? List<dynamic>.from(json["userLikes"].map((x) => x)):[],
+        userLikes: json["userLikes"] != null
+            ? List<dynamic>.from(json["userLikes"].map((x) => x))
+            : [],
         commentUsers: List<CommentUser>.from(
             json["commentUsers"].map((x) => CommentUser.fromJson(x))),
         commentCount: json["comment_count"],
         user: User.fromJson(json["user"]),
-        isLiked: json["isLiked"]??false,
-        isReposted: json["isReposted"]??false,
+        isLiked: json["isLiked"] ?? false,
+        isReposted: json["isReposted"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -80,7 +79,6 @@ class ThreadModel {
         "comment_count": commentCount,
         "user": user.toJson(),
         "isLiked": isLiked,
-
       };
 }
 
@@ -132,7 +130,7 @@ class User {
         username: json["username"],
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
-        isOwner: json["isOwner"]??false,
+        isOwner: json["isOwner"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -142,7 +140,6 @@ class User {
         "profile_pic": profilePic,
       };
 }
-
 
 class CreateThreadModel {
   String? threadId;

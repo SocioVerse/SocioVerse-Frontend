@@ -3,11 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 ThemeData theme() {
   return ThemeData(
-    
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: Color(0xff1A1B22),
       surfaceTintColor: Color(0xff1A1B22),
-      shape:  RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
         ),
@@ -52,7 +51,6 @@ ThemeData theme() {
       surfaceTintColor: Color(0xff1A1B22),
       iconTheme: IconThemeData(color: Colors.white, size: 30),
     ),
-
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xffFF4D67),
@@ -61,8 +59,5 @@ ThemeData theme() {
         ),
       ),
     ),
-    
-    
-    
   );
 }

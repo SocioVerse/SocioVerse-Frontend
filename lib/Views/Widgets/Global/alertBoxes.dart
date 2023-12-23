@@ -29,7 +29,10 @@ class AlertBoxes {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(title,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 fontSize: 20,
                               )),
@@ -103,7 +106,6 @@ class AlertBoxes {
           );
         });
   }
- 
 
   static void showSnackBar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(

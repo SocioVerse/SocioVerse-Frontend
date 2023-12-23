@@ -4,7 +4,7 @@ import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/api_constants.dart';
 
-class FollowRequestsServices{
+class FollowRequestsServices {
   ApiHelper _helper = ApiHelper();
   ApiResponse _response = ApiResponse();
 

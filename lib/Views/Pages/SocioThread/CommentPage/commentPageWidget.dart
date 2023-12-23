@@ -10,15 +10,15 @@ import 'package:socioverse/services/thread_services.dart';
 
 class CommentPageThreadLayout extends StatefulWidget {
   final ThreadModel thread;
-   const CommentPageThreadLayout({super.key,
-    required this.thread});
+  const CommentPageThreadLayout({super.key, required this.thread});
 
   @override
-  State<CommentPageThreadLayout> createState() => _CommentPageThreadLayoutState();
+  State<CommentPageThreadLayout> createState() =>
+      _CommentPageThreadLayoutState();
 }
 
 class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
- bool _havereplies = true;
+  bool _havereplies = true;
   int replies = 0;
   bool liked = false;
   @override
@@ -31,7 +31,7 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
     super.initState();
   }
 
-   StatefulBuilder getThreadFooter({
+  StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,
     required Function onComment,
@@ -45,7 +45,7 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
       builder: (context, setState) {
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [ 
+          children: [
             Row(
               children: [
                 IconButton(
@@ -53,7 +53,7 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
                     onLike();
                     setState(() {
                       isLiked = !isLiked;
-                
+
                       if (isLiked) {
                         widget.thread.likeCount++;
                       } else {
@@ -68,12 +68,13 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
                         : Theme.of(context).colorScheme.onPrimary,
                     size: 30,
                   ),
-                ),Text(
-                     widget.thread.likeCount.toString(),
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
+                ),
+                Text(
+                  widget.thread.likeCount.toString(),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
                 IconButton(
                   onPressed: () {
                     onComment();
@@ -83,12 +84,13 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
                     color: Theme.of(context).colorScheme.onPrimary,
                     size: 30,
                   ),
-                ),Text(
-                      widget.thread.commentCount.toString(),
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
+                ),
+                Text(
+                  widget.thread.commentCount.toString(),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
                 IconButton(
                   onPressed: () {
                     showModalBottomSheet(
@@ -219,6 +221,7 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
       },
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -232,10 +235,10 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
               height: 40,
               width: 40,
               child: CircularNetworkImageWithLoading(
-  imageUrl: widget.thread.user.profilePic,
-  height: 35,
-  width:35,
-),
+                imageUrl: widget.thread.user.profilePic,
+                height: 35,
+                width: 35,
+              ),
             ),
           ),
           title: Text(
@@ -259,71 +262,64 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 25),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.thread.content,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(
-                              fontSize: 16,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        itemCount: widget.thread.images.length,
-                        physics: NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                        ),
-                        itemBuilder: (context, index) {
-                          return RoundedNetworkImageWithLoading(
-  imageUrl: widget.thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-);
-
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                    padding: const EdgeInsets.only(left: 25, top: 10),
-                    child: getThreadFooter(
-                      isPost: false,
-                      onLike: () async {
-                        await ThreadServices()
-                            .toogleLikeThreads(threadId: widget.thread.id);
-                      },
-                      onComment: () {
-                       
-                      },
-                      onSave: () {},
+              child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 25),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.thread.content,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                     ),
-                  ),
-                ],
-              )
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      itemCount: widget.thread.images.length,
+                      physics: NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                      ),
+                      itemBuilder: (context, index) {
+                        return RoundedNetworkImageWithLoading(
+                          imageUrl: widget.thread.images[index],
+                          borderRadius: 5, // Set the desired border radius
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 25, top: 10),
+                child: getThreadFooter(
+                  isPost: false,
+                  onLike: () async {
+                    await ThreadServices()
+                        .toogleLikeThreads(threadId: widget.thread.id);
+                  },
+                  onComment: () {},
+                  onSave: () {},
+                ),
+              ),
+            ],
+          )),
         ),
-    ],
+      ],
     );
   }
 }

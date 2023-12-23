@@ -18,8 +18,6 @@ import 'package:socioverse/services/thread_services.dart';
 import 'package:socioverse/services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
-
-
 class NewThread extends StatefulWidget {
   const NewThread({super.key});
 
@@ -107,9 +105,12 @@ class _NewThreadState extends State<NewThread> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ?  Scaffold(
-            body:
-                 SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),))
+        ? Scaffold(
+            body: SpinKitRing(
+            color: Theme.of(context).colorScheme.tertiary,
+            lineWidth: 1,
+            duration: const Duration(seconds: 1),
+          ))
         : Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
@@ -129,9 +130,7 @@ class _NewThreadState extends State<NewThread> {
                     showDialog(
                         context: context,
                         builder: ((ctx) {
-                          return CreateNewThreadAlertBox(
-                              threads: threads
-                          );
+                          return CreateNewThreadAlertBox(threads: threads);
                         }));
                   },
                   icon: Icon(
@@ -161,11 +160,10 @@ class _NewThreadState extends State<NewThread> {
                             Column(
                               children: [
                                 CircularNetworkImageWithLoading(
-  imageUrl: user[0].profilePic,
-  height: 35,
-  width:35,
-),
-
+                                  imageUrl: user[0].profilePic,
+                                  height: 35,
+                                  width: 35,
+                                ),
                                 Container(
                                   margin: EdgeInsets.only(top: 10),
                                   height: thread.isSelected
@@ -306,11 +304,12 @@ class _NewThreadState extends State<NewThread> {
                                             return Stack(
                                               children: [
                                                 RoundedNetworkImageWithLoading(
-  imageUrl: thread.images[index],
-  borderRadius: 5, // Set the desired border radius
-  fit: BoxFit.cover,
-),
-
+                                                  imageUrl:
+                                                      thread.images[index],
+                                                  borderRadius:
+                                                      5, // Set the desired border radius
+                                                  fit: BoxFit.cover,
+                                                ),
                                                 Align(
                                                   alignment: Alignment.topRight,
                                                   child: IconButton(
@@ -372,8 +371,7 @@ class _NewThreadState extends State<NewThread> {
                                                           images[i].path,
                                                           "${Uuid().v4()}",
                                                           "${user[0].email}/threads",
-                                                          FirebaseHelper
-                                                              .Image);
+                                                          FirebaseHelper.Image);
                                                   thread.images.add(url);
                                                 }
                                               }
@@ -408,10 +406,10 @@ class _NewThreadState extends State<NewThread> {
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
                         child: CircularNetworkImageWithLoading(
-  imageUrl: user[0].profilePic,
-  height: 20,
-  width:20,
-),
+                          imageUrl: user[0].profilePic,
+                          height: 20,
+                          width: 20,
+                        ),
                       ),
                       title: Text(
                         'Add to thread',

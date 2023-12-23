@@ -26,7 +26,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     with SingleTickerProviderStateMixin {
   List<SearchedUser> searchedUser = [];
   bool isUserFetched = false;
-   UniqueKey _refreshKey = UniqueKey();
+  UniqueKey _refreshKey = UniqueKey();
 
   late TabController _tabController;
   TextEditingController searchText = TextEditingController();
@@ -161,13 +161,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                         ),
                         TabBar(
                           labelColor: Theme.of(context).colorScheme.primary,
-                        unselectedLabelColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        indicatorColor: Theme.of(context).colorScheme.primary,
-                        automaticIndicatorColorAdjustment: true,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        indicatorWeight: 3,
-                        dividerColor: Theme.of(context).colorScheme.onPrimary,
+                          unselectedLabelColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          indicatorColor: Theme.of(context).colorScheme.primary,
+                          automaticIndicatorColorAdjustment: true,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicatorWeight: 3,
+                          dividerColor: Theme.of(context).colorScheme.onPrimary,
                           onTap: (value) {
                             if (value == 0) {
                               getQueryUser();
@@ -208,18 +208,21 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 SizedBox(
                   height: 20,
                 ),
-                
-                         AutoScaleTabBarView(
-                          key: _refreshKey,
-                            children: [
-                              searchText.text.isNotEmpty && isUserFetched == false
-                    ? SizedBox(
-                        height: MyApp.height!/1.5,
-                      child: Center(
-                        child:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),),
-                      ),
-                    )
-                    : ListView.builder(
+                AutoScaleTabBarView(
+                  key: _refreshKey,
+                  children: [
+                    searchText.text.isNotEmpty && isUserFetched == false
+                        ? SizedBox(
+                            height: MyApp.height! / 1.5,
+                            child: Center(
+                              child: SpinKitRing(
+                                color: Theme.of(context).colorScheme.tertiary,
+                                lineWidth: 1,
+                                duration: const Duration(seconds: 1),
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
                             shrinkWrap: true,
                             itemCount: searchedUser.length,
                             physics: NeverScrollableScrollPhysics(),
@@ -244,69 +247,66 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                               ]);
                             },
                           ),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: GridView.builder(
-                                    physics:const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                       const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5,
-                                      mainAxisSpacing: 5,
-                                      childAspectRatio: 1,
-                                    ),
-                                    itemCount: 100,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              "assets/Country_flag/in.png",
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: 10,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  return Column(children: [
-                                    hashtagsTile(
-                                      hashtagsTile: "kunal",
-                                      posts: 357014568,
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                  ]);
-                                },
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: 10,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  return Column(children: [
-                                    locationTile(
-                                        address: "Jaipur, Rajasthan",
-                                        subAddress:
-                                            "129, Shri Ram Nagar, Jhotwara"),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                  ]);
-                                },
-                              ),
-                            ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 5,
+                            mainAxisSpacing: 5,
+                            childAspectRatio: 1,
                           ),
+                          itemCount: 100,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: const DecorationImage(
+                                  image: AssetImage(
+                                    "assets/Country_flag/in.png",
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          }),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 10,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Column(children: [
+                          hashtagsTile(
+                            hashtagsTile: "kunal",
+                            posts: 357014568,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                        ]);
+                      },
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 10,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return Column(children: [
+                          locationTile(
+                              address: "Jaipur, Rajasthan",
+                              subAddress: "129, Shri Ram Nagar, Jhotwara"),
+                          SizedBox(
+                            height: 10,
+                          ),
+                        ]);
+                      },
+                    ),
+                  ],
+                ),
               ],
             )),
       ],
@@ -399,8 +399,6 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
           setState(() {
             getQueryUser();
           });
-        
-
         });
       },
       leading: Padding(
@@ -435,14 +433,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
           onPressed: () async {
             if (user.state == 2) {
               await FollowUnfollowServices().unFollow(
-              userId: user.id,
-            );
-            setState(() {
-              
-              if (user.state == 2) {
-                user.state = 0;
-              }
-            });
+                userId: user.id,
+              );
+              setState(() {
+                if (user.state == 2) {
+                  user.state = 0;
+                }
+              });
             }
             await FollowUnfollowServices().toogleFollow(
               userId: user.id,

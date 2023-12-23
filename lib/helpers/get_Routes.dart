@@ -34,8 +34,12 @@ class GetInitPage extends StatelessWidget {
             }
           }
         } else {
-          return  Scaffold(
-              body:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),));
+          return Scaffold(
+              body: SpinKitRing(
+            color: Theme.of(context).colorScheme.tertiary,
+            lineWidth: 1,
+            duration: const Duration(seconds: 1),
+          ));
         }
       },
     );

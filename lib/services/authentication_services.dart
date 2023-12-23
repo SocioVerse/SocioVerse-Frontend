@@ -51,13 +51,9 @@ class AuthServices {
       UserSignUpModel user = UserSignUpModel.fromJson(response.data);
       setStringIntoCache(
           SharedPreferenceString.refreshToken, user.refreshToken);
-      setStringIntoCache(
-          SharedPreferenceString.accessToken, user.accessToken);
+      setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
-
-
-
     }
 
     return response;

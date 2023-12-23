@@ -43,44 +43,35 @@ class ThreadServices {
     return _response.success;
   }
 
-
-  Future<void> createComment({required CreateThreadModel createThreadModel
-  }) async {
+  Future<void> createComment(
+      {required CreateThreadModel createThreadModel}) async {
     try {
       _response = await _helper.post(
         ApiStringConstants.createComment,
         isPublic: false,
         querryParam: createThreadModel.toJson(),
       );
-      
     } catch (e) {
       print(e);
     }
   }
 
-
-  Future<void> deleteThread({required String threadId
-  }) async {
+  Future<void> deleteThread({required String threadId}) async {
     try {
       _response = await _helper.delete(
         ApiStringConstants.deleteThreads,
         querryParam: {'threadId': threadId},
       );
-      
     } catch (e) {
       print(e);
     }
   }
-
 
   Future<String> toogleRepostThreads({
     required String threadId,
   }) async {
     _response = await _helper.post(ApiStringConstants.toogleRepostThread,
         querryParam: {'threadId': threadId});
-        return _response.data;
+    return _response.data;
   }
-
- 
-
 }

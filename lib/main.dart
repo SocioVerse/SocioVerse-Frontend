@@ -21,7 +21,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FaceCamera.initialize();
-  
+
   runApp(MyApp());
 }
 
@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SocioVerse',
-      theme: theme(), 
+      theme: theme(),
       home: LoadingOverlayAlt(child: GetInitPage()),
     );
   }

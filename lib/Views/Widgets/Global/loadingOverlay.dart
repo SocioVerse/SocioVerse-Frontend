@@ -37,8 +37,12 @@ class LoadingOverlayAlt extends StatelessWidget {
                 child: ModalBarrier(dismissible: false, color: Colors.black),
               ),
             if (isLoading)
-               Center(
-                child:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),),
+              Center(
+                child: SpinKitRing(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  lineWidth: 1,
+                  duration: const Duration(seconds: 1),
+                ),
               ),
           ],
         );

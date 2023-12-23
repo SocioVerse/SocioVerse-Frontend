@@ -14,17 +14,15 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 
-
 class ThreadCommentPage extends StatefulWidget {
- ThreadModel threadModel;
-   ThreadCommentPage({required this.threadModel});
+  ThreadModel threadModel;
+  ThreadCommentPage({required this.threadModel});
 
   @override
   State<ThreadCommentPage> createState() => _ThreadCommentPageState();
 }
 
 class _ThreadCommentPageState extends State<ThreadCommentPage> {
-
   List<ThreadModel> threadReplies = [];
   bool isLoading = true;
   @override
@@ -37,34 +35,32 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
     setState(() {
       isLoading = true;
     });
-    threadReplies = await ThreadCommentServices().fetchThreadReplies(widget.threadModel.id);
+    threadReplies =
+        await ThreadCommentServices().fetchThreadReplies(widget.threadModel.id);
     setState(() {
       isLoading = false;
     });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        
         onPressed: () {
-
           Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => LoadingOverlayAlt(
-                    child: AddCommentPage(
-                      thread: widget.threadModel,
-                    ),
-                  ))).then((value) => getThreadComments());
-         
+                        child: AddCommentPage(
+                          thread: widget.threadModel,
+                        ),
+                      ))).then((value) => getThreadComments());
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        child:  Icon(
+        child: Icon(
           Ionicons.chatbubble,
           color: Theme.of(context).colorScheme.onPrimary,
         ),
@@ -80,11 +76,8 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
         toolbarHeight: 70,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-    
-        
-        
       ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -97,15 +90,19 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
               const SizedBox(
                 height: 20,
               ),
-              isLoading==true?
-              Center(
-                    child: SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
-                  ):
-              
-               CommentBuilder(
-                threadReplies: threadReplies,
-               ),
-              const SizedBox(height: 20,)
+              isLoading == true
+                  ? Center(
+                      child: SpinKitRing(
+                      color: Theme.of(context).colorScheme.tertiary,
+                      lineWidth: 1,
+                      duration: const Duration(seconds: 1),
+                    ))
+                  : CommentBuilder(
+                      threadReplies: threadReplies,
+                    ),
+              const SizedBox(
+                height: 20,
+              )
             ],
           ),
         ),

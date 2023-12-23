@@ -420,8 +420,6 @@ class _ThreadReplyState extends State<ThreadReply> {
                                             },
                                             child: !_isExtended
                                                 ? UserProfileImageStackOf2(
-                                                  
-
                                                     isShowIcon: true,
                                                   )
                                                 : SizedBox(),

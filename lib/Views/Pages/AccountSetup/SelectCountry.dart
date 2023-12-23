@@ -38,16 +38,15 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
             title: "Continue",
             onPressed: () {
               widget.signupUser.country = CountryList[selectCountry].value;
-              
+
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => LoadingOverlayAlt(
-                        child: FillProfilePage(
-                          signupUser: widget.signupUser,
-                             
+                            child: FillProfilePage(
+                              signupUser: widget.signupUser,
                             ),
-                      )));
+                          )));
             },
             ctx: context),
       ),

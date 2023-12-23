@@ -20,7 +20,7 @@ import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/services/authentication_services.dart';
 
 class UpdateProfilePage extends StatefulWidget {
-  final UserProfileDetailsModelUser user; 
+  final UserProfileDetailsModelUser user;
 
   const UpdateProfilePage({Key? key, required this.user}) : super(key: key);
 
@@ -42,9 +42,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     username.text = widget.user.username;
     occupation.text = widget.user.occupation;
     currentImage = widget.user.profilePic;
-    bioController.text = widget.user.bio??"";
-    
-    
+    bioController.text = widget.user.bio ?? "";
+
     super.initState();
   }
 
@@ -72,8 +71,11 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         contentPadding: EdgeInsets.all(20),
         filled: true,
         fillColor: Theme.of(context).colorScheme.secondary,
-        label: Text(lableText, style: Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16,color: Theme.of(context).colorScheme.tertiary),),
-      
+        label: Text(
+          lableText,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16, color: Theme.of(context).colorScheme.tertiary),
+        ),
         floatingLabelAlignment: FloatingLabelAlignment.start,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
@@ -139,14 +141,20 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                       Theme.of(context).colorScheme.background,
                                   size: 100,
                                 )
-                              :profileImage==null? profileImageLoading == true
-                                  ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : CircularNetworkImageWithoutSize(
-                                      imageUrl: currentImage!,
+                              : profileImage == null
+                                  ? profileImageLoading == true
+                                      ? const Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                      : CircularNetworkImageWithoutSize(
+                                          imageUrl: currentImage!,
+                                          fit: BoxFit.cover,
+                                        )
+                                  : ClipOval(
+                                      child: Image.file(
+                                      profileImage!,
                                       fit: BoxFit.cover,
-                                    ):ClipOval(child: Image.file(profileImage!,fit: BoxFit.cover,)),
+                                    )),
                         ),
                         Positioned(
                           bottom: 10,
@@ -165,7 +173,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                 profileImage =
                                     await ImagePickerFunctionsHelper()
                                         .requestPermissionsAndPickFile(context);
-                    
+
                                 print(currentImage.toString());
                                 if (currentImage != null) {
                                   setState(() {
@@ -186,13 +194,12 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 ),
                 textFieldBuilder(
                     tcontroller: fullName,
-                    lableText:"Full Name",
+                    lableText: "Full Name",
                     onChangedf: () {}),
                 textFieldBuilder(
                     tcontroller: username,
                     lableText: "Username",
                     onChangedf: () {}),
-               
                 textFieldBuilder(
                     tcontroller: occupation,
                     lableText: "Occupation",
@@ -202,17 +209,15 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     lableText: "Bio",
                     onChangedf: () {},
                     maxLines: 5),
-                    
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: MyElevatedButton1(
                       title: "Update Profile",
                       onPressed: () async {
-                       
                         if (fullName.text.isEmpty ||
                             username.text.isEmpty ||
                             occupation.text.isEmpty ||
-                            currentImage == null ) {
+                            currentImage == null) {
                           Fluttertoast.showToast(
                             msg: "Fill all details",
                             toastLength: Toast.LENGTH_SHORT,
@@ -224,44 +229,43 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           );
                           return;
                         } else {
-                          
                           LoadingOverlayAlt.of(context).show();
-                          if(profileImage!=null){
-                          await FirebaseHelper.deleteFolder(
-                                        "${widget.user.email}/profilepic");
-                          currentImage = await FirebaseHelper.uploadFile(
-                                        profileImage!.path,
-                                        widget.user.email,
-                                        "${widget.user.email}/profilepic",
-                                        FirebaseHelper.Image);
-                                        }
+                          if (profileImage != null) {
+                            await FirebaseHelper.deleteFolder(
+                                "${widget.user.email}/profilepic");
+                            currentImage = await FirebaseHelper.uploadFile(
+                                profileImage!.path,
+                                widget.user.email,
+                                "${widget.user.email}/profilepic",
+                                FirebaseHelper.Image);
+                          }
                           widget.user.name = fullName.text;
                           widget.user.username = username.text;
                           widget.user.occupation = occupation.text;
-                          widget.user.profilePic = currentImage??widget.user.profilePic;
-                              await UserProfileSettingsServices().updateProfile(
-                                  widget.user
-                          ).then((response){
-                          LoadingOverlayAlt.of(context).hide();
-                          if (response.success == true && context.mounted) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => MainPage()),
-                                (route) => false);
-                          } else {
-                            Fluttertoast.showToast(
-                              msg: response.message.toString(),
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              fontSize: 16.0,
-                            );
-                          }
-                        }
-                        );
+                          widget.user.profilePic =
+                              currentImage ?? widget.user.profilePic;
+                          await UserProfileSettingsServices()
+                              .updateProfile(widget.user)
+                              .then((response) {
+                            LoadingOverlayAlt.of(context).hide();
+                            if (response.success == true && context.mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => MainPage()),
+                                  (route) => false);
+                            } else {
+                              Fluttertoast.showToast(
+                                msg: response.message.toString(),
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.white,
+                                textColor: Colors.black,
+                                fontSize: 16.0,
+                              );
+                            }
+                          });
                         }
                       },
                       ctx: context),
