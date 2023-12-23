@@ -47,5 +47,5 @@ Future<int> getIntFromCache(String? key) async {
 
 Future<bool?> getBooleanFromCache(String? key) async {
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  return sharedPreferences.getBool(key!) ;
+  return sharedPreferences.getBool(key!);
 }

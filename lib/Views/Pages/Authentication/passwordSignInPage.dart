@@ -142,7 +142,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       isPasswordVisible
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
-                          color: Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -176,11 +176,9 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       value: isChecked,
                       activeColor: Theme.of(context).colorScheme.primary,
                       checkColor: Theme.of(context).colorScheme.surface,
-                       fillColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.secondary),
-                  
-
+                      fillColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.secondary),
                       shape: RoundedRectangleBorder(
-                        
                         borderRadius: BorderRadius.circular(5),
                         side: BorderSide(
                           width: 2,
@@ -227,7 +225,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                                 userNameOrEmailController.text.trim(),
                             password: passwordController.text.trim()),
                       );
-                            LoadingOverlayAlt.of(context).hide();
+                      LoadingOverlayAlt.of(context).hide();
                       if (response!.success == true && context.mounted) {
                         Navigator.pushAndRemoveUntil(
                             context,
@@ -369,7 +367,8 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => LoadingOverlayAlt(child: PasswordSignUpPage())));
+                                builder: (context) => LoadingOverlayAlt(
+                                    child: PasswordSignUpPage())));
                       },
                       child: Text(
                         "Sign up",

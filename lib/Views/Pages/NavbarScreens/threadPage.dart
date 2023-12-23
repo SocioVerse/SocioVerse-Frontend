@@ -70,8 +70,8 @@ class _ThreadPageState extends State<ThreadPage> {
               actions: [
                 IconButton(
                   onPressed: () {
-                    Navigator.pushReplacement(context, 
-                    CupertinoPageRoute(builder: ((context) {
+                    Navigator.pushReplacement(context,
+                        CupertinoPageRoute(builder: ((context) {
                       return FeedsPage();
                     })));
                   },
@@ -99,16 +99,12 @@ class _ThreadPageState extends State<ThreadPage> {
                         SizedBox(
                           width: 10,
                         ),
-                         ThreadViewBuilder(),
+                        ThreadViewBuilder(),
                       ],
-                      
-                    
-                  ),
+                    ),
                   ),
                   // Add more widgets as needed
                 ],
-              
-
               ),
             ),
           ],

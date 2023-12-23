@@ -15,7 +15,8 @@ class ThreadModel {
   List<CommentUser> commentUsers;
   int commentCount;
   User user;
-  bool? isLiked;
+  bool isLiked = false;
+  bool isReposted = false;
   ThreadModel({
     required this.id,
     required this.content,
@@ -31,10 +32,8 @@ class ThreadModel {
     required this.commentUsers,
     required this.commentCount,
     required this.user,
-    this.isLiked,
-
-
-
+    required this.isLiked,
+    required this.isReposted,
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -53,12 +52,15 @@ class ThreadModel {
         updatedAt: DateTime.parse(json["updatedAt"]),
         v: json["__v"],
         parentThread: json["parent_thread"],
-        userLikes:json["userLikes"]!=null? List<dynamic>.from(json["userLikes"].map((x) => x)):[],
+        userLikes: json["userLikes"] != null
+            ? List<dynamic>.from(json["userLikes"].map((x) => x))
+            : [],
         commentUsers: List<CommentUser>.from(
             json["commentUsers"].map((x) => CommentUser.fromJson(x))),
         commentCount: json["comment_count"],
         user: User.fromJson(json["user"]),
-        isLiked: json["isLiked"],
+        isLiked: json["isLiked"] ?? false,
+        isReposted: json["isReposted"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -110,12 +112,13 @@ class User {
   String username;
   String occupation;
   String profilePic;
-
+  bool isOwner = false;
   User({
     required this.id,
     required this.username,
     required this.occupation,
     required this.profilePic,
+    required this.isOwner,
   });
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
@@ -127,6 +130,7 @@ class User {
         username: json["username"],
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
+        isOwner: json["isOwner"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -137,8 +141,8 @@ class User {
       };
 }
 
-
 class CreateThreadModel {
+  String? threadId;
   String content;
   List<dynamic> images;
   bool isPrivate;
@@ -146,6 +150,7 @@ class CreateThreadModel {
   List<CommentModel> comments;
 
   CreateThreadModel({
+    this.threadId,
     required this.content,
     required this.images,
     required this.isPrivate,
@@ -169,6 +174,7 @@ class CreateThreadModel {
       );
 
   Map<String, dynamic> toJson() => {
+        "threadId": threadId,
         "content": content,
         "images": List<dynamic>.from(images.map((x) => x)),
         "is_private": isPrivate,

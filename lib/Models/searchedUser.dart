@@ -28,9 +28,7 @@ class SearchedUser {
         username: json["username"],
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
-
         state: json["state"],
-
       );
 
   Map<String, dynamic> toJson() => {

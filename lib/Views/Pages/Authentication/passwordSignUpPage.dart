@@ -29,11 +29,10 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
   bool isChecked = false;
   @override
   void initState() {
-    
-    
     setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,7 +141,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       isPasswordVisible
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                   border: OutlineInputBorder(
@@ -176,11 +175,9 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       value: isChecked,
                       activeColor: Theme.of(context).colorScheme.primary,
                       checkColor: Theme.of(context).colorScheme.surface,
-                       fillColor: MaterialStateProperty.all<Color>(Theme.of(context).colorScheme.secondary),
-                  
-
+                      fillColor: MaterialStateProperty.all<Color>(
+                          Theme.of(context).colorScheme.secondary),
                       shape: RoundedRectangleBorder(
-                        
                         borderRadius: BorderRadius.circular(5),
                         side: BorderSide(
                           width: 2,
@@ -304,7 +301,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         ),
                       ),
                       onPressed: () {},
-                      child:const Icon(
+                      child: const Icon(
                         Ionicons.logo_google,
                         color: Colors.white,
                         size: 35,
@@ -347,7 +344,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                             context,
                             CupertinoPageRoute(
                                 builder: (context) => LoadingOverlayAlt(
-                                  child: PasswordSignInPage())));
+                                    child: PasswordSignInPage())));
                       },
                       child: Text(
                         "Sign in",

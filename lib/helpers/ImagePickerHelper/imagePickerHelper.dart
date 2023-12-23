@@ -47,9 +47,7 @@ class ImagePickerFunctionsHelper {
 
   Future<List<File>?> pickMultipleImage(BuildContext context) async {
     print("Image Uploadinng.....");
-    final pickedFile = await picker.pickMultiImage(
-      
-    );
+    final pickedFile = await picker.pickMultiImage();
 
     if (pickedFile != null) {
       List<File> croppedFileList = [];
@@ -103,7 +101,8 @@ class ImagePickerFunctionsHelper {
     );
   }
 
-  Future<List<File>?> requestPermissionsAndPickMultipleFile(BuildContext context) async {
+  Future<List<File>?> requestPermissionsAndPickMultipleFile(
+      BuildContext context) async {
     List<File>? image;
     var status = await Permission.storage.status;
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
@@ -131,7 +130,6 @@ class ImagePickerFunctionsHelper {
       }
     }
     return image;
-
   }
 
   Future<File?> requestPermissionsAndPickFile(BuildContext context) async {

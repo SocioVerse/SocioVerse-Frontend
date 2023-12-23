@@ -5,28 +5,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:pinput/pinput.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
-import 'package:socioverse/Models/userSignUpModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/services/thread_services.dart';
 import 'package:socioverse/services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
-class NewThread extends StatefulWidget {
-  const NewThread({super.key});
+class AddCommentPage extends StatefulWidget {
+  final ThreadModel thread;
+  const AddCommentPage({Key? key, required this.thread}) : super(key: key);
 
   @override
-  State<NewThread> createState() => _NewThreadState();
+  State<AddCommentPage> createState() => _AddCommentPageState();
 }
 
-class _NewThreadState extends State<NewThread> {
-  // Start with 1 line
+class _AddCommentPageState extends State<AddCommentPage> {
   bool _showAddThread = false;
   List<ThreadData> threads = [];
   List<FocusNode> focusNodes = [];
@@ -107,10 +107,9 @@ class _NewThreadState extends State<NewThread> {
     return user.isEmpty
         ? Scaffold(
             body: SpinKitRing(
-            color: Theme.of(context).colorScheme.tertiary,
-            lineWidth: 1,
-            duration: const Duration(seconds: 1),
-          ))
+                color: Theme.of(context).colorScheme.tertiary,
+                lineWidth: 1,
+                duration: const Duration(seconds: 1)))
         : Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
@@ -118,7 +117,7 @@ class _NewThreadState extends State<NewThread> {
               automaticallyImplyLeading: false,
               shadowColor: Colors.white,
               title: const Text(
-                'New thread',
+                'Add Comment',
                 style: TextStyle(
                   fontSize: 18.5,
                   color: Colors.white,
@@ -126,18 +125,39 @@ class _NewThreadState extends State<NewThread> {
               ),
               actions: [
                 IconButton(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: ((ctx) {
-                          return CreateNewThreadAlertBox(threads: threads);
-                        }));
+                  onPressed: () async {
+                    LoadingOverlayAlt.of(context).show();
+
+                    widget.thread.commentCount += threads.length;
+                    CreateThreadModel createThreadModel = CreateThreadModel(
+                      threadId: widget.thread.id,
+                      content: threads[0].textEditingController.text,
+                      images: threads[0].images,
+                      isPrivate: false,
+                      isBase: false,
+                      comments: [],
+                    );
+                    for (int i = 1; i < threads.length; i++) {
+                      final thread = threads[i];
+                      log(thread.textEditingController.text.toString());
+                      createThreadModel.comments.add(CommentModel(
+                        content: thread.textEditingController.text,
+                        images: thread.images,
+                      ));
+                    }
+
+                    await ThreadServices()
+                        .createComment(createThreadModel: createThreadModel)
+                        .then((value) {
+                      LoadingOverlayAlt.of(context).hide();
+                      Navigator.pop(context);
+                    });
                   },
                   icon: Icon(
-                    Icons.post_add,
+                    Ionicons.send_outline,
                     size: 23,
                     color: threads[0].textEditingController.text.isNotEmpty
-                        ? Colors.white
+                        ? Theme.of(context).colorScheme.primary
                         : Colors.grey.shade700,
                   ),
                 ),
@@ -146,6 +166,7 @@ class _NewThreadState extends State<NewThread> {
             body: SingleChildScrollView(
               child: Column(
                 children: [
+                  ThreadLayout(thread: widget.thread),
                   Column(
                     children: threads.asMap().entries.map((entry) {
                       final index = entry.key;
@@ -424,7 +445,6 @@ class _NewThreadState extends State<NewThread> {
                   ),
                 ],
               ),
-            ),
-          );
+            ));
   }
 }

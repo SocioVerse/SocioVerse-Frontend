@@ -26,12 +26,13 @@ class _ActivityPageState extends State<ActivityPage> {
     setState(() {
       isLoading = true;
     });
-    latestFollowRequestModel = await ActivityServices().fetchLatestFolloweRequests();
+    latestFollowRequestModel =
+        await ActivityServices().fetchLatestFolloweRequests();
     setState(() {
       isLoading = false;
     });
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,50 +49,45 @@ class _ActivityPageState extends State<ActivityPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: 
-      isLoading
-          ? const Center(
-              child: SpinKitWave(
-                  color: Colors.white, type: SpinKitWaveType.center),
+      body: isLoading
+          ? Center(
+              child: SpinKitRing(
+                color: Theme.of(context).colorScheme.tertiary,
+                lineWidth: 1,
+                duration: const Duration(seconds: 1),
+              ),
             )
-          :
-      SingleChildScrollView(
-        child: Padding(
-         padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 10,
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    latestFollowRequestModel.followRequestCount == 0
+                        ? const SizedBox.shrink()
+                        : RequestsTile(
+                            latestFollowRequestModel: latestFollowRequestModel,
+                            onTap: getLatestFollowRequest(),
+                          ),
+                    ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return LikedTile(
+                          name: "Fatima",
+                          postUrl: "assets/Country_flag/in.png",
+                          imgUrl: "assets/Country_flag/in.png",
+                          dateTime: DateTime(2023, 7, 20, 12, 0),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-              latestFollowRequestModel.followRequestCount == 0
-                  ? const SizedBox.shrink()
-                  :
-              RequestsTile(
-                latestFollowRequestModel: latestFollowRequestModel,
-              
-
-              ),
-
-              
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return LikedTile(
-                    name: "Fatima",
-                    postUrl: "assets/Country_flag/in.png",
-                    imgUrl: "assets/Country_flag/in.png",
-                    dateTime: DateTime(2023, 7, 20, 12, 0),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
-
-

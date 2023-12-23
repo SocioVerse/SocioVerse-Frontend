@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
@@ -8,7 +9,7 @@ import 'package:socioverse/services/follow_unfollow_services.dart';
 
 class FollowingPage extends StatefulWidget {
   final String? userId;
-  
+
   const FollowingPage({this.userId, super.key});
 
   @override
@@ -17,19 +18,19 @@ class FollowingPage extends StatefulWidget {
 
 class _FollowingPageState extends State<FollowingPage> {
   List<FollowersModel>? _followersModelList;
-   bool isLoading = false;
+  bool isLoading = false;
   @override
   void initState() {
-
-    getFollowers(); 
+    getFollowings();
     super.initState();
   }
 
-  getFollowers() async {
+  getFollowings() async {
     setState(() {
       isLoading = true;
     });
-    _followersModelList = await FollowersServices().fetchFollowers(widget.userId);
+    _followersModelList =
+        await FollowersServices().fetchFollowing(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -48,7 +49,7 @@ class _FollowingPageState extends State<FollowingPage> {
                 builder: (context) => UserProfilePage(
                       owner: false,
                       userId: followersModel.user.id,
-                    )));
+                    ))).then((value) => getFollowings());
       },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -75,31 +76,32 @@ class _FollowingPageState extends State<FollowingPage> {
               fontSize: 12,
             ),
       ),
-      trailing: MyEleButtonsmall(
-          title2: ttl2,
-          title: ttl1,
-          ispressed: isPressed,
-          onPressed: () async {
-            if (followersModel.state == 2) {
-              await FollowUnfollowServices().unFollow(
-              userId: followersModel.user.id,
-            );
-            setState(() {
-              
-              if (followersModel.state == 2) {
-                followersModel.state = 0;
-              }
-            });
-            }
-            else {
-              await FollowUnfollowServices().toogleFollow(
-              userId: followersModel.user.id,
-            );
-            }
-          },
-          ctx: context),
+      trailing: followersModel.state == 3
+          ? const SizedBox.shrink()
+          : MyEleButtonsmall(
+              title2: ttl2,
+              title: ttl1,
+              ispressed: isPressed,
+              onPressed: () async {
+                if (followersModel.state == 2) {
+                  await FollowUnfollowServices().unFollow(
+                    userId: followersModel.user.id,
+                  );
+                  setState(() {
+                    if (followersModel.state == 2) {
+                      followersModel.state = 0;
+                    }
+                  });
+                } else {
+                  await FollowUnfollowServices().toogleFollow(
+                    userId: followersModel.user.id,
+                  );
+                }
+              },
+              ctx: context),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,32 +117,38 @@ class _FollowingPageState extends State<FollowingPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: 
-      isLoading?Center(child: CircularProgressIndicator(),):ListView.builder(
-        itemCount: _followersModelList!.length,
-        itemBuilder: (context, index) {
-          return Column(
-            children: [
-              personListTile(
-                  followersModel: _followersModelList![index],
-                  ttl1: _followersModelList![index].state == 0
-                      ? "Follow"
-                      : _followersModelList![index].state == 2
-                          ? "Following"
-                          : "Requested",
-                  isPressed: _followersModelList![index].state == 0
-                      ? false
-                      : true,
-                  ttl2: _followersModelList![index].state == 0
-                      ? "Requested"
-                      : "Follow"),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          );
-        },
-      )
-      ,);
+      body: isLoading
+          ? Center(
+              child: SpinKitRing(
+              color: Theme.of(context).colorScheme.tertiary,
+              lineWidth: 1,
+              duration: const Duration(seconds: 1),
+            ))
+          : ListView.builder(
+              itemCount: _followersModelList!.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    personListTile(
+                        followersModel: _followersModelList![index],
+                        ttl1: _followersModelList![index].state == 0
+                            ? "Follow"
+                            : _followersModelList![index].state == 2
+                                ? "Following"
+                                : "Requested",
+                        isPressed: _followersModelList![index].state == 0
+                            ? false
+                            : true,
+                        ttl2: _followersModelList![index].state == 0
+                            ? "Requested"
+                            : "Follow"),
+                    SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                );
+              },
+            ),
+    );
   }
 }

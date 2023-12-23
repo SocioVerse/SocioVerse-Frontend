@@ -13,6 +13,7 @@ class FollowUnfollowServices {
     _response = await _helper.post(ApiStringConstants.toogleFollowReq,
         querryParam: {'targetUserId': userId});
   }
+
   Future<void> unFollow({
     required String userId,
   }) async {

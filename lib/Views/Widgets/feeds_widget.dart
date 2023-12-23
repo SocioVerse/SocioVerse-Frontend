@@ -109,10 +109,6 @@ class _StoriesScrollerState extends State<StoriesScroller> {
   }
 }
 
-
-
-
-
 class UserProfileImageStackOf3 extends StatelessWidget {
   final List<CommentUser>? commenterProfilePics;
   UserProfileImageStackOf3({super.key, this.commenterProfilePics});
@@ -127,32 +123,28 @@ class UserProfileImageStackOf3 extends StatelessWidget {
           Positioned(
             right: 0,
             child: CircularNetworkImageWithLoading(
-  imageUrl: commenterProfilePics![2].profilePic,
-  height:16,
-  width: 16,
-),
-
+              imageUrl: commenterProfilePics![2].profilePic,
+              height: 16,
+              width: 16,
+            ),
           ),
           Positioned(
             left: 0,
             top: 10,
             child: CircularNetworkImageWithLoading(
-  imageUrl: commenterProfilePics![1].profilePic,
-  height:10.5,
-  width: 10.5,
-
-
+              imageUrl: commenterProfilePics![1].profilePic,
+              height: 10.5,
+              width: 10.5,
             ),
           ),
           Positioned(
-            right: 9.2,
-            top: 21,
-            child: CircularNetworkImageWithLoading(
-  imageUrl: commenterProfilePics![0].profilePic,
-  height:8.5,
-  width: 8.5,
-            )
-          ),
+              right: 9.2,
+              top: 21,
+              child: CircularNetworkImageWithLoading(
+                imageUrl: commenterProfilePics![0].profilePic,
+                height: 8.5,
+                width: 8.5,
+              )),
         ],
       ),
     );
@@ -448,7 +440,6 @@ class _PostLayoutState extends State<PostLayout> {
     );
   }
 }
-
 
 class PostViewBuilder extends StatefulWidget {
   const PostViewBuilder({super.key});

@@ -19,9 +19,9 @@ class ApiHelper {
     String token = await getStringFromCache(SharedPreferenceString.accessToken);
 
     if (!isPublic) headers = ({"Authorization": "Bearer $token"});
-    try { 
+    try {
       Uri uri =
-          Uri.http(ApiStringConstants.baseUrl, "/api/$path", querryParam);
+          Uri.https(ApiStringConstants.baseUrl, "/api/$path", querryParam);
       final response = await http.get(
         uri,
         headers: headers,
@@ -76,7 +76,7 @@ class ApiHelper {
   Future<ApiResponse> post(String path,
       {dynamic querryParam, bool isPublic = false}) async {
     try {
-      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
       log(uri.toString());
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
@@ -125,7 +125,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -179,7 +179,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -230,7 +230,7 @@ class ApiHelper {
 
   Future<ApiResponse> put(String path, {dynamic querryParam}) async {
     try {
-      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? _headers;
@@ -262,40 +262,39 @@ class ApiHelper {
 
     return _response;
   }
+
   Future<ApiResponse> delete(String path, {dynamic querryParam}) async {
-  try {
-    Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
-    String token = await getStringFromCache(SharedPreferenceString.accessToken);
-    Map<String, String>? _headers;
-    _headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json'
-    };
-    var response = await http.delete(uri, 
-    body: jsonEncode(querryParam),
-    
-    headers: _headers);
+    try {
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      String token =
+          await getStringFromCache(SharedPreferenceString.accessToken);
+      Map<String, String>? _headers;
+      _headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      };
+      var response = await http.delete(uri,
+          body: jsonEncode(querryParam), headers: _headers);
 
-    if (response.statusCode == 401) {
-      String updatedToken = await RefreshToken().updateToken();
+      if (response.statusCode == 401) {
+        String updatedToken = await RefreshToken().updateToken();
 
-      response = await http.delete(
-        uri,
-        body: jsonEncode(querryParam),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: "Bearer $updatedToken"
-        },
-      );
+        response = await http.delete(
+          uri,
+          body: jsonEncode(querryParam),
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader: "Bearer $updatedToken"
+          },
+        );
 
-      return _returnResponse(response, uri, querryParam);
-    } else {
-      return _returnResponse(response, uri, querryParam);
+        return _returnResponse(response, uri, querryParam);
+      } else {
+        return _returnResponse(response, uri, querryParam);
+      }
+    } catch (e) {
+      // Handle error appropriately or return an error response
+      rethrow; // Replace with appropriate error handling
     }
-  } catch (e) {
-    // Handle error appropriately or return an error response
-    rethrow; // Replace with appropriate error handling
   }
-}
-
 }

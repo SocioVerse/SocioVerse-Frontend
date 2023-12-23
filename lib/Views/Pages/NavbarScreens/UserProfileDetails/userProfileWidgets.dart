@@ -324,7 +324,7 @@ import 'package:socioverse/services/thread_services.dart';
 //               onLike: () async {
 //                 await ThreadServices()
 //                     .toogleLikeThreads(threadId: widget.thread.id);
-        
+
 //                 setState(() {});
 //               },
 //               onComment: () {
@@ -440,32 +440,31 @@ class NoPostYet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        const SizedBox(
-          height: 30,
-        ),
-        Icon(
-          Icons.hourglass_empty,
-          size: 70,
-          color: Theme.of(context).colorScheme.onPrimary,
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        Text(
-          "No posts yet",
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-        ),
-      ],
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * .7,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.camera_alt_outlined,
+            size: 70,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          Text(
+            "No posts yet",
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
-
 
 class ExpandableTextWidget extends StatefulWidget {
   final String text;

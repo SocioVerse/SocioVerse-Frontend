@@ -3,7 +3,7 @@ import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/api_constants.dart';
 
-class ActivityServices{
+class ActivityServices {
   ApiHelper _helper = ApiHelper();
   ApiResponse _response = ApiResponse();
 

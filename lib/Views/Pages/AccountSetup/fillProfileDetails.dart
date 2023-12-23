@@ -77,7 +77,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
           .bodyMedium!
           .copyWith(fontSize: 16, color: Theme.of(context).colorScheme.surface),
       maxLines: 1,
-      maxLength: hintTexxt == "Phone number" ? 10 : null,
+      maxLength: hintTexxt == "Phone number*" ? 10 : null,
       decoration: InputDecoration(
         suffixIcon: suffixxIcon,
         counter: Offstage(),
@@ -193,7 +193,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                     return null;
                                   }
                                 });
-                    
+
                                 print(currentImage.toString());
                                 if (currentImage != null) {
                                   setState(() {
@@ -286,7 +286,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               );
                             },
                           );
-                    
+
                           if (picked != null && picked != birthDate) {
                             setState(() {
                               birthDate = picked;
@@ -385,6 +385,18 @@ class _FillProfilePageState extends State<FillProfilePage> {
                   child: MyElevatedButton1(
                       title: "Continue",
                       onPressed: () async {
+                        if (faceImageLoading == true) {
+                          Fluttertoast.showToast(
+                            msg: "Wait for face images to upload",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0,
+                          );
+                          return;
+                        }
                         if (fullName.text.isEmpty ||
                             username.text.isEmpty ||
                             phone.text.isEmpty ||

@@ -26,7 +26,6 @@ class CircularNetworkImageWithoutSize extends StatelessWidget {
   }
 }
 
-
 class CircularNetworkImageWithLoading extends StatelessWidget {
   final String imageUrl;
   final double height;

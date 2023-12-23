@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestsPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
@@ -155,17 +156,23 @@ class StackOfTwo extends StatelessWidget {
         children: [
           Positioned(
             left: 0,
-            child: CircularNetworkImageWithoutSize(
+            child: CircularNetworkImageWithLoading(
               imageUrl: images[1],
-              fit: BoxFit.cover,
+              height: 48,
+              width: 48,
             ),
           ),
           Positioned(
             left: 5,
             top: 5,
-            child: CircularNetworkImageWithoutSize(
-              imageUrl: images[0],
-              fit: BoxFit.cover,
+            child: CircleAvatar(
+              radius: 27,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              child: CircularNetworkImageWithLoading(
+                imageUrl: images[0],
+                height: 48,
+                width: 48,
+              ),
             ),
           ),
         ],
@@ -176,7 +183,8 @@ class StackOfTwo extends StatelessWidget {
 
 class RequestsTile extends StatelessWidget {
   LatestFollowRequestModel latestFollowRequestModel;
-  RequestsTile({required this.latestFollowRequestModel});
+  final Future<dynamic>? onTap;
+  RequestsTile({required this.latestFollowRequestModel, this.onTap});
 
   String getText() {
     if (latestFollowRequestModel.followRequestCount == 1) {
@@ -195,9 +203,10 @@ class RequestsTile extends StatelessWidget {
         ListTile(
           onTap: () {
             Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: ((context) => FollowRequestsPage())));
+                    context,
+                    CupertinoPageRoute(
+                        builder: ((context) => const FollowRequestsPage())))
+                .then((value) => onTap);
           },
           leading: Stack(
             children: [
@@ -210,6 +219,8 @@ class RequestsTile extends StatelessWidget {
                       images: latestFollowRequestModel.profilePics,
                     ),
               Positioned(
+                top: 0,
+                right: 0,
                 child: Container(
                   height: 20,
                   width: 20,
@@ -225,8 +236,6 @@ class RequestsTile extends StatelessWidget {
                         ),
                   )),
                 ),
-                top: 0,
-                right: 0,
               )
             ],
           ),
