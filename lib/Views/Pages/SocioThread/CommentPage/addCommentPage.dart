@@ -107,9 +107,9 @@ class _AddCommentPageState extends State<AddCommentPage> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ? const Scaffold(
+        ?  Scaffold(
             body:
-                SpinKitWave(color: Colors.white, type: SpinKitWaveType.center)):
+                 SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1))):
         Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),
@@ -168,10 +168,10 @@ class _AddCommentPageState extends State<AddCommentPage> {
                         
                   },
                   icon: Icon(
-                    Ionicons.chatbubble_ellipses_outline,
+                    Ionicons.send_outline,
                     size: 23,
                     color: threads[0].textEditingController.text.isNotEmpty
-                        ? Colors.white
+                        ? Theme.of(context).colorScheme.primary
                         : Colors.grey.shade700,
                   ),
                 ),

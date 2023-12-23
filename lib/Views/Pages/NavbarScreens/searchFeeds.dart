@@ -26,6 +26,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     with SingleTickerProviderStateMixin {
   List<SearchedUser> searchedUser = [];
   bool isUserFetched = false;
+   UniqueKey _refreshKey = UniqueKey();
 
   late TabController _tabController;
   TextEditingController searchText = TextEditingController();
@@ -132,6 +133,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
         .fetchSearchedUser(searchQuery: searchText.text.trim());
     setState(() {
       isUserFetched = true;
+      _refreshKey = UniqueKey();
     });
   }
 
@@ -208,15 +210,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 ),
                 
                          AutoScaleTabBarView(
+                          key: _refreshKey,
                             children: [
                               searchText.text.isNotEmpty && isUserFetched == false
                     ? SizedBox(
                         height: MyApp.height!/1.5,
                       child: Center(
-                        child: SpinKitThreeBounce(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          size: 20,
-                        ),
+                        child:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),),
                       ),
                     )
                     : ListView.builder(

@@ -92,16 +92,14 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
               ThreadLayout(
                 isComment: true,
                 thread: widget.threadModel,
+                onComment: getThreadComments,
               ),
               const SizedBox(
                 height: 20,
               ),
               isLoading==true?
               Center(
-                    child: SpinKitThreeBounce(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 20,
-                    ),
+                    child: SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
                   ):
               
                CommentBuilder(

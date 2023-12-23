@@ -77,7 +77,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
           .bodyMedium!
           .copyWith(fontSize: 16, color: Theme.of(context).colorScheme.surface),
       maxLines: 1,
-      maxLength: hintTexxt == "Phone number" ? 10 : null,
+      maxLength: hintTexxt == "Phone number*" ? 10 : null,
       decoration: InputDecoration(
         suffixIcon: suffixxIcon,
         counter: Offstage(),

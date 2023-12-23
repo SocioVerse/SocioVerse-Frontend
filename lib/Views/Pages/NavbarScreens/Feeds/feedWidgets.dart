@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
@@ -9,6 +12,7 @@ import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.da
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
@@ -126,7 +130,9 @@ class ReplyUserProfileImage extends StatelessWidget {
 class ThreadLayout extends StatefulWidget {
   final ThreadModel thread;
     bool isComment = false;
-   ThreadLayout({super.key, required this.thread,this.isComment = false});
+     Function? onComment;
+   ThreadLayout({super.key, required this.thread,this.isComment = false,
+     this.onComment});
 
   @override
   State<ThreadLayout> createState() => _ThreadLayoutState();
@@ -147,11 +153,160 @@ class _ThreadLayoutState extends State<ThreadLayout> {
     }
     super.initState();
   }
+  void isOwner({required BuildContext context}) {
+    showModalBottomSheet(
+      
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.horizontal_rule_rounded,
+                size: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              
+              ListTile(
+                leading: const Icon(Ionicons.repeat, color: Colors.white,
+                ),
+                title: Text(
+                  'Repost',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading:const Icon(Ionicons.pencil ,color: Colors.white,
+                ),
+                title: Text(
+                  'Edit',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading:const  Icon(Ionicons.trash_bin, color: Colors.red,
+                ),
+                title: Text(
+                  'Delete',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Colors.red,
+                      
+                      fontSize: 16),
+                ),
+                onTap: () {
+                   AlertBoxes.acceptRejectAlertBox(
+                    context: context,
+                    title: "Delete Thread",
+                    
+                    content: const Text("Are you sure you want to delete this thread?"),
+                    onAccept: () async {
+                     await ThreadServices().deleteThread(threadId: widget.thread.id).then((value) => Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MyApp()),
+                          (route) => false));
+                      
+                    },
+                    onReject: () {
+                    },
+                  );
+                  
+                },
+              ),
+              
+          
+            ],
+          );
+        });
+  }
+  void isNotOwner() {
+    showModalBottomSheet(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.horizontal_rule_rounded,
+                size: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              ListTile(
+                leading: const Icon(
+                  Ionicons.warning,
+                  color: Colors.red,
+                ),
+                title: Text(
+                  'Report',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              widget.thread.isPrivate==false?
+              ListTile(
+                leading: const Icon(Ionicons.repeat, color: Colors.white,
+                ),
+                title: Text(
+                  'Repost',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ):const SizedBox.shrink(),
+              ListTile(
+                leading: Icon(Ionicons.remove_circle,
+                  color: Theme.of(context).colorScheme.onPrimary,),
+                title: Text(
+                  'Block',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: Icon(Ionicons.shield_outline,color: Theme.of(context).colorScheme.onPrimary),
+                title: Text(
+                  'Restrict',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {},
+              ),
+              
+            ],
+          );
+        });
+  }
+
   StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,
     required Function onComment,
     required Function onSave,
+    required Function onRepost,
   }) {
     TextEditingController postMessage = TextEditingController();
     TextEditingController search = TextEditingController();
@@ -182,7 +337,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     color: isLiked
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
-                    size: 30,
+                    size: 25,
                   ),
                 ),const  SizedBox(
                   width: 10,
@@ -194,7 +349,21 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   child: Icon(
                     Ionicons.chatbubble_outline,
                     color: Theme.of(context).colorScheme.onPrimary,
-                    size: 30,
+                    size: 25,
+                  ),
+                ),
+                const  SizedBox(
+                    width: 10,
+                  ),
+                InkWell(
+                  onTap: () {
+                    onRepost();
+
+                  },
+                  child: Icon(
+                    Ionicons.repeat,
+                    color: widget.thread.isReposted? Colors.green: Theme.of(context).colorScheme.onPrimary,
+                    size: 25,
                   ),
                 ),
                const  SizedBox(
@@ -307,7 +476,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   child: Icon(
                     Ionicons.paper_plane_outline,
                     color: Theme.of(context).colorScheme.onPrimary,
-                    size: 30,
+                    size: 25,
                   ),
                 ),
               ],
@@ -339,15 +508,15 @@ class _ThreadLayoutState extends State<ThreadLayout> {
         ListTile(
           
           onTap: () async {
-            await getStringFromCache(SharedPreferenceString.userId).then((value) => Navigator.push(
+            Navigator.push(
                 context,
                 CupertinoPageRoute(
                     builder: (context) =>  LoadingOverlayAlt(
                       child: UserProfilePage(
-                        owner: value == widget.thread.user.id,
+                        owner: widget.thread.user.isOwner,
                         userId: widget.thread.user.id,
                       ),
-                    ))));
+                    )));
                 
           },
           contentPadding: EdgeInsets.zero,
@@ -373,8 +542,17 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             widget.thread.user.occupation,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          trailing: IconButton(
-            onPressed: () {},
+          trailing:  IconButton(
+            onPressed: () {
+if (widget.thread.user.isOwner == true) {
+                          log("here ");
+                          isOwner(
+                            context: context,
+                          );
+                        } else {
+                          isNotOwner();
+                        }
+            },
             icon: Icon(
               Ionicons.ellipsis_horizontal_circle_outline,
               color: Theme.of(context).colorScheme.onPrimary,
@@ -443,29 +621,49 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   const SizedBox(
                     height: 10,
                   ),
-                  getThreadFooter(
-                    isPost: false,
-                    onLike: () async {
-                      await ThreadServices()
-                          .toogleLikeThreads(threadId: widget.thread.id);
-              
-                      setState(() {
-                      });
-                    },
-                    onComment: () {
-                      Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) =>  LoadingOverlayAlt(
-                                child: AddCommentPage(
-                                  thread : widget.thread,
-                                ),
-                              ))).then((value) => 
-                              setState(() {
-                                
-                              }));
-                    },
-                    onSave: () {},
+                  Padding(
+                    padding: const EdgeInsets.only(left: 9),
+                    child: getThreadFooter(
+                      isPost: false,
+                      onLike: () async {
+                        await ThreadServices()
+                            .toogleLikeThreads(threadId: widget.thread.id);
+                                  
+                        setState(() {
+                        });
+                      },
+                      onComment: () {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) =>  LoadingOverlayAlt(
+                                  child: AddCommentPage(
+                                    thread : widget.thread,
+                                  ),
+                                ))).then((value) => 
+                                setState(() { 
+                                  if (widget.onComment != null) { widget.onComment!(); }
+                                  }));
+                      },
+                      onSave: () {},
+                      onRepost: (){
+                        ThreadServices().toogleRepostThreads(threadId: widget.thread.id).then((value) => 
+                        Fluttertoast.showToast(
+                            msg:value,
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.white,
+                            textColor: Colors.black,
+                            fontSize: 16.0,
+                          )
+                        );
+                        setState(() {
+                          widget.thread.isReposted = !widget.thread.isReposted;
+                        });
+                      
+                      }
+                    ),
                   ),
                 ],
               ),
@@ -567,7 +765,7 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              height: 50,
+              height: 80,
             ),
             AllCaughtUp(),
           ],
@@ -585,14 +783,15 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
               );
             },
           )
-        : const Column(
+        :  Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 50,
+           const SizedBox(
+              height: 150,
             ),
-            SpinKitWave(
-                color: Colors.white, type: SpinKitWaveType.center),
+            SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
+
+           
           ],
         );
   }

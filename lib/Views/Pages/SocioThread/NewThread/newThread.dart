@@ -107,9 +107,9 @@ class _NewThreadState extends State<NewThread> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ? const Scaffold(
+        ?  Scaffold(
             body:
-                SpinKitWave(color: Colors.white, type: SpinKitWaveType.center))
+                 SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),))
         : Scaffold(
             appBar: AppBar(
               backgroundColor: Color(0xFF1a1a22),

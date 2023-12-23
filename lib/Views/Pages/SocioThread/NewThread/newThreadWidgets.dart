@@ -151,13 +151,10 @@ class _CreateNewThreadAlertBoxState extends State<CreateNewThreadAlertBox> {
                                             showDialog(
                                                 context: context,
                                                 builder: (_) =>
-                                                    const SpinKitWave(
-                                                        color: Colors.white,
-                                                        type: SpinKitWaveType
-                                                            .center));
+                                                     SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),));
                                             await ThreadServices().createThread(
                                                 createThreadModel:
-                                                    createThreadModel);
+                                                    createThreadModel).then((value) {
                                             Navigator.pop(context);
                                             Navigator.pushAndRemoveUntil(
                                               context,
@@ -166,6 +163,7 @@ class _CreateNewThreadAlertBoxState extends State<CreateNewThreadAlertBox> {
                                                       MainPage()),
                                               (route) => route.isFirst,
                                             );
+                                            });
                                           },
                                           child: Text(
                                             'Post',

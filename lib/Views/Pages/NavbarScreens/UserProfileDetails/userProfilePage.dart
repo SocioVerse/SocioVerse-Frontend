@@ -1,15 +1,18 @@
 import 'dart:developer';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Followers/followerPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Following/followingPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/updateProfilePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
 
-import 'package:socioverse/Views/Pages/SettingsPages/settings.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/settings.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
@@ -20,7 +23,7 @@ import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
 import '../../../Widgets/buttons.dart';
 
-class UserProfilePage extends StatefulWidget {
+class UserProfilePage extends StatefulWidget  {
   final bool? owner;
   final String? userId;
   UserProfilePage({super.key, this.owner, this.userId});
@@ -29,17 +32,24 @@ class UserProfilePage extends StatefulWidget {
   State<UserProfilePage> createState() => _UserProfilePageState();
 }
 
-class _UserProfilePageState extends State<UserProfilePage> {
+class _UserProfilePageState extends State<UserProfilePage>with TickerProviderStateMixin{
 
   TextEditingController bioController = TextEditingController();
 
    UserProfileDetailsModel? userProfileDetailsModel;
+   List<ThreadModel> repostThreads = [];
+   TabController? tabController;
   bool isLoading = false;
+  bool isRepostsLoading = false;
+  Key _refreshKey = UniqueKey();
   @override
   void initState() {
     getUserProfileDetails();
     super.initState();
+    tabController = TabController(length: 3, vsync:this);
+   
   }
+  
   getUserProfileDetails() async {
     setState(() {
       isLoading = true;
@@ -47,6 +57,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
     userProfileDetailsModel = await UserProfileDetailsServices().fetchUserProfileDetails(widget.userId);
     setState(() {
       isLoading = false;
+    });
+  }
+
+  getRepostThreads() async {
+    setState(() {
+      isRepostsLoading = true;
+    });
+    repostThreads = await UserProfileDetailsServices().getRepostThreads(widget.userId);
+    setState(() {
+      isRepostsLoading = false;
+      _refreshKey = UniqueKey();
     });
   }
 
@@ -102,7 +123,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                   .bodyLarge!
                   .copyWith(fontSize: 25, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             Text(
@@ -136,7 +157,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       maxLines: 1,
       decoration: InputDecoration(
         prefixIcon: prefixxIcon,
-        contentPadding: EdgeInsets.all(20),
+        contentPadding: const EdgeInsets.all(20),
         filled: true,
         fillColor: Theme.of(context).colorScheme.secondary,
         hintText: hintTexxt,
@@ -297,7 +318,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                                           backgroundColor: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          child: CircleAvatar(
+                                          child: const CircleAvatar(
                                               radius: 28,
                                               backgroundImage: AssetImage(
                                                 "assets/Country_flag/in.png",
@@ -370,10 +391,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
     return ListView.builder(
       itemCount: _isExtended ? extendedReplies.length : 0,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -402,7 +423,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                               color: Colors.black,
                             ),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.add,
                             size: 15,
                             color: Colors.black,
@@ -412,7 +433,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     ],
                   ),
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     height: 70,
                     width: 2,
                     decoration: BoxDecoration(
@@ -423,68 +444,66 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 81,
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                        Text(
                             'lepan1m',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Container(
-                            child: Row(
-                              children: [
-                                Text('41 m'),
-                                SizedBox(width: 10),
-                                Icon(Icons.more_horiz),
-                              ],
-                            ),
+                          Row(
+                            children: [
+                              Text('41 m'),
+                              SizedBox(width: 10),
+                              Icon(Icons.more_horiz),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 3),
-                    Text('Nice Flag'),
-                    SizedBox(height: 13),
-                    Container(
+                    const SizedBox(height: 3),
+                    const Text('Nice Flag'),
+                    const SizedBox(height: 13),
+                    SizedBox(
                       width: 135,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.favorite_border_rounded,
                             size: 23,
                           ),
                           InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => NewThread()));
+                                  builder: (context) => const NewThread()));
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.mode_comment_outlined,
                               size: 23,
                             ),
                           ),
-                          Icon(
+                        const  Icon(
                             Icons.reply_all_sharp,
                             size: 23,
                           ),
-                          Icon(
+                         const Icon(
                             Icons.share,
                             size: 23,
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 15),
+                 const   SizedBox(height: 15),
                     Row(
                       children: [
                         Text(
@@ -544,7 +563,7 @@ void isOwner({required BuildContext context}) {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: ((context) => ProfileSettings())));
+                          builder: ((context) => const ProfileSettings())));
                 },
               ),
               ListTile(
@@ -650,7 +669,7 @@ void isOwner({required BuildContext context}) {
                                           backgroundColor: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          child: CircleAvatar(
+                                          child: const CircleAvatar(
                                               radius: 28,
                                               backgroundImage: AssetImage(
                                                 "assets/Country_flag/in.png",
@@ -705,7 +724,7 @@ void isOwner({required BuildContext context}) {
                     context: context,
                     title: "Log Out",
                     
-                    content: Text(" Are you sure you want to log out?"),
+                    content: const Text(" Are you sure you want to log out?"),
                     onAccept: () async {
                       setStringIntoCache(
                           SharedPreferenceString.accessToken, null);
@@ -718,7 +737,7 @@ void isOwner({required BuildContext context}) {
   Navigator.pop(context);
                       Navigator.pushAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (context) => MyApp()),
+                          MaterialPageRoute(builder: (context) => const MyApp()),
                           (route) => false);
                     },
                     onReject: () {
@@ -735,9 +754,8 @@ void isOwner({required BuildContext context}) {
     return Scaffold(
       body: 
       isLoading
-          ? const Center(
-              child: SpinKitWave(
-                  color: Colors.white, type: SpinKitWaveType.center),
+          ?  Center(
+              child: SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
             )
           :
       SingleChildScrollView(
@@ -780,7 +798,7 @@ void isOwner({required BuildContext context}) {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Center(
@@ -801,15 +819,30 @@ void isOwner({required BuildContext context}) {
                             bottom: 8,
                             right: 8,
                             child: Container(
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 color: Theme.of(context).colorScheme.primary,
                               ),
-                              child: Icon(
-                                Icons.edit,
-                                color: Theme.of(context).colorScheme.shadow,
-                                size: 20,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              LoadingOverlayAlt(
+                                                child: UpdateProfilePage(
+                                                  user:
+                                                      userProfileDetailsModel!.user,
+                                                ),
+                                              )));
+                                
+                                },
+                                child: Icon(
+                                  Icons.edit,
+                                  color: Theme.of(context).colorScheme.shadow,
+                                  size: 20,
+                                ),
                               ),
                             ),
                           )
@@ -817,7 +850,7 @@ void isOwner({required BuildContext context}) {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Text(
@@ -827,7 +860,7 @@ void isOwner({required BuildContext context}) {
                       fontSize: 26,
                     ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Text(
@@ -837,7 +870,7 @@ void isOwner({required BuildContext context}) {
                       fontSize: 18,
                     ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               userProfileDetailsModel!.user.bio == null 
@@ -905,7 +938,7 @@ void isOwner({required BuildContext context}) {
               color: Theme.of(context).colorScheme.primary,
               size: 22,
             ),
-            SizedBox(
+            const SizedBox(
               width: 7,
             ),
             Text("Add Bio",
@@ -984,11 +1017,11 @@ void isOwner({required BuildContext context}) {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               widget.owner == true
-                  ? SizedBox()
+                  ? const SizedBox()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -1007,7 +1040,7 @@ void isOwner({required BuildContext context}) {
                       ? "Requested"
                       : "Follow"),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 20,
                         ),
                         Expanded(
@@ -1030,10 +1063,11 @@ void isOwner({required BuildContext context}) {
                         ),
                       ],
                     ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               DefaultTabController(
+                
                   length: 3,
                   child: Column(
                     children: [
@@ -1046,8 +1080,13 @@ void isOwner({required BuildContext context}) {
                         indicatorSize: TabBarIndicatorSize.tab,
                         indicatorWeight: 3,
                         dividerColor: Theme.of(context).colorScheme.onPrimary,
+onTap: (value) {
+  if(value == 2) {
+    getRepostThreads();
+  }
+},
 
-                        tabs: const [
+                        tabs:  const [
                           Tab(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -1079,6 +1118,7 @@ void isOwner({required BuildContext context}) {
                             ),
                           ),
                           Tab(
+
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -1096,6 +1136,8 @@ void isOwner({required BuildContext context}) {
                         ],
                       ),
                       AutoScaleTabBarView(
+                        physics: NeverScrollableScrollPhysics(),
+                        key: _refreshKey,
                         children: [
                           ThreadViewBuilder(
                             allThreads: userProfileDetailsModel!.threadsWithUserDetails,
@@ -1103,10 +1145,10 @@ void isOwner({required BuildContext context}) {
                           )
                           ,
                           GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
+                              physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
                               gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
                                 crossAxisSpacing: 5,
                                 mainAxisSpacing: 5,
@@ -1117,7 +1159,7 @@ void isOwner({required BuildContext context}) {
                                 return Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
+                                    image: const DecorationImage(
                                       image: AssetImage(
                                         "assets/Country_flag/in.png",
                                       ),
@@ -1126,29 +1168,18 @@ void isOwner({required BuildContext context}) {
                                   ),
                                 );
                               }),
-                          GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
+                          isRepostsLoading
+                          ?
+                          const Column(
+                            children: [
+                               SizedBox(height: 20,),
+                              Center(
+                                child: SpinKitRing(color: Colors.white,lineWidth: 1,duration: Duration(seconds: 1),)
                               ),
-                              itemCount: 10,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        "assets/Country_flag/in.png",
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              }),
+                            ],
+                          )
+                          :
+                          ThreadViewBuilder(allThreads: repostThreads)
                         ],
                       ),
                     ],

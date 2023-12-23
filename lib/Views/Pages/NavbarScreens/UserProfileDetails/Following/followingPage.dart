@@ -77,7 +77,7 @@ class _FollowingPageState extends State<FollowingPage> {
               fontSize: 12,
             ),
       ),
-      trailing: MyEleButtonsmall(
+      trailing: followersModel.state ==3 ? const SizedBox.shrink(): MyEleButtonsmall(
           title2: ttl2,
           title: ttl1,
           ispressed: isPressed,
@@ -118,10 +118,7 @@ class _FollowingPageState extends State<FollowingPage> {
         elevation: 0,
       ),
       body: 
-      isLoading?Center(child: SpinKitThreeBounce(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          size: 20,
-                        )):ListView.builder(
+      isLoading?Center(child: SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)):ListView.builder(
         itemCount: _followersModelList!.length,
         itemBuilder: (context, index) {
           return Column(

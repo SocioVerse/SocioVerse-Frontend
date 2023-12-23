@@ -48,11 +48,9 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
       ),
       body: 
       isLoading
-          ? const Center(
-              child: SpinKitWave(
-                  color: Colors.white, type: SpinKitWaveType.center),
-            )
-          : 
+          ?  Center(
+              child:  SpinKitRing(color: Theme.of(context).colorScheme.tertiary,lineWidth: 1,duration: const Duration(seconds: 1),)
+          ): 
       ListView.builder(
         itemCount: followRequestModel.length,
         itemBuilder: (context, index) {
