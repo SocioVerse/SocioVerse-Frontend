@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 
 class AlertBoxes {
   static void acceptRejectAlertBox({
@@ -69,8 +70,8 @@ class AlertBoxes {
                                 style: BorderStyle.solid),
                           ),
                           onPressed: () {
-                            Navigator.pop(context);
                             onAccept();
+                            Navigator.pop(context);
                           },
                           child: Text(
                             acceptTitle ?? 'Yes',

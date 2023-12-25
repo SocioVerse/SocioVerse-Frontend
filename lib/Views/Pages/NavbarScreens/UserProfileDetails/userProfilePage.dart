@@ -1,8 +1,12 @@
 import 'dart:developer';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Followers/followerPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Following/followingPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Liked/likedPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Saved/savedPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/updateProfilePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
@@ -20,6 +24,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
+import 'package:socioverse/services/authentication_services.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
 import '../../../Widgets/buttons.dart';
 
@@ -591,7 +596,12 @@ class _UserProfilePageState extends State<UserProfilePage>
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => const SavedPage())));
+                },
               ),
               ListTile(
                 leading: const Icon(
@@ -604,7 +614,12 @@ class _UserProfilePageState extends State<UserProfilePage>
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => const LikedPage())));
+                },
               ),
               ListTile(
                 leading: const Icon(
@@ -736,20 +751,26 @@ class _UserProfilePageState extends State<UserProfilePage>
                     title: "Log Out",
                     content: const Text(" Are you sure you want to log out?"),
                     onAccept: () async {
-                      setStringIntoCache(
-                          SharedPreferenceString.accessToken, null);
+                      FirebaseMessaging.instance.getToken().then((value) async {
+                        await AuthServices()
+                            .userLogout(fcmToken: value)
+                            .then((value) {
+                          setStringIntoCache(
+                              SharedPreferenceString.accessToken, null);
 
-                      setBooleanIntoCache(
-                          SharedPreferenceString.isLoggedIn, false);
+                          setBooleanIntoCache(
+                              SharedPreferenceString.isLoggedIn, false);
 
-                      setStringIntoCache(
-                          SharedPreferenceString.refreshToken, null);
-                      Navigator.pop(context);
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const MyApp()),
-                          (route) => false);
+                          setStringIntoCache(
+                              SharedPreferenceString.refreshToken, null);
+
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MyApp()),
+                              (route) => false);
+                        });
+                      });
                     },
                     onReject: () {},
                   );

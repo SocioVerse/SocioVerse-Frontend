@@ -58,4 +58,14 @@ class AuthServices {
 
     return response;
   }
+
+  Future<ApiResponse?> userLogout({required String? fcmToken}) async {
+    ApiResponse? response = await _helper.delete(
+      ApiStringConstants.userLogout,
+      queryParam: {"fcm_token": fcmToken},
+      isPublic: false,
+    );
+
+    return response;
+  }
 }

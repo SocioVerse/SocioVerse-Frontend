@@ -171,32 +171,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               ),
               ListTile(
                 leading: const Icon(
-                  Ionicons.repeat,
-                  color: Colors.white,
-                ),
-                title: Text(
-                  'Repost',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(
-                  Ionicons.pencil,
-                  color: Colors.white,
-                ),
-                title: Text(
-                  'Edit',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(
                   Ionicons.trash_bin,
                   color: Colors.red,
                 ),
@@ -263,21 +237,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                 ),
                 onTap: () {},
               ),
-              widget.thread.isPrivate == false
-                  ? ListTile(
-                      leading: const Icon(
-                        Ionicons.repeat,
-                        color: Colors.white,
-                      ),
-                      title: Text(
-                        'Repost',
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            fontSize: 16),
-                      ),
-                      onTap: () {},
-                    )
-                  : const SizedBox.shrink(),
               ListTile(
                 leading: Icon(
                   Ionicons.remove_circle,
@@ -316,7 +275,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
   }) {
     TextEditingController postMessage = TextEditingController();
     TextEditingController search = TextEditingController();
-    bool savedPost = false;
+    bool savedPost = widget.thread.isSaved;
     bool isLiked = widget.thread.isLiked;
     return StatefulBuilder(
       builder: (context, setState) {
@@ -489,19 +448,20 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                 ),
               ],
             ),
-            // IconButton(
-            //   onPressed: () {
-            //     setState(() {
-            //       savedPost = !savedPost;
-            //     });
-            //     onSave();
-            //   },
-            //   icon: Icon(
-            //     savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
-            //     color: Theme.of(context).colorScheme.onPrimary,
-            //     size: 30,
-            //   ),
-            // ),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  savedPost = !savedPost;
+                  widget.thread.isSaved = savedPost;
+                });
+                onSave();
+              },
+              icon: Icon(
+                savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
+                color: Theme.of(context).colorScheme.onPrimary,
+                size: 25,
+              ),
+            ),
           ],
         );
       },
@@ -649,7 +609,19 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                 }
                               }));
                         },
-                        onSave: () {},
+                        onSave: () {
+                          ThreadServices()
+                              .toogleSaveThreads(threadId: widget.thread.id)
+                              .then((value) => Fluttertoast.showToast(
+                                    msg: value,
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: Colors.white,
+                                    textColor: Colors.black,
+                                    fontSize: 16.0,
+                                  ));
+                        },
                         onRepost: () {
                           ThreadServices()
                               .toogleRepostThreads(threadId: widget.thread.id)

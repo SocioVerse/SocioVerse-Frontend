@@ -5,7 +5,10 @@ class ApiStringConstants {
   //Threads APIs
   static const String createThread = "threads/create-new-thread";
   static const String toogleLikeThread = "threads/toggle-thread-like";
+  static const String toogleSaveThread = "threads/toggle-thread-save";
   static const String fetchAllThreadComments = "threads/read-comment-replies";
+  static const String fetchAllSavedThreads = "threads/saved-threads";
+  static const String fetchAllLikedThreads = "threads/liked-threads";
   static const String createComment = "threads/create-comment";
   static const String deleteThreads = "threads/delete-thread";
 
@@ -13,6 +16,7 @@ class ApiStringConstants {
   static const String isEmailExists = "users/verify-email-exists";
   static const String userSignUp = "users/signup";
   static const String userLogin = "users/login";
+  static const String userLogout = "users/logout";
   static const String fetchUser = "users/fetch-user-details";
   static const String getFollowingThread = "users/fetch-following-threads";
   static const String toogleFollowReq = "users/create-follow-request";

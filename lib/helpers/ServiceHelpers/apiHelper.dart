@@ -263,38 +263,36 @@ class ApiHelper {
     return _response;
   }
 
-  Future<ApiResponse> delete(String path, {dynamic querryParam}) async {
+  Future<dynamic> delete(String path,
+      {dynamic queryParam, bool isPublic = false}) async {
+    Map<String, String>? headers;
+    String token = await getStringFromCache(SharedPreferenceString.accessToken);
+
+    if (!isPublic) headers = ({"Authorization": "Bearer $token"});
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
-      String token =
-          await getStringFromCache(SharedPreferenceString.accessToken);
-      Map<String, String>? _headers;
-      _headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      };
-      var response = await http.delete(uri,
-          body: jsonEncode(querryParam), headers: _headers);
+      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path", queryParam);
+      final response = await http.delete(
+        uri,
+        headers: headers,
+      );
 
       if (response.statusCode == 401) {
         String updatedToken = await RefreshToken().updateToken();
 
-        response = await http.delete(
+        final response = await http.delete(
           uri,
-          body: jsonEncode(querryParam),
           headers: {
             HttpHeaders.contentTypeHeader: 'application/json',
             HttpHeaders.authorizationHeader: "Bearer $updatedToken"
           },
         );
-
-        return _returnResponse(response, uri, querryParam);
+        return _returnResponse(response, uri, queryParam);
       } else {
-        return _returnResponse(response, uri, querryParam);
+        return _returnResponse(response, uri, queryParam);
       }
     } catch (e) {
-      // Handle error appropriately or return an error response
-      rethrow; // Replace with appropriate error handling
+      // Handle errors here
+      return null;
     }
   }
 }

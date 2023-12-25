@@ -17,6 +17,7 @@ class ThreadModel {
   User user;
   bool isLiked = false;
   bool isReposted = false;
+  bool isSaved = false;
   ThreadModel({
     required this.id,
     required this.content,
@@ -34,6 +35,7 @@ class ThreadModel {
     required this.user,
     required this.isLiked,
     required this.isReposted,
+    required this.isSaved,
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -61,6 +63,7 @@ class ThreadModel {
         user: User.fromJson(json["user"]),
         isLiked: json["isLiked"] ?? false,
         isReposted: json["isReposted"] ?? false,
+        isSaved: json["isSaved"] ?? false,
       );
 
   Map<String, dynamic> toJson() => {
@@ -79,6 +82,8 @@ class ThreadModel {
         "comment_count": commentCount,
         "user": user.toJson(),
         "isLiked": isLiked,
+        "isReposted": isReposted,
+        "isSaved": isSaved,
       };
 }
 
