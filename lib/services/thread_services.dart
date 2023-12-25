@@ -43,6 +43,14 @@ class ThreadServices {
     return _response.success;
   }
 
+  Future<String> toogleSaveThreads({
+    required String threadId,
+  }) async {
+    _response = await _helper.post(ApiStringConstants.toogleSaveThread,
+        querryParam: {'threadId': threadId});
+    return _response.data;
+  }
+
   Future<void> createComment(
       {required CreateThreadModel createThreadModel}) async {
     try {
@@ -57,10 +65,11 @@ class ThreadServices {
   }
 
   Future<void> deleteThread({required String threadId}) async {
+    log("here2");
     try {
       _response = await _helper.delete(
         ApiStringConstants.deleteThreads,
-        querryParam: {'threadId': threadId},
+        queryParam: {'threadId': threadId},
       );
     } catch (e) {
       print(e);
@@ -73,5 +82,27 @@ class ThreadServices {
     _response = await _helper.post(ApiStringConstants.toogleRepostThread,
         querryParam: {'threadId': threadId});
     return _response.data;
+  }
+
+  Future<List<ThreadModel>> getSavedThreads() async {
+    List<ThreadModel> fetchedThreads = [];
+    _response = await _helper.get(ApiStringConstants.fetchAllSavedThreads);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedThreads.add(ThreadModel.fromJson(thread));
+      }
+    }
+    return fetchedThreads;
+  }
+
+  Future<List<ThreadModel>> getLikedThreads() async {
+    List<ThreadModel> fetchedThreads = [];
+    _response = await _helper.get(ApiStringConstants.fetchAllLikedThreads);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedThreads.add(ThreadModel.fromJson(thread));
+      }
+    }
+    return fetchedThreads;
   }
 }

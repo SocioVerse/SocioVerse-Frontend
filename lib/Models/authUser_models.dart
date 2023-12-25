@@ -58,24 +58,19 @@ class SignupUser {
 class LoginUser {
   String usernameAndEmail;
   String password;
+  String fcmtoken;
 
   LoginUser({
     required this.usernameAndEmail,
     required this.password,
+    required this.fcmtoken,
   });
 
-  factory LoginUser.fromRawJson(String str) =>
-      LoginUser.fromJson(json.decode(str));
-
   String toRawJson() => json.encode(toJson());
-
-  factory LoginUser.fromJson(Map<String, dynamic> json) => LoginUser(
-        usernameAndEmail: json["username_and_email"],
-        password: json["password"],
-      );
 
   Map<String, dynamic> toJson() => {
         "usernameOrEmail": usernameAndEmail,
         "password": password,
+        "fcmToken": fcmtoken,
       };
 }

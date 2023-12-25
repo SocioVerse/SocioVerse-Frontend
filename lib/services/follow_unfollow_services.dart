@@ -18,6 +18,6 @@ class FollowUnfollowServices {
     required String userId,
   }) async {
     _response = await _helper.delete(ApiStringConstants.unFollow,
-        querryParam: {'targetUserId': userId});
+        queryParam: {'targetUserId': userId});
   }
 }

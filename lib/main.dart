@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:face_camera/face_camera.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
@@ -13,15 +16,52 @@ import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/helpers/get_Routes.dart';
+import 'package:socioverse/push_notifications.dart';
 import 'firebase_options.dart';
+
+Future _firebaseBackgroundMessage(RemoteMessage message) async {
+  if (message.notification != null) {
+    print("Some notification Received");
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //Add this
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await FaceCamera.initialize();
+  // on background notification tapped
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    if (message.notification != null) {
+      print("Background Notification Tapped");
+    }
+  });
 
+  PushNotifications.init();
+  PushNotifications.localNotiInit();
+  // Listen to background notifications
+  FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
+
+  // to handle foreground notifications
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    String payloadData = jsonEncode(message.data);
+    print("Got a message in foreground");
+    if (message.notification != null) {
+      PushNotifications.showSimpleNotification(
+          title: message.notification!.title!,
+          body: message.notification!.body!,
+          payload: payloadData);
+    }
+  });
+
+  // for handling in terminated state
+  final RemoteMessage? message =
+      await FirebaseMessaging.instance.getInitialMessage();
+
+  if (message != null) {
+    print("Launched from terminated state");
+    Future.delayed(Duration(seconds: 1), () {});
+  }
   runApp(MyApp());
 }
 

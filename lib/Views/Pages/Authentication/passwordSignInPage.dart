@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -219,11 +220,14 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       return;
                     } else {
                       LoadingOverlayAlt.of(context).show();
+                      String? fcmToken =
+                          await FirebaseMessaging.instance.getToken();
                       ApiResponse? response = await AuthServices().userLogin(
                         loginUser: LoginUser(
                             usernameAndEmail:
                                 userNameOrEmailController.text.trim(),
-                            password: passwordController.text.trim()),
+                            password: passwordController.text.trim(),
+                            fcmtoken: fcmToken!),
                       );
                       LoadingOverlayAlt.of(context).hide();
                       if (response!.success == true && context.mounted) {
