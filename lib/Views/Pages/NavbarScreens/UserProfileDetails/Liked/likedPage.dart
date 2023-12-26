@@ -115,7 +115,10 @@ class _LikedPageState extends State<LikedPage> {
                         )),
                       ],
                     )
-                  : ThreadViewBuilder(allThreads: likedThreads),
+                  : ThreadViewBuilder(
+                      allThreads: likedThreads,
+                      shrinkWrap: true,
+                    ),
               GridView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,

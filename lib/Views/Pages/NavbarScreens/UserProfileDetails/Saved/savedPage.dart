@@ -115,7 +115,10 @@ class _SavedPageState extends State<SavedPage> {
                         )),
                       ],
                     )
-                  : ThreadViewBuilder(allThreads: savedThreads),
+                  : ThreadViewBuilder(
+                      allThreads: savedThreads,
+                      shrinkWrap: true,
+                    ),
               GridView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,

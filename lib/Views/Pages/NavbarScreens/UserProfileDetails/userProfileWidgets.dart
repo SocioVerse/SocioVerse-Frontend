@@ -399,7 +399,8 @@ import 'package:socioverse/services/thread_services.dart';
 
 class ThreadViewBuilder extends StatefulWidget {
   final List<ThreadModel> allThreads;
-  ThreadViewBuilder({required this.allThreads});
+  bool shrinkWrap = false;
+  ThreadViewBuilder({required this.allThreads, this.shrinkWrap = false});
 
   @override
   State<ThreadViewBuilder> createState() => _ThreadViewBuilderState();
@@ -420,7 +421,10 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
         ? const NoPostYet()
         : Container(
             child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
+              physics: widget.shrinkWrap
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
+              shrinkWrap: widget.shrinkWrap,
               padding: const EdgeInsets.only(top: 10),
               itemCount: allThreads.length,
               itemBuilder: (context, index) {
