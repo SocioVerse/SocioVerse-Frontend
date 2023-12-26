@@ -11,6 +11,7 @@ class SignupUser {
   DateTime? dob;
   List<String>? faceImageDataset;
   String? profilePic;
+  String fcmtoken;
 
   SignupUser({
     this.name,
@@ -22,24 +23,10 @@ class SignupUser {
     this.country,
     this.dob,
     this.profilePic,
+    required this.fcmtoken,
   });
 
-  factory SignupUser.fromRawJson(String str) =>
-      SignupUser.fromJson(json.decode(str));
-
   String toRawJson() => json.encode(toJson());
-
-  factory SignupUser.fromJson(Map<String, dynamic> json) => SignupUser(
-        name: json["name"],
-        email: json["email"],
-        phoneNumber: json["phone_number"],
-        password: json["password"],
-        username: json["username"],
-        occupation: json["occupation"],
-        country: json["country"],
-        dob: DateTime.parse(json["dob"]),
-        profilePic: json["profile_pic"],
-      );
 
   Map<String, dynamic> toJson() => {
         "name": name,
@@ -52,6 +39,7 @@ class SignupUser {
         "dob": dob!.toIso8601String(),
         "profile_pic": profilePic,
         "face_image_dataset": faceImageDataset,
+        "fcmToken": fcmtoken,
       };
 }
 

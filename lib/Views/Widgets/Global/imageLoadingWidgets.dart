@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:photo_view/photo_view.dart';
 
 class CircularNetworkImageWithoutSize extends StatelessWidget {
   final String imageUrl;
@@ -13,14 +14,26 @@ class CircularNetworkImageWithoutSize extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: fit,
-        placeholder: (context, url) => Center(
-          child: CircularProgressIndicator(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PhotoView(
+              imageProvider: CachedNetworkImageProvider(imageUrl),
+            ),
+          ),
+        );
+      },
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: fit,
+          placeholder: (context, url) => Center(
+            child: CircularProgressIndicator(),
+          ),
+          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
-        errorWidget: (context, url, error) => Icon(Icons.error),
       ),
     );
   }
@@ -40,16 +53,28 @@ class CircularNetworkImageWithLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipOval(
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        height: height,
-        width: width,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Center(
-          child: CircularProgressIndicator(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PhotoView(
+              imageProvider: CachedNetworkImageProvider(imageUrl),
+            ),
+          ),
+        );
+      },
+      child: ClipOval(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          height: height,
+          width: width,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Center(
+            child: CircularProgressIndicator(),
+          ),
+          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
-        errorWidget: (context, url, error) => Icon(Icons.error),
       ),
     );
   }
@@ -69,15 +94,27 @@ class RoundedNetworkImageWithLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: CachedNetworkImage(
-        imageUrl: imageUrl,
-        fit: fit,
-        placeholder: (context, url) => Center(
-          child: CircularProgressIndicator(),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PhotoView(
+              imageProvider: CachedNetworkImageProvider(imageUrl),
+            ),
+          ),
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: fit,
+          placeholder: (context, url) => Center(
+            child: CircularProgressIndicator(),
+          ),
+          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
-        errorWidget: (context, url, error) => Icon(Icons.error),
       ),
     );
   }

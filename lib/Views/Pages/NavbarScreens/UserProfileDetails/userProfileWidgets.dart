@@ -418,10 +418,9 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
   Widget build(BuildContext context) {
     return allThreads.isEmpty
         ? const NoPostYet()
-        : Column(mainAxisSize: MainAxisSize.min, children: [
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
+        : Container(
+            child: ListView.builder(
+              physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.only(top: 10),
               itemCount: allThreads.length,
               itemBuilder: (context, index) {
@@ -430,8 +429,7 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
                 );
               },
             ),
-            const SizedBox(height: 100),
-          ]);
+          );
   }
 }
 

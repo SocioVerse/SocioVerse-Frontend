@@ -43,15 +43,34 @@ class _UserProfilePageState extends State<UserProfilePage>
 
   UserProfileDetailsModel? userProfileDetailsModel;
   List<ThreadModel> repostThreads = [];
-  TabController? tabController;
+  late TabController _tabController;
+  late ScrollController _scrollController;
+  bool fixedScroll = false;
   bool isLoading = false;
   bool isRepostsLoading = false;
   Key _refreshKey = UniqueKey();
   @override
   void initState() {
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(_smoothScrollToTop);
     getUserProfileDetails();
     super.initState();
-    tabController = TabController(length: 3, vsync: this);
+  }
+
+  _scrollListener() {}
+
+  _smoothScrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: Duration(microseconds: 300),
+      curve: Curves.ease,
+    );
+
+    setState(() {
+      fixedScroll = _tabController.index == 2;
+    });
   }
 
   getUserProfileDetails() async {
@@ -105,6 +124,15 @@ class _UserProfilePageState extends State<UserProfilePage>
         ctx: context);
   }
 
+  _buildTabContext(int lineCount) => Container(
+        child: ListView.builder(
+          physics: const ClampingScrollPhysics(),
+          itemCount: lineCount,
+          itemBuilder: (BuildContext context, int index) {
+            return Text('some content');
+          },
+        ),
+      );
   Widget modifiedContainer(
       {required String upperText,
       required String lowerText,
@@ -218,7 +246,9 @@ class _UserProfilePageState extends State<UserProfilePage>
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
+                onTap: () {
+                  getRepostThreads();
+                },
               ),
               ListTile(
                 leading: Icon(
@@ -536,6 +566,13 @@ class _UserProfilePageState extends State<UserProfilePage>
     );
   }
 
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void isOwner({required BuildContext context}) {
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -791,492 +828,514 @@ class _UserProfilePageState extends State<UserProfilePage>
               lineWidth: 1,
               duration: const Duration(seconds: 1),
             ))
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.topCenter,
-                      child: AppBar(
-                        title: Text(
-                          userProfileDetailsModel!.user.username,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 23,
-                                  ),
-                        ),
-                        toolbarHeight: 70,
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        elevation: 0,
-                        actions: [
-                          IconButton(
-                            onPressed: () {
-                              if (widget.owner == true) {
-                                log("here ");
-                                isOwner(
-                                  context: context,
-                                );
-                              } else {
-                                isNotOwner();
-                              }
-                            },
-                            icon: Icon(
-                              Ionicons.ellipsis_horizontal_circle_outline,
-                              size: 25,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Center(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 75,
-                            backgroundColor:
-                                Theme.of(context).colorScheme.onBackground,
-                            child: CircularNetworkImageWithoutSize(
-                              imageUrl:
-                                  userProfileDetailsModel!.user.profilePic,
-                            ),
-                          ),
-                          widget.owner == true
-                              ? Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+          : NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.topCenter,
+                        child: AppBar(
+                          title: Text(
+                            userProfileDetailsModel!.user.username,
+                            style:
+                                Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 23,
                                     ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    LoadingOverlayAlt(
-                                                      child: UpdateProfilePage(
-                                                        user:
-                                                            userProfileDetailsModel!
-                                                                .user,
-                                                      ),
-                                                    )));
-                                      },
-                                      child: Icon(
-                                        Icons.edit,
+                          ),
+                          toolbarHeight: 70,
+                          backgroundColor:
+                              Theme.of(context).scaffoldBackgroundColor,
+                          elevation: 0,
+                          actions: [
+                            IconButton(
+                              onPressed: () {
+                                if (widget.owner == true) {
+                                  log("here ");
+                                  isOwner(
+                                    context: context,
+                                  );
+                                } else {
+                                  isNotOwner();
+                                }
+                              },
+                              icon: Icon(
+                                Ionicons.ellipsis_horizontal_circle_outline,
+                                size: 25,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Center(
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            CircleAvatar(
+                              radius: 75,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.onBackground,
+                              child: CircularNetworkImageWithoutSize(
+                                imageUrl:
+                                    userProfileDetailsModel!.user.profilePic,
+                              ),
+                            ),
+                            widget.owner == true
+                                ? Positioned(
+                                    bottom: 8,
+                                    right: 8,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .shadow,
-                                        size: 20,
+                                            .primary,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      LoadingOverlayAlt(
+                                                        child:
+                                                            UpdateProfilePage(
+                                                          user:
+                                                              userProfileDetailsModel!
+                                                                  .user,
+                                                        ),
+                                                      )));
+                                        },
+                                        child: Icon(
+                                          Icons.edit,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .shadow,
+                                          size: 20,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                )
-                              : Container(),
-                        ],
+                                  )
+                                : Container(),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      userProfileDetailsModel!.user.name,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 26,
-                          ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(
-                      userProfileDetailsModel!.user.occupation,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    userProfileDetailsModel!.user.bio == null
-                        ? widget.owner != true
-                            ? const SizedBox.shrink()
-                            : TextButton(
-                                onPressed: () {
-                                  AlertBoxes.acceptRejectAlertBox(
-                                      context: context,
-                                      title: "Add Bio",
-                                      onAccept: () async {
-                                        if (bioController.text.trim() != "") {
-                                          await UserProfileDetailsServices()
-                                              .addBio(bioController.text);
-                                          setState(() {
-                                            userProfileDetailsModel!.user.bio =
-                                                bioController.text;
-                                          });
-                                        }
-                                      },
-                                      onReject: () {},
-                                      content: SizedBox(
-                                        width: 100,
-                                        child: TextFormField(
-                                          controller: bioController,
-                                          maxLines: 5,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                fontSize: 13,
-                                              ),
-                                          decoration: InputDecoration(
-                                            hintText: "Write your bio here...",
-                                            hintStyle: Theme.of(context)
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        userProfileDetailsModel!.user.name,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 26,
+                            ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        userProfileDetailsModel!.user.occupation,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      userProfileDetailsModel!.user.bio == null
+                          ? widget.owner != true
+                              ? const SizedBox.shrink()
+                              : TextButton(
+                                  onPressed: () {
+                                    AlertBoxes.acceptRejectAlertBox(
+                                        context: context,
+                                        title: "Add Bio",
+                                        onAccept: () async {
+                                          if (bioController.text.trim() != "") {
+                                            await UserProfileDetailsServices()
+                                                .addBio(bioController.text);
+                                            setState(() {
+                                              userProfileDetailsModel!.user
+                                                  .bio = bioController.text;
+                                            });
+                                          }
+                                        },
+                                        onReject: () {},
+                                        content: SizedBox(
+                                          width: 100,
+                                          child: TextFormField(
+                                            controller: bioController,
+                                            maxLines: 5,
+                                            style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium!
                                                 .copyWith(
                                                   fontSize: 13,
                                                 ),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              borderSide: BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onBackground,
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  "Write your bio here...",
+                                              hintStyle: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium!
+                                                  .copyWith(
+                                                    fontSize: 13,
+                                                  ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                borderSide: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onBackground,
+                                                ),
+                                              ),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                borderSide: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onBackground,
+                                                ),
+                                              ),
+                                              focusColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                borderSide: BorderSide(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                ),
                                               ),
                                             ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              borderSide: BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onBackground,
-                                              ),
-                                            ),
-                                            focusColor: Theme.of(context)
+                                          ),
+                                        ),
+                                        acceptTitle: "Add",
+                                        rejectTitle: "Cancel");
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Ionicons.add_circle,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(
+                                        width: 7,
+                                      ),
+                                      Text("Add Bio",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium!
+                                              .copyWith(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary))
+                                    ],
+                                  ))
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: ExpandableTextWidget(
+                                text: userProfileDetailsModel!.user.bio!,
+                                maxLines: 3,
+                              ),
+                            ),
+                      // SizedBox(
+                      //   height: 20,
+                      // ),
+                      // Text(
+                      //   "www.amj24.com",
+                      //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      //       fontWeight: FontWeight.w600,
+                      //       fontSize: 18,
+                      //       color: Colors.blue),
+                      // ),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                      SizedBox(
+                        height: 60,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Expanded(
+                              child: SizedBox(
+                                height: 100,
+                                child: modifiedContainer(
+                                  onTap: () {},
+                                  upperText: userProfileDetailsModel!
+                                      .user.postCount
+                                      .toString(),
+                                  lowerText:
+                                      "Post${userProfileDetailsModel!.user.postCount > 1 ? "s" : ""}",
+                                ),
+                              ),
+                            ),
+                            VerticalDivider(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              thickness: 1,
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                height: 100,
+                                child: modifiedContainer(
+                                  onTap: () {
+                                    if (userProfileDetailsModel!.user.state ==
+                                            2 ||
+                                        widget.owner == true) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FollowersPage(
+                                                    userId:
+                                                        userProfileDetailsModel!
+                                                            .user.id,
+                                                  ))).then(
+                                          (value) => getUserProfileDetails());
+                                    }
+                                  },
+                                  upperText: userProfileDetailsModel!
+                                      .user.followersCount
+                                      .toString(),
+                                  lowerText:
+                                      "Follower${userProfileDetailsModel!.user.followersCount > 1 ? "s" : ""}",
+                                ),
+                              ),
+                            ),
+                            VerticalDivider(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              thickness: 1,
+                            ),
+                            Expanded(
+                              child: SizedBox(
+                                height: 100,
+                                child: modifiedContainer(
+                                  onTap: () {
+                                    if (userProfileDetailsModel!.user.state ==
+                                            2 ||
+                                        widget.owner == true) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FollowingPage(
+                                                    userId:
+                                                        userProfileDetailsModel!
+                                                            .user.id,
+                                                  ))).then(
+                                          (value) => getUserProfileDetails());
+                                    }
+                                  },
+                                  upperText: userProfileDetailsModel!
+                                      .user.followingCount
+                                      .toString(),
+                                  lowerText:
+                                      "Following${userProfileDetailsModel!.user.followingCount > 1 ? "s" : ""}",
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      widget.owner == true
+                          ? const SizedBox()
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                  child: toogleFollowButton(
+                                      userProfileDetailsModel:
+                                          userProfileDetailsModel!,
+                                      ttl1:
+                                          userProfileDetailsModel!.user.state ==
+                                                  0
+                                              ? "Follow"
+                                              : userProfileDetailsModel!
+                                                          .user.state ==
+                                                      2
+                                                  ? "Following"
+                                                  : "Requested",
+                                      isPressed:
+                                          userProfileDetailsModel!.user.state ==
+                                                  0
+                                              ? false
+                                              : true,
+                                      ttl2:
+                                          userProfileDetailsModel!.user.state ==
+                                                  0
+                                              ? "Requested"
+                                              : "Follow"),
+                                ),
+                                const SizedBox(
+                                  width: 20,
+                                ),
+                                Expanded(
+                                  child: CustomOutlineButton(
+                                    iconButton1: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: InkWell(
+                                          onTap: () {},
+                                          child: Icon(
+                                            Ionicons.chatbox_ellipses,
+                                            color: Theme.of(context)
                                                 .colorScheme
                                                 .primary,
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                              borderSide: BorderSide(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      acceptTitle: "Add",
-                                      rejectTitle: "Cancel");
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Ionicons.add_circle,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      size: 22,
+                                          )),
                                     ),
-                                    const SizedBox(
-                                      width: 7,
-                                    ),
-                                    Text("Add Bio",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .copyWith(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary))
-                                  ],
-                                ))
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: ExpandableTextWidget(
-                              text: userProfileDetailsModel!.user.bio!,
-                              maxLines: 3,
-                            ),
-                          ),
-                    // SizedBox(
-                    //   height: 20,
-                    // ),
-                    // Text(
-                    //   "www.amj24.com",
-                    //   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    //       fontWeight: FontWeight.w600,
-                    //       fontSize: 18,
-                    //       color: Colors.blue),
-                    // ),
-                    const SizedBox(
-                      height: 40,
-                    ),
-                    SizedBox(
-                      height: 60,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          modifiedContainer(
-                            onTap: () {},
-                            upperText: userProfileDetailsModel!.user.postCount
-                                .toString(),
-                            lowerText:
-                                "Post${userProfileDetailsModel!.user.postCount > 1 ? "s" : ""}",
-                          ),
-                          VerticalDivider(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            thickness: 1,
-                            width: 30,
-                          ),
-                          modifiedContainer(
-                            onTap: () {
-                              if (userProfileDetailsModel!.user.state == 2 ||
-                                  widget.owner == true) {
-                                Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => FollowersPage(
-                                                  userId:
-                                                      userProfileDetailsModel!
-                                                          .user.id,
-                                                )))
-                                    .then((value) => getUserProfileDetails());
-                              }
-                            },
-                            upperText: userProfileDetailsModel!
-                                .user.followersCount
-                                .toString(),
-                            lowerText:
-                                "Follower${userProfileDetailsModel!.user.followersCount > 1 ? "s" : ""}",
-                          ),
-                          VerticalDivider(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            thickness: 1,
-                            width: 30,
-                          ),
-                          modifiedContainer(
-                            onTap: () {
-                              if (userProfileDetailsModel!.user.state == 2 ||
-                                  widget.owner == true) {
-                                Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => FollowingPage(
-                                                  userId:
-                                                      userProfileDetailsModel!
-                                                          .user.id,
-                                                )))
-                                    .then((value) => getUserProfileDetails());
-                              }
-                            },
-                            upperText: userProfileDetailsModel!
-                                .user.followingCount
-                                .toString(),
-                            lowerText:
-                                "Following${userProfileDetailsModel!.user.followingCount > 1 ? "s" : ""}",
-                          )
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    widget.owner == true
-                        ? const SizedBox()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: toogleFollowButton(
-                                    userProfileDetailsModel:
-                                        userProfileDetailsModel!,
-                                    ttl1: userProfileDetailsModel!.user.state ==
-                                            0
-                                        ? "Follow"
-                                        : userProfileDetailsModel!.user.state ==
-                                                2
-                                            ? "Following"
-                                            : "Requested",
-                                    isPressed:
-                                        userProfileDetailsModel!.user.state == 0
-                                            ? false
-                                            : true,
-                                    ttl2:
-                                        userProfileDetailsModel!.user.state == 0
-                                            ? "Requested"
-                                            : "Follow"),
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              Expanded(
-                                child: CustomOutlineButton(
-                                  iconButton1: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: InkWell(
-                                        onTap: () {},
-                                        child: Icon(
-                                          Ionicons.chatbox_ellipses,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        )),
+                                    width1: 160,
+                                    title: "Message",
+                                    onPressed: () {},
+                                    fontSize: 16,
+                                    ctx: context,
                                   ),
-                                  width1: 160,
-                                  title: "Message",
-                                  onPressed: () {},
-                                  fontSize: 16,
-                                  ctx: context,
                                 ),
+                              ],
+                            ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: DefaultTabController(
+                    length: 3,
+                    child: TabBar(
+                      controller: _tabController,
+                      labelColor: Theme.of(context).colorScheme.primary,
+                      unselectedLabelColor:
+                          Theme.of(context).colorScheme.onPrimary,
+                      indicatorColor: Theme.of(context).colorScheme.primary,
+                      automaticIndicatorColorAdjustment: true,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorWeight: 3,
+                      dividerColor: Theme.of(context).colorScheme.onPrimary,
+                      onTap: (value) {
+                        if (value == 2) {
+                          getRepostThreads();
+                        }
+                      },
+                      tabs: const [
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Ionicons.text,
+                                size: 20,
                               ),
+                              SizedBox(
+                                  width:
+                                      5), // Add spacing between icon and text
+                              Text("Threads"),
                             ],
                           ),
-                    const SizedBox(
-                      height: 30,
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Ionicons.grid_outline,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                  width:
+                                      5), // Add spacing between icon and text
+                              Text("Feeds"),
+                            ],
+                          ),
+                        ),
+                        Tab(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Ionicons.repeat_outline,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                  width:
+                                      5), // Add spacing between icon and text
+                              Text("Reposts"),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    DefaultTabController(
-                        length: 3,
-                        child: Column(
+                  ),
+                )
+              ],
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  ThreadViewBuilder(
+                    allThreads: userProfileDetailsModel!.threadsWithUserDetails,
+                  ),
+                  Container(
+                    child: GridView.builder(
+                        physics: const ClampingScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: 100,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                  "assets/Country_flag/in.png",
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        }),
+                  ),
+                  isRepostsLoading
+                      ? const Column(
                           children: [
-                            TabBar(
-                              labelColor: Theme.of(context).colorScheme.primary,
-                              unselectedLabelColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              indicatorColor:
-                                  Theme.of(context).colorScheme.primary,
-                              automaticIndicatorColorAdjustment: true,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              indicatorWeight: 3,
-                              dividerColor:
-                                  Theme.of(context).colorScheme.onPrimary,
-                              onTap: (value) {
-                                if (value == 2) {
-                                  getRepostThreads();
-                                }
-                              },
-                              tabs: const [
-                                Tab(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Ionicons.text,
-                                        size: 20,
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              5), // Add spacing between icon and text
-                                      Text("Threads"),
-                                    ],
-                                  ),
-                                ),
-                                Tab(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Ionicons.grid_outline,
-                                        size: 20,
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              5), // Add spacing between icon and text
-                                      Text("Feeds"),
-                                    ],
-                                  ),
-                                ),
-                                Tab(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Ionicons.repeat_outline,
-                                        size: 20,
-                                      ),
-                                      SizedBox(
-                                          width:
-                                              5), // Add spacing between icon and text
-                                      Text("Reposted"),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                            SizedBox(
+                              height: 20,
                             ),
-                            AutoScaleTabBarView(
-                              physics: NeverScrollableScrollPhysics(),
-                              key: _refreshKey,
-                              children: [
-                                ThreadViewBuilder(
-                                  allThreads: userProfileDetailsModel!
-                                      .threadsWithUserDetails,
-                                ),
-                                GridView.builder(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      crossAxisSpacing: 5,
-                                      mainAxisSpacing: 5,
-                                      childAspectRatio: 1,
-                                    ),
-                                    itemCount: 100,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          image: const DecorationImage(
-                                            image: AssetImage(
-                                              "assets/Country_flag/in.png",
-                                            ),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                isRepostsLoading
-                                    ? const Column(
-                                        children: [
-                                          SizedBox(
-                                            height: 20,
-                                          ),
-                                          Center(
-                                              child: SpinKitRing(
-                                            color: Colors.white,
-                                            lineWidth: 1,
-                                            duration: Duration(seconds: 1),
-                                          )),
-                                        ],
-                                      )
-                                    : ThreadViewBuilder(
-                                        allThreads: repostThreads)
-                              ],
-                            ),
+                            Center(
+                                child: SpinKitRing(
+                              color: Colors.white,
+                              lineWidth: 1,
+                              duration: Duration(seconds: 1),
+                            )),
                           ],
-                        )),
-                  ],
-                ),
+                        )
+                      : ThreadViewBuilder(allThreads: repostThreads)
+                ],
               ),
             ),
     );

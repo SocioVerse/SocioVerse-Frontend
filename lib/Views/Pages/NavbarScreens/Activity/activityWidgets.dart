@@ -183,8 +183,8 @@ class StackOfTwo extends StatelessWidget {
 
 class RequestsTile extends StatelessWidget {
   LatestFollowRequestModel latestFollowRequestModel;
-  final Future<dynamic>? onTap;
-  RequestsTile({required this.latestFollowRequestModel, this.onTap});
+  final Function onTap;
+  RequestsTile({required this.latestFollowRequestModel, required this.onTap});
 
   String getText() {
     if (latestFollowRequestModel.followRequestCount == 1) {
@@ -206,7 +206,9 @@ class RequestsTile extends StatelessWidget {
                     context,
                     CupertinoPageRoute(
                         builder: ((context) => const FollowRequestsPage())))
-                .then((value) => onTap);
+                .then((value) {
+              onTap();
+            });
           },
           leading: Stack(
             children: [
