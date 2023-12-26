@@ -1291,6 +1291,7 @@ class _UserProfilePageState extends State<UserProfilePage>
               ],
               body: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   ThreadViewBuilder(
                     allThreads: userProfileDetailsModel!.threadsWithUserDetails,
