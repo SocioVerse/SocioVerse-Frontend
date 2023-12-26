@@ -69,7 +69,7 @@ class _ActivityPageState extends State<ActivityPage> {
                         ? const SizedBox.shrink()
                         : RequestsTile(
                             latestFollowRequestModel: latestFollowRequestModel,
-                            onTap: getLatestFollowRequest(),
+                            onTap: getLatestFollowRequest,
                           ),
                     ListView.builder(
                       physics: NeverScrollableScrollPhysics(),

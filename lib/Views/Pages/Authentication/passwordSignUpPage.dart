@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -214,6 +215,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                     ApiResponse response = await AuthServices()
                         .isEmailExists(email: emailController.text.trim());
                     if (response.success == true) {
+                      String? fcmToken =
+                          await FirebaseMessaging.instance.getToken();
                       Navigator.push(
                           context,
                           CupertinoPageRoute(
@@ -221,7 +224,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                                     signupUser: SignupUser(
                                         email: emailController.text.trim(),
                                         password:
-                                            passwordController.text.trim()),
+                                            passwordController.text.trim(),
+                                        fcmtoken: fcmToken!),
                                   )));
                     } else {
                       Fluttertoast.showToast(

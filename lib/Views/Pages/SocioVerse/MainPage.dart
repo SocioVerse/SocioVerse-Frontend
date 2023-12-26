@@ -76,7 +76,7 @@ class _MainPageState extends State<MainPage> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Ionicons.notifications_outline),
-              label: 'Notifications',
+              label: 'Activity',
             ),
             BottomNavigationBarItem(
                 icon: Icon(Ionicons.person_outline), label: 'Account'),
