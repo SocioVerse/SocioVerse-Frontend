@@ -48,8 +48,8 @@ class UserModel {
         dob: DateTime.parse(json["dob"]),
         faceImageDataset:
             List<dynamic>.from(json["face_image_dataset"].map((x) => x)),
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
+        createdAt: DateTime.parse(json["createdAt"]).toLocal(),
+        updatedAt: DateTime.parse(json["updatedAt"]).toLocal(),
         v: json["__v"],
       );
 

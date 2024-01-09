@@ -49,7 +49,7 @@ class ThreadRepliesModel {
         isLiked: json["isLiked"],
         commentCount: json["commentCount"],
         userId: json["userId"],
-        createdAt: DateTime.parse(json["createdAt"]),
+        createdAt: DateTime.parse(json["createdAt"]).toLocal(),
       );
 
   Map<String, dynamic> toJson() => {

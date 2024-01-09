@@ -59,7 +59,7 @@ class _NewThreadState extends State<NewThread> {
       final textPainter = TextPainter(
         text: TextSpan(
           text: thread.textEditingController.text,
-          style: TextStyle(fontSize: 15),
+          style: const TextStyle(fontSize: 15),
         ),
         textDirection: TextDirection.ltr,
         maxLines: 100,
@@ -113,7 +113,7 @@ class _NewThreadState extends State<NewThread> {
           ))
         : Scaffold(
             appBar: AppBar(
-              backgroundColor: Color(0xFF1a1a22),
+              backgroundColor: const Color(0xFF1a1a22),
               elevation: 0.15,
               automaticallyImplyLeading: false,
               shadowColor: Colors.white,
@@ -159,13 +159,13 @@ class _NewThreadState extends State<NewThread> {
                           children: [
                             Column(
                               children: [
-                                CircularNetworkImageWithLoading(
+                                CircularNetworkImageWithSize(
                                   imageUrl: user[0].profilePic,
                                   height: 35,
                                   width: 35,
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(top: 10),
+                                  margin: const EdgeInsets.only(top: 10),
                                   height: thread.isSelected
                                       ? thread.verticalDividerLength
                                       : thread.verticalDividerLength - 38,
@@ -178,7 +178,7 @@ class _NewThreadState extends State<NewThread> {
                               ],
                             ),
                             Container(
-                              margin: EdgeInsets.only(left: 15),
+                              margin: const EdgeInsets.only(left: 15),
                               width: MediaQuery.of(context).size.width - 74,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,17 +189,17 @@ class _NewThreadState extends State<NewThread> {
                                     children: [
                                       Text(
                                         '${user[0].username}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       thread.textEditingController.text.isEmpty
-                                          ? SizedBox(width: 1)
+                                          ? const SizedBox(width: 1)
                                           : Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 10),
+                                              padding: const EdgeInsets.only(
+                                                  right: 10),
                                               child: GestureDetector(
                                                 onTap: () {
                                                   if (threads.length > 1) {
@@ -244,7 +244,7 @@ class _NewThreadState extends State<NewThread> {
                                     autofocus: true,
                                     maxLines: null,
                                     cursorColor: Colors.white,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 15,
                                       color: Colors.white,
                                     ),
@@ -255,7 +255,8 @@ class _NewThreadState extends State<NewThread> {
                                         color: Colors.grey.shade600,
                                       ),
                                       contentPadding:
-                                          EdgeInsets.symmetric(vertical: 5),
+                                          const EdgeInsets.symmetric(
+                                              vertical: 5),
                                       focusedBorder: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                     ),
@@ -282,7 +283,7 @@ class _NewThreadState extends State<NewThread> {
                                       });
                                     },
                                   ),
-                                  SizedBox(height: 0),
+                                  const SizedBox(height: 0),
                                   thread.isUploading == true
                                       ? LinearProgressIndicator(
                                           color: Theme.of(context)
@@ -332,7 +333,7 @@ class _NewThreadState extends State<NewThread> {
                                                             .removeAt(index);
                                                       });
                                                     },
-                                                    icon: Icon(
+                                                    icon: const Icon(
                                                       Icons.remove_circle,
                                                       color: Colors.red,
                                                     ),
@@ -344,7 +345,8 @@ class _NewThreadState extends State<NewThread> {
                                         ),
                                   thread.isSelected
                                       ? Padding(
-                                          padding: EdgeInsets.only(top: 12),
+                                          padding:
+                                              const EdgeInsets.only(top: 12),
                                           child: GestureDetector(
                                             onTap: () async {
                                               List<File>? images =
@@ -369,7 +371,7 @@ class _NewThreadState extends State<NewThread> {
                                                   String url = await FirebaseHelper
                                                       .uploadFile(
                                                           images[i].path,
-                                                          "${Uuid().v4()}",
+                                                          "${const Uuid().v4()}",
                                                           "${user[0].email}/threads",
                                                           FirebaseHelper.Image);
                                                   thread.images.add(url);
@@ -379,14 +381,14 @@ class _NewThreadState extends State<NewThread> {
                                                 thread.isUploading = false;
                                               });
                                             },
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.photo_library_rounded,
                                               color: Color.fromARGB(
                                                   137, 245, 201, 201),
                                             ),
                                           ),
                                         )
-                                      : SizedBox(height: 0),
+                                      : const SizedBox(height: 0),
                                 ],
                               ),
                             )
@@ -405,7 +407,7 @@ class _NewThreadState extends State<NewThread> {
                       contentPadding: const EdgeInsets.only(left: 19),
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
-                        child: CircularNetworkImageWithLoading(
+                        child: CircularNetworkImageWithSize(
                           imageUrl: user[0].profilePic,
                           height: 20,
                           width: 20,

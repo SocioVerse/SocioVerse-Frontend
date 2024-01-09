@@ -58,7 +58,7 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
               itemCount: followRequestModel.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: CircularNetworkImageWithLoading(
+                  leading: CircularNetworkImageWithSize(
                     imageUrl: followRequestModel[index].profilePic,
                     width: 45,
                     height: 45,

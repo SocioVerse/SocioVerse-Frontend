@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Followers/followerPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Following/followingPage.dart';
@@ -14,6 +15,8 @@ import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProf
 import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
 
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/settings.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
@@ -23,6 +26,8 @@ import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart'
+    as inboxModel;
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:socioverse/services/authentication_services.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
@@ -792,15 +797,6 @@ class _UserProfilePageState extends State<UserProfilePage>
                         await AuthServices()
                             .userLogout(fcmToken: value)
                             .then((value) {
-                          setStringIntoCache(
-                              SharedPreferenceString.accessToken, null);
-
-                          setBooleanIntoCache(
-                              SharedPreferenceString.isLoggedIn, false);
-
-                          setStringIntoCache(
-                              SharedPreferenceString.refreshToken, null);
-
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
@@ -1162,57 +1158,93 @@ class _UserProfilePageState extends State<UserProfilePage>
                       ),
                       widget.owner == true
                           ? const SizedBox()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Expanded(
-                                  child: toogleFollowButton(
-                                      userProfileDetailsModel:
-                                          userProfileDetailsModel!,
-                                      ttl1:
-                                          userProfileDetailsModel!.user.state ==
-                                                  0
-                                              ? "Follow"
-                                              : userProfileDetailsModel!
-                                                          .user.state ==
-                                                      2
-                                                  ? "Following"
-                                                  : "Requested",
-                                      isPressed:
-                                          userProfileDetailsModel!.user.state ==
-                                                  0
-                                              ? false
-                                              : true,
-                                      ttl2:
-                                          userProfileDetailsModel!.user.state ==
-                                                  0
-                                              ? "Requested"
-                                              : "Follow"),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Expanded(
-                                  child: CustomOutlineButton(
-                                    iconButton1: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: InkWell(
-                                          onTap: () {},
-                                          child: Icon(
-                                            Ionicons.chatbox_ellipses,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          )),
-                                    ),
-                                    width1: 160,
-                                    title: "Message",
-                                    onPressed: () {},
-                                    fontSize: 16,
-                                    ctx: context,
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Expanded(
+                                    child: toogleFollowButton(
+                                        userProfileDetailsModel:
+                                            userProfileDetailsModel!,
+                                        ttl1: userProfileDetailsModel!
+                                                    .user.state ==
+                                                0
+                                            ? "Follow"
+                                            : userProfileDetailsModel!
+                                                        .user.state ==
+                                                    2
+                                                ? "Following"
+                                                : "Requested",
+                                        isPressed: userProfileDetailsModel!
+                                                    .user.state ==
+                                                0
+                                            ? false
+                                            : true,
+                                        ttl2: userProfileDetailsModel!
+                                                    .user.state ==
+                                                0
+                                            ? "Requested"
+                                            : "Follow"),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Expanded(
+                                    child: CustomOutlineButton(
+                                      iconButton1: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: InkWell(
+                                            onTap: () {},
+                                            child: Icon(
+                                              Ionicons.chatbox_ellipses,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            )),
+                                      ),
+                                      width1: 160,
+                                      title: "Message",
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ChangeNotifierProvider(
+                                                      create: (context) =>
+                                                          ChatProvider(),
+                                                      child: ChatPage(
+                                                          user: inboxModel.User(
+                                                        email:
+                                                            userProfileDetailsModel!
+                                                                .user.email,
+                                                        id: userProfileDetailsModel!
+                                                            .user.id,
+                                                        name:
+                                                            userProfileDetailsModel!
+                                                                .user.name,
+                                                        profilePic:
+                                                            userProfileDetailsModel!
+                                                                .user
+                                                                .profilePic,
+                                                        username:
+                                                            userProfileDetailsModel!
+                                                                .user.username,
+                                                        occupation:
+                                                            userProfileDetailsModel!
+                                                                .user
+                                                                .occupation,
+                                                      ))),
+                                            ));
+                                      },
+                                      fontSize: 16,
+                                      ctx: context,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                       const SizedBox(
                         height: 30,

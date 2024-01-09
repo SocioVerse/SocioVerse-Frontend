@@ -105,7 +105,7 @@ class AlertBoxes {
               content: content,
             ),
           );
-        });
+        }).then((value) => onReject());
   }
 
   static void showSnackBar(BuildContext context, String message) {

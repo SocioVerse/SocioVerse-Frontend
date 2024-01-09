@@ -180,7 +180,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                           children: [
                             Column(
                               children: [
-                                CircularNetworkImageWithLoading(
+                                CircularNetworkImageWithSize(
                                   imageUrl: user[0].profilePic,
                                   height: 35,
                                   width: 35,
@@ -426,7 +426,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                       contentPadding: const EdgeInsets.only(left: 19),
                       leading: Padding(
                         padding: const EdgeInsets.only(top: 1),
-                        child: CircularNetworkImageWithLoading(
+                        child: CircularNetworkImageWithSize(
                           imageUrl: user[0].profilePic,
                           height: 20,
                           width: 20,

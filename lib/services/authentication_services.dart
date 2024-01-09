@@ -54,6 +54,8 @@ class AuthServices {
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
+      String at = await getStringFromCache(SharedPreferenceString.accessToken);
+      log(at);
     }
 
     return response;
@@ -65,6 +67,10 @@ class AuthServices {
       queryParam: {"fcm_token": fcmToken},
       isPublic: false,
     );
+    setStringIntoCache(SharedPreferenceString.accessToken, null);
+    setBooleanIntoCache(SharedPreferenceString.isLoggedIn, false);
+    setStringIntoCache(SharedPreferenceString.refreshToken, null);
+    setStringIntoCache(SharedPreferenceString.userId, null);
 
     return response;
   }

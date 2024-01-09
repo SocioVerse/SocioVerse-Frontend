@@ -156,7 +156,7 @@ class StackOfTwo extends StatelessWidget {
         children: [
           Positioned(
             left: 0,
-            child: CircularNetworkImageWithLoading(
+            child: CircularNetworkImageWithSize(
               imageUrl: images[1],
               height: 48,
               width: 48,
@@ -168,7 +168,7 @@ class StackOfTwo extends StatelessWidget {
             child: CircleAvatar(
               radius: 27,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              child: CircularNetworkImageWithLoading(
+              child: CircularNetworkImageWithSize(
                 imageUrl: images[0],
                 height: 48,
                 width: 48,

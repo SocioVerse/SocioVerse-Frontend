@@ -9,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class ImagePickerFunctionsHelper {
   final picker = ImagePicker();
-  Future<File?> pickImage(BuildContext context) async {
+  Future<File?> pickImage(BuildContext context, {bool forStory = false}) async {
     print("Image Uploadinng.....");
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
@@ -18,12 +18,14 @@ class ImagePickerFunctionsHelper {
     if (pickedFile != null) {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
-        aspectRatioPresets: [CropAspectRatioPreset.square],
+        aspectRatio: forStory
+            ? CropAspectRatio(ratioX: 9, ratioY: 16)
+            : CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
+            toolbarTitle: forStory ? "Add Story" : "Cropper",
+            toolbarColor: Theme.of(context).colorScheme.secondary,
+            toolbarWidgetColor: Theme.of(context).colorScheme.onPrimary,
             initAspectRatio: CropAspectRatioPreset.original,
             lockAspectRatio: true,
           ),
@@ -45,7 +47,8 @@ class ImagePickerFunctionsHelper {
     }
   }
 
-  Future<List<File>?> pickMultipleImage(BuildContext context) async {
+  Future<List<File>?> pickMultipleImage(BuildContext context,
+      {bool forStory = false}) async {
     print("Image Uploadinng.....");
     final pickedFile = await picker.pickMultiImage();
 
@@ -55,6 +58,9 @@ class ImagePickerFunctionsHelper {
         CroppedFile? croppedFile = await ImageCropper().cropImage(
           sourcePath: pickedFile[i].path,
           aspectRatioPresets: [CropAspectRatioPreset.square],
+          aspectRatio: forStory
+              ? CropAspectRatio(ratioX: 9, ratioY: 16)
+              : CropAspectRatio(ratioX: 1, ratioY: 1),
           uiSettings: [
             AndroidUiSettings(
               toolbarTitle: 'Cropper',
@@ -153,6 +159,36 @@ class ImagePickerFunctionsHelper {
     } else {
       if (await Permission.photos.request().isGranted) {
         image = await pickImage(context);
+      } else if (await Permission.photos.request().isPermanentlyDenied) {
+        showPermissionError(context: context);
+      } else if (await Permission.photos.request().isDenied) {
+        showPermissionError(context: context);
+      }
+    }
+    return image;
+  }
+
+  Future<File?> requestStoryPicker(BuildContext context) async {
+    File? image;
+    var status = await Permission.storage.status;
+    DeviceInfoPlugin plugin = DeviceInfoPlugin();
+    AndroidDeviceInfo android = await plugin.androidInfo;
+    if (android.version.sdkInt < 33) {
+      if (status.isGranted) {
+        image = await pickImage(context, forStory: true);
+      } else if (status.isDenied) {
+        var result = await Permission.storage.request();
+        if (result.isGranted) {
+          image = await pickImage(context, forStory: true);
+        } else {
+          showPermissionError(context: context);
+        }
+      } else {
+        showPermissionError(context: context);
+      }
+    } else {
+      if (await Permission.photos.request().isGranted) {
+        image = await pickImage(context, forStory: true);
       } else if (await Permission.photos.request().isPermanentlyDenied) {
         showPermissionError(context: context);
       } else if (await Permission.photos.request().isDenied) {
