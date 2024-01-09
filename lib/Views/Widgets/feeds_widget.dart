@@ -1,18 +1,25 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Models/story_models.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/storyPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
+import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:socioverse/services/stories_services.dart';
 import 'package:socioverse/services/thread_services.dart';
 import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
@@ -26,86 +33,178 @@ class StoriesScroller extends StatefulWidget {
 }
 
 class _StoriesScrollerState extends State<StoriesScroller> {
+  List<ProfileStoryModel> profileStories = [];
+  bool isStoryLoading = false;
+
   @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        itemCount: 10,
+  void initState() {
+    getProfileStories();
+    super.initState();
+  }
+
+  getProfileStories() async {
+    setState(() {
+      isStoryLoading = true;
+    });
+    profileStories = await StoriesServices().fetchAllStories();
+    setState(() {
+      isStoryLoading = false;
+    });
+  }
+
+  Widget _buildLoadingShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Theme.of(context).colorScheme.tertiary,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.builder(
+        itemCount: 5, // Choose the number of shimmer placeholders
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           return Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: ((context) {
-                    return StoryPage();
-                  })));
-                },
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 80,
-                      width: 80,
-                      child: Stack(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 2,
-                              ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.onBackground,
-                              child: Icon(
-                                Ionicons.person,
-                                color: Theme.of(context).colorScheme.background,
-                                size: 40,
-                              ),
-                            ),
-                          ),
-                          index == 0
-                              ? Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                    child: Icon(
-                                      Icons.add,
-                                      color:
-                                          Theme.of(context).colorScheme.shadow,
-                                      size: 20,
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  height: 80,
+                  width: 80,
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 10,
+                  width: 60,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isStoryLoading
+        ? _buildLoadingShimmer()
+        : ListView.builder(
+            itemCount: profileStories.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (profileStories[index].isAllSeen != null) {
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: ((context) {
+                          return StoryPage(
+                            user: profileStories[index].user,
+                          );
+                        }))).then((value) => getProfileStories());
+                      }
+                    },
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 80,
+                          width: 80,
+                          child: Stack(
+                            children: [
+                              Container(
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: profileStories[index].isAllSeen ==
+                                              null
+                                          ? Colors.transparent
+                                          : profileStories[index].isAllSeen!
+                                              ? Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary
+                                              : Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                      width: 2,
                                     ),
                                   ),
-                                )
-                              : Container(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    index != 0
-                        ? Text(
-                            "Username",
-                            style: Theme.of(context).textTheme.bodySmall,
-                          )
-                        : Text(
-                            "You",
-                            style: Theme.of(context).textTheme.bodySmall,
+                                  child:
+                                      CircularNetworkImageWithSizeWithoutPhotoView(
+                                    imageUrl:
+                                        profileStories[index].user.profilePic,
+                                    height: 80,
+                                    width: 80,
+                                  )),
+                              index == 0
+                                  ? Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: InkWell(
+                                        onTap: () async {
+                                          String? storyImage =
+                                              await ImagePickerFunctionsHelper()
+                                                  .requestStoryPicker(context)
+                                                  .then((value) async {
+                                            if (value != null) {
+                                              return await FirebaseHelper
+                                                  .uploadFile(
+                                                      value.path,
+                                                      profileStories[0]
+                                                          .user
+                                                          .email,
+                                                      "${profileStories[0].user.email}/stories",
+                                                      FirebaseHelper.Image);
+                                            }
+                                            return null;
+                                          });
+                                          if (storyImage != null) {
+                                            await StoriesServices().uploadStory(
+                                                storyImage: [storyImage]);
+                                            getProfileStories();
+                                          }
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                          ),
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .shadow,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
                           ),
-                  ],
-                ),
-              ));
-        });
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        index != 0
+                            ? Text(
+                                profileStories[index].user.username,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              )
+                            : Text(
+                                "You",
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                      ],
+                    ),
+                  ));
+            });
   }
 }
 
@@ -122,7 +221,7 @@ class UserProfileImageStackOf3 extends StatelessWidget {
         children: [
           Positioned(
             right: 0,
-            child: CircularNetworkImageWithLoading(
+            child: CircularNetworkImageWithSize(
               imageUrl: commenterProfilePics![2].profilePic,
               height: 16,
               width: 16,
@@ -131,7 +230,7 @@ class UserProfileImageStackOf3 extends StatelessWidget {
           Positioned(
             left: 0,
             top: 10,
-            child: CircularNetworkImageWithLoading(
+            child: CircularNetworkImageWithSize(
               imageUrl: commenterProfilePics![1].profilePic,
               height: 10.5,
               width: 10.5,
@@ -140,7 +239,7 @@ class UserProfileImageStackOf3 extends StatelessWidget {
           Positioned(
               right: 9.2,
               top: 21,
-              child: CircularNetworkImageWithLoading(
+              child: CircularNetworkImageWithSize(
                 imageUrl: commenterProfilePics![0].profilePic,
                 height: 8.5,
                 width: 8.5,

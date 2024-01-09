@@ -100,7 +100,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
             child: SizedBox(
               height: 40,
               width: 40,
-              child: CircularNetworkImageWithLoading(
+              child: CircularNetworkImageWithSize(
                 imageUrl: widget.thread.userProfile,
                 height: 35,
                 width: 35,

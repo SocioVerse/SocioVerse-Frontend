@@ -50,8 +50,8 @@ class ThreadModel {
         likeCount: json["like_count"],
         isPrivate: json["is_private"],
         isBase: json["isBase"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
+        createdAt: DateTime.parse(json["createdAt"]).toLocal(),
+        updatedAt: DateTime.parse(json["updatedAt"]).toLocal(),
         v: json["__v"],
         parentThread: json["parent_thread"],
         userLikes: json["userLikes"] != null

@@ -56,7 +56,7 @@ class _FollowingPageState extends State<FollowingPage> {
         child: SizedBox(
           height: 40,
           width: 40,
-          child: CircularNetworkImageWithLoading(
+          child: CircularNetworkImageWithSize(
             imageUrl: followersModel.user.profilePic,
             height: 35,
             width: 35,

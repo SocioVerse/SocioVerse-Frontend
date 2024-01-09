@@ -6,6 +6,7 @@ class SearchedUser {
   String username;
   String occupation;
   String profilePic;
+  String email;
   int? state;
 
   SearchedUser({
@@ -14,6 +15,7 @@ class SearchedUser {
     required this.username,
     required this.occupation,
     required this.profilePic,
+    required this.email,
     this.state,
   });
 
@@ -28,6 +30,7 @@ class SearchedUser {
         username: json["username"],
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
+        email: json["email"],
         state: json["state"],
       );
 

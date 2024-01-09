@@ -74,7 +74,9 @@ class _CustomOutlineButtonState extends State<CustomOutlineButton> {
             ),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          widget.onPressed!();
+        },
         child: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

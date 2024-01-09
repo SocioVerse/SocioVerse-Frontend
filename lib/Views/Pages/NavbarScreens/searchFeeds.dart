@@ -406,7 +406,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
         child: SizedBox(
           height: 40,
           width: 40,
-          child: CircularNetworkImageWithLoading(
+          child: CircularNetworkImageWithSize(
             imageUrl: user.profilePic,
             height: 35,
             width: 35,

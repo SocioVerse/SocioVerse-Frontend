@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
@@ -491,7 +492,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             child: SizedBox(
               height: 40,
               width: 40,
-              child: CircularNetworkImageWithLoading(
+              child: CircularNetworkImageWithSize(
                 imageUrl: widget.thread.user.profilePic,
                 height: 35,
                 width: 35,
@@ -705,6 +706,131 @@ class _ThreadLayoutState extends State<ThreadLayout> {
   }
 }
 
+class ThreadShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          onTap: () {}, // Placeholder onTap
+          contentPadding: const EdgeInsets.only(
+            right: 10,
+            top: 10,
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: ClipOval(
+                child: Shimmer.fromColors(
+                  baseColor: Theme.of(context).colorScheme.tertiary,
+                  highlightColor: Colors.grey[100]!,
+                  child:
+                      Container(color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ),
+            ),
+          ),
+          title: Shimmer.fromColors(
+            baseColor: Theme.of(context).colorScheme.tertiary,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 20,
+              width: 150,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          subtitle: Shimmer.fromColors(
+            baseColor: Theme.of(context).colorScheme.tertiary,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 15,
+              width: 100,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 70.0, right: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 20,
+                  width: 150,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 20,
+                  width: 170,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 20,
+                  width: 160,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              SizedBox(height: 10),
+              // Shimmer placeholder for GridView
+              GridView.builder(
+                shrinkWrap: true,
+                itemCount: 6,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+                itemBuilder: (context, index) {
+                  return Shimmer.fromColors(
+                    baseColor: Theme.of(context).colorScheme.tertiary,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      color: Theme.of(context).colorScheme.tertiary,
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 10),
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 20,
+                  width: 170,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 8),
+        Divider(
+          height: 0,
+          thickness: 0.2,
+          color: Colors.grey,
+        ),
+      ],
+    );
+  }
+}
+
 class ThreadViewBuilder extends StatefulWidget {
   const ThreadViewBuilder({super.key});
 
@@ -755,18 +881,14 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
                   );
                 },
               )
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 150,
-              ),
-              SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              )
-            ],
+        : ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(top: 10),
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              return ThreadShimmer();
+            },
           );
   }
 }

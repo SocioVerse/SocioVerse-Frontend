@@ -12,6 +12,13 @@ class ApiStringConstants {
   static const String createComment = "threads/create-comment";
   static const String deleteThreads = "threads/delete-thread";
 
+  //Stories APIs
+  static const String createStory = "stories/create-story";
+  static const String readStory = "stories/read-story";
+  static const String toogleStoryLike = "stories/toogle-story-like";
+  static const String storySeen = "stories/story-seen";
+  static const String deleteStory = "stories/delete-story";
+
   //Users APIs
   static const String isEmailExists = "users/verify-email-exists";
   static const String userSignUp = "users/signup";
@@ -36,4 +43,10 @@ class ApiStringConstants {
   static const String addBio = "users/add-bio";
   static const String toogleRepostThread = "users/toogle-repost-thread";
   static const String fetchRepostThreads = "users/fetch-reposted-thread";
+  static const String fetchAllStories = "users/fetch-all-stories";
+  static const String fetchAllStorySeen = "users/fetch-all-stories-seens";
+
+  //Chat APIs
+  static const String getChatroomInfoByUser = "users/get-room-info-by-user";
+  static const String fetchInbox = "users/all-recent-chats";
 }

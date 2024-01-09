@@ -252,7 +252,7 @@ import 'package:socioverse/services/thread_services.dart';
 //             child: SizedBox(
 //               height: 40,
 //               width: 40,
-//               child: CircularNetworkImageWithLoading(
+//               child: CircularNetworkImageWithSize(
 //                 imageUrl: widget.thread.user.profilePic,
 //                 height: 35,
 //                 width: 35,

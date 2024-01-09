@@ -39,12 +39,12 @@ class CircularNetworkImageWithoutSize extends StatelessWidget {
   }
 }
 
-class CircularNetworkImageWithLoading extends StatelessWidget {
+class CircularNetworkImageWithSize extends StatelessWidget {
   final String imageUrl;
   final double height;
   final double width;
 
-  const CircularNetworkImageWithLoading({
+  const CircularNetworkImageWithSize({
     Key? key,
     required this.imageUrl,
     this.height = 8.5,
@@ -75,6 +75,35 @@ class CircularNetworkImageWithLoading extends StatelessWidget {
           ),
           errorWidget: (context, url, error) => Icon(Icons.error),
         ),
+      ),
+    );
+  }
+}
+
+class CircularNetworkImageWithSizeWithoutPhotoView extends StatelessWidget {
+  final String imageUrl;
+  final double height;
+  final double width;
+
+  const CircularNetworkImageWithSizeWithoutPhotoView({
+    Key? key,
+    required this.imageUrl,
+    this.height = 8.5,
+    this.width = 8.5,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Center(
+          child: CircularProgressIndicator(),
+        ),
+        errorWidget: (context, url, error) => Icon(Icons.error),
       ),
     );
   }

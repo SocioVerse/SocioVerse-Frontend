@@ -56,8 +56,8 @@ class UserSignUpModel {
         faceImageDataset:
             List<dynamic>.from(json["face_image_dataset"].map((x) => x)),
         id: json["_id"],
-        createdAt: DateTime.parse(json["createdAt"]),
-        updatedAt: DateTime.parse(json["updatedAt"]),
+        createdAt: DateTime.parse(json["createdAt"]).toLocal(),
+        updatedAt: DateTime.parse(json["updatedAt"]).toLocal(),
         v: json["__v"],
         refreshToken: json["refresh_token"],
         accessToken: json["access_token"],
