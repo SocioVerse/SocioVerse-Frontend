@@ -1,8 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/postEditPage.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/postEditPage.dart';
+import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
+import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +36,7 @@ class _PickImagePageState extends State<PickImagePage> {
     assets = await PhotoManager.getAssetListRange(
       start: 0,
       end: currentGrid,
+      type: RequestType.image,
     );
     setState(() {});
   }
@@ -56,6 +61,7 @@ class _PickImagePageState extends State<PickImagePage> {
     if (state.isAuth) {
       await _fetchAssets();
       selectedAsset = assets[0];
+      singleImageIndex = 0;
       setState(() {
         isStatus = true;
       });
@@ -101,7 +107,7 @@ class _PickImagePageState extends State<PickImagePage> {
       );
     } else {
       // Handle other asset types if needed
-      return Text('Unsupported asset type');
+      return const Text('Unsupported asset type');
     }
   }
 
@@ -122,9 +128,43 @@ class _PickImagePageState extends State<PickImagePage> {
         elevation: 0,
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute(builder: ((context) => PostEditPage())));
+              onPressed: () async {
+                List<File> files = [];
+                if (selectedIndex.isNotEmpty) {
+                  // Use Future.wait to wait for all futures to complete
+                  await Future.wait(
+                    List<Future>.generate(selectedIndex.length, (int i) async {
+                      log(i.toString());
+                      final value = await assets[selectedIndex[i]].file;
+                      if (value != null) {
+                        files.add(value);
+                      }
+                    }),
+                  );
+
+                  print(files.length.toString());
+                } else {
+                  File? value = await selectedAsset.file;
+                  log(value!.path);
+                  if (value != null) {
+                    files.add(value);
+                  }
+                }
+                ImagePickerFunctionsHelper()
+                    .cropMultipleImages(context, files, false)
+                    .then((value) {
+                  if (value != null) {
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) => LoadingOverlayAlt(
+                                child: PostEditPage(
+                                  images: value,
+                                ),
+                              )),
+                    );
+                  }
+                });
               },
               icon: Icon(
                 Icons.arrow_forward,
@@ -134,7 +174,13 @@ class _PickImagePageState extends State<PickImagePage> {
         ],
       ),
       body: isStatus == false
-          ? CircularProgressIndicator()
+          ? Center(
+              child: SpinKitRing(
+                color: Theme.of(context).colorScheme.tertiary,
+                lineWidth: 1,
+                duration: const Duration(seconds: 1),
+              ),
+            )
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),
               child: Column(
@@ -148,12 +194,12 @@ class _PickImagePageState extends State<PickImagePage> {
                             child: SizedBox(
                                 width: MyApp.width!,
                                 height: MyApp.width! - 20,
-                                child: Center(
+                                child: const Center(
                                     child: CircularProgressIndicator())));
                       } else if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       } else if (!snapshot.hasData) {
-                        return Text('No data available');
+                        return const Text('No data available');
                       }
 
                       final bytes = snapshot.data!;
@@ -169,7 +215,7 @@ class _PickImagePageState extends State<PickImagePage> {
                       );
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Padding(
@@ -218,7 +264,7 @@ class _PickImagePageState extends State<PickImagePage> {
                           controller: _scrollController,
                           shrinkWrap: true,
                           gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             crossAxisSpacing: 5,
                             mainAxisSpacing: 5,
@@ -231,24 +277,38 @@ class _PickImagePageState extends State<PickImagePage> {
                                   .then((value) => value!),
                               builder: (_, snapshot) {
                                 final bytes = snapshot.data;
-                                if (bytes == null)
-                                  return const CircularProgressIndicator();
+                                if (bytes == null) {
+                                  return Positioned.fill(
+                                    child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Shimmer.fromColors(
+                                          baseColor: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            color: Colors.grey,
+                                          ),
+                                        )),
+                                  );
+                                }
                                 return GestureDetector(
                                   onTap: () {
                                     if (multiSelect == true) {
                                       if (selectedIndex.contains(index)) {
                                         selectedIndex.remove(index);
-                                        imageCount--;
+                                        imageCount = selectedIndex.length;
                                         if (imageCount == 0) {
-                                          setState(() {
-                                            multiSelect = false;
-                                          });
+                                          multiSelect = false;
                                         }
                                       } else {
                                         selectedIndex.add(index);
-                                        imageCount++;
+                                        imageCount = selectedIndex.length;
                                       }
-                                      selectedAsset = assets[singleImageIndex!];
+                                      if (imageCount > 0) {
+                                        selectedAsset =
+                                            assets[selectedIndex[0]];
+                                      }
                                       setState(() {});
                                     } else {
                                       if (singleImageIndex == null) {
@@ -264,7 +324,7 @@ class _PickImagePageState extends State<PickImagePage> {
                                     if (multiSelect == true) {
                                       if (selectedIndex.contains(index)) {
                                         selectedIndex.remove(index);
-                                        imageCount--;
+                                        imageCount = selectedIndex.length;
                                         if (imageCount == 0) {
                                           setState(() {
                                             multiSelect = false;
@@ -272,7 +332,7 @@ class _PickImagePageState extends State<PickImagePage> {
                                         }
                                       } else {
                                         selectedIndex.add(index);
-                                        imageCount++;
+                                        imageCount = selectedIndex.length;
                                       }
 
                                       selectedAsset = assets[selectedIndex[0]];
@@ -283,7 +343,7 @@ class _PickImagePageState extends State<PickImagePage> {
                                         selectedIndex.add(index);
                                         selectedAsset =
                                             assets[selectedIndex[0]];
-                                        imageCount++;
+                                        imageCount = selectedIndex.length;
                                       });
                                     }
                                   },
@@ -300,13 +360,10 @@ class _PickImagePageState extends State<PickImagePage> {
                                       ),
                                       // Display a Play icon if the asset is a video
                                       if (assets[index].type == AssetType.video)
-                                        Center(
-                                          child: Container(
-                                            color: Colors.blue,
-                                            child: const Icon(
-                                              Icons.play_arrow,
-                                              color: Colors.white,
-                                            ),
+                                        const Center(
+                                          child: Icon(
+                                            Ionicons.play,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       Padding(
@@ -340,8 +397,8 @@ class _PickImagePageState extends State<PickImagePage> {
 }
 
 class VideoPlayerWidget extends StatefulWidget {
-  VideoPlayerWidget({super.key, required this.file});
-  File file;
+  const VideoPlayerWidget({super.key, required this.file});
+  final File file;
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
@@ -385,6 +442,6 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             // Use the VideoPlayer widget to display the video.
             child: VideoPlayer(_controller),
           )
-        : CircularProgressIndicator();
+        : const CircularProgressIndicator();
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
-import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
 import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 class ThreadReply extends StatefulWidget {

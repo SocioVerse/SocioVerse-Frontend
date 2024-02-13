@@ -16,13 +16,11 @@ class FeedsPage extends StatefulWidget {
 
 class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
   bool _showAppbar = true;
-  bool _enableThread = false;
   final ScrollController _scrollController = ScrollController();
   double _previousOffset = 0;
   @override
   void initState() {
     _showAppbar = true;
-    _enableThread = false;
     _scrollController.addListener(() {
       _scrollListener();
     });
@@ -104,7 +102,7 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                     height: 0,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
-                  ThreadViewBuilder(),
+                  FeedViewBuilder(),
                   // Add more widgets as needed
                 ],
               ),

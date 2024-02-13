@@ -6,14 +6,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/services/follow_unfollow_services.dart';
 import 'package:socioverse/services/search_bar_services.dart';
 
-import '../../Widgets/buttons.dart';
-import '../../Widgets/textfield_widgets.dart';
+import '../../../Widgets/buttons.dart';
+import '../../../Widgets/textfield_widgets.dart';
 
 class SearchFeedsPage extends StatefulWidget {
   const SearchFeedsPage({super.key});
@@ -92,15 +93,15 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             },
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: GridView.builder(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 5,
                 mainAxisSpacing: 5,
@@ -111,7 +112,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 return Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: AssetImage(
                         "assets/Country_flag/in.png",
                       ),
@@ -152,7 +153,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                       children: [
                         Column(
                           children: [
-                            Spacer(),
+                            const Spacer(),
                             Divider(
                               color: Theme.of(context).colorScheme.tertiary,
                               thickness: 1,
@@ -174,19 +175,19 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                             }
                           },
                           tabs: [
-                            Tab(
+                            const Tab(
                               child: Icon(
                                 Ionicons.person,
                                 size: 20,
                               ),
                             ),
-                            Tab(
+                            const Tab(
                               child: Icon(
                                 Ionicons.grid_outline,
                                 size: 20,
                               ),
                             ),
-                            Tab(
+                            const Tab(
                               child: Icon(
                                 Icons.tag,
                                 size: 20,
@@ -205,7 +206,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 AutoScaleTabBarView(
@@ -225,7 +226,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                         : ListView.builder(
                             shrinkWrap: true,
                             itemCount: searchedUser.length,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) {
                               return Column(children: [
                                 personListTile(
@@ -241,7 +242,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                                     ttl2: searchedUser[index].state == 0
                                         ? "Requested"
                                         : "Follow"),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                               ]);
@@ -277,14 +278,14 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                     ListView.builder(
                       shrinkWrap: true,
                       itemCount: 10,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return Column(children: [
                           hashtagsTile(
                             hashtagsTile: "kunal",
                             posts: 357014568,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                         ]);
@@ -293,13 +294,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                     ListView.builder(
                       shrinkWrap: true,
                       itemCount: 10,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         return Column(children: [
                           locationTile(
                               address: "Jaipur, Rajasthan",
                               subAddress: "129, Shri Ram Nagar, Jhotwara"),
-                          SizedBox(
+                          const SizedBox(
                             height: 10,
                           ),
                         ]);
@@ -313,18 +314,6 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     );
   }
 
-  String numberToMkConverter(double number) {
-    if (number >= 1000000) {
-      double result = number / 1000000;
-      return result.toStringAsFixed(0) + 'M';
-    } else if (number >= 1000) {
-      double result = number / 1000;
-      return result.toStringAsFixed(0) + 'K';
-    } else {
-      return number.toString();
-    }
-  }
-
   ListTile hashtagsTile({required String hashtagsTile, required double posts}) {
     return ListTile(
       leading: CircleAvatar(
@@ -335,7 +324,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             color: Theme.of(context).colorScheme.onPrimary,
           )),
       title: Text(
-        "#" + hashtagsTile,
+        "#$hashtagsTile",
         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16,
               color: Theme.of(context).colorScheme.onPrimary,
@@ -344,7 +333,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Text(
-          numberToMkConverter(posts) + " Posts",
+          "${CalculatingFunction.numberToMkConverter(posts)} Posts",
           style: Theme.of(context).textTheme.bodySmall!.copyWith(
                 fontSize: 14,
               ),
@@ -473,7 +462,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               searchText.text.trim() == '' ? allSearchFeeds() : searchEnabled(),

@@ -5,20 +5,21 @@ import 'package:socioverse/Models/authUser_models.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/staticPagesClass.dart';
 
 class MainPage extends StatefulWidget {
-  MainPage({super.key});
+  final int index;
+  const MainPage({super.key, this.index = 0});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  int _selectedIndex = 0;
+  @override
+  void initState() {
+    _selectedIndex = widget.index;
+    super.initState();
   }
 
-  int _selectedIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(

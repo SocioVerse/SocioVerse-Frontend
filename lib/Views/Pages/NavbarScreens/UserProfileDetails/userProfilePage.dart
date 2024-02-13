@@ -12,7 +12,7 @@ import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProf
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
-import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThread.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
 
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/settings.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';

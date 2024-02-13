@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:socioverse/Models/chat_models.dart';
 
@@ -7,7 +10,7 @@ class ChatProvider extends ChangeNotifier {
 
   List<Message> get messages => _messages;
   bool get isTyping => _isTypingMap['isTyping'] ?? false;
-  String get typingUserId => _isTypingMap['userId'] ?? '';
+  String get typingUserId => _isTypingMap['user']['_id'] ?? '';
   addAll(List<Message> messages) {
     _messages.addAll(messages);
     notifyListeners();
@@ -15,7 +18,6 @@ class ChatProvider extends ChangeNotifier {
 
   setTyping(Map<String, dynamic> isTyping) {
     _isTypingMap = isTyping;
-
     notifyListeners();
   }
 
@@ -28,7 +30,11 @@ class ChatProvider extends ChangeNotifier {
 
   addNewMessage(Message message, String roomId) {
     _messages.add(message);
+    notifyListeners();
+  }
 
+  removeMessage(String messageId) {
+    _messages.removeWhere((element) => element.id == messageId);
     notifyListeners();
   }
 }

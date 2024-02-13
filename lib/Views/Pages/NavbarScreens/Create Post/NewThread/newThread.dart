@@ -9,7 +9,7 @@ import 'package:pinput/pinput.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
-import 'package:socioverse/Views/Pages/SocioThread/NewThread/newThreadWidgets.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';

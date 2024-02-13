@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "backend-socioverse.onrender.com";
+  static const String baseUrl = "192.168.29.71:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -11,6 +11,16 @@ class ApiStringConstants {
   static const String fetchAllLikedThreads = "threads/liked-threads";
   static const String createComment = "threads/create-comment";
   static const String deleteThreads = "threads/delete-thread";
+
+  //Feed APIs
+  static const String createFeed = "feeds/create-new-feed";
+  static const String toogleLikeFeed = "feeds/toggle-feed-like";
+  static const String toogleSaveFeed = "feeds/toggle-feed-save";
+  static const String fetchAllFeedComments = "feeds/read-comment-replies";
+  static const String fetchAllSavedFeeds = "feeds/saved-feeds";
+  static const String fetchAllLikedFeeds = "feeds/liked-feeds";
+  static const String createFeedComment = "feeds/create-comment";
+  static const String deleteFeeds = "feeds/delete-feed";
 
   //Stories APIs
   static const String createStory = "stories/create-story";
@@ -26,9 +36,12 @@ class ApiStringConstants {
   static const String userLogout = "users/logout";
   static const String fetchUser = "users/fetch-user-details";
   static const String getFollowingThread = "users/fetch-following-threads";
+  static const String getFollowingFeed = "users/fetch-following-feeds";
   static const String toogleFollowReq = "users/create-follow-request";
   static const String unFollow = "users/unfollow-user";
   static const String searchUser = "users/search-user";
+  static const String searchLocation = "users/search-location";
+  static const String searchHashtags = "users/search-hashtags";
   static const String fetchLatestFolloweRequests =
       "users/fetch-latest-follow-request";
   static const String updateProfile = "users/update-user-profile";
