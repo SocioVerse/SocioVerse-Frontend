@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,8 @@ class ImagePickerFunctionsHelper {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
         aspectRatio: forStory
-            ? CropAspectRatio(ratioX: 9, ratioY: 16)
-            : CropAspectRatio(ratioX: 1, ratioY: 1),
+            ? const CropAspectRatio(ratioX: 9, ratioY: 16)
+            : const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: forStory ? "Add Story" : "Cropper",
@@ -39,7 +40,6 @@ class ImagePickerFunctionsHelper {
       );
       print(croppedFile?.path.toString());
       if (croppedFile != null) {
-        log(croppedFile.path.toString());
         return File(croppedFile.path);
       } else {
         return null;
@@ -49,54 +49,85 @@ class ImagePickerFunctionsHelper {
 
   Future<List<File>?> pickMultipleImage(BuildContext context,
       {bool forStory = false}) async {
-    print("Image Uploadinng.....");
-    final pickedFile = await picker.pickMultiImage();
-
-    if (pickedFile != null) {
-      List<File> croppedFileList = [];
-      for (int i = 0; i < pickedFile.length; i++) {
-        CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile[i].path,
-          aspectRatioPresets: [CropAspectRatioPreset.square],
-          aspectRatio: forStory
-              ? CropAspectRatio(ratioX: 9, ratioY: 16)
-              : CropAspectRatio(ratioX: 1, ratioY: 1),
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Cropper',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: true,
-            ),
-            IOSUiSettings(
-              title: 'Cropper',
-            ),
-            WebUiSettings(
-              context: context,
-            ),
-          ],
-        );
-        if (croppedFile != null) {
-          croppedFileList.add(File(croppedFile.path));
-        } else {
-          return null;
-        }
-      }
-      return croppedFileList;
+    print("Image Uploading.....");
+    final pickedFiles = await picker.pickMultiImage();
+    List<File>? croppedFileList = pickedFiles.map((e) => File(e.path)).toList();
+    if (croppedFileList.isNotEmpty) {
+      return cropMultipleImages(context, croppedFileList, forStory);
     }
+
+    return null;
+  }
+
+  Future<List<File>?> cropMultipleImages(
+      BuildContext context, List<File> pickedFiles, bool forStory) async {
+    print("Image Cropping.....");
+    List<File> croppedFileList = [];
+
+    for (int i = 0; i < pickedFiles.length; i++) {
+      File? croppedFile = await _cropImage(
+        context,
+        pickedFiles[i].path,
+        forStory
+            ? const CropAspectRatio(ratioX: 9, ratioY: 16)
+            : const CropAspectRatio(ratioX: 1, ratioY: 1),
+      );
+
+      if (croppedFile != null) {
+        croppedFileList.add(croppedFile);
+      } else {
+        return null;
+      }
+    }
+
+    return croppedFileList;
+  }
+
+  Future<File?> _cropImage(BuildContext context, String sourcePath,
+      CropAspectRatio aspectRatio) async {
+    try {
+      CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: sourcePath,
+        aspectRatioPresets: [CropAspectRatioPreset.square],
+        aspectRatio: aspectRatio,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Theme.of(context).colorScheme.secondary,
+            toolbarWidgetColor: Theme.of(context).colorScheme.onPrimary,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: 'Cropper',
+          ),
+          WebUiSettings(
+            context: context,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        print(croppedFile.path.toString());
+        return File(croppedFile.path);
+      }
+    } catch (e) {
+      print("Error cropping image: $e");
+    }
+
+    return null;
   }
 
   void showPermissionError({required BuildContext context}) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text("Permission Denied"),
-        content: Text(
+        title: const Text("Permission Denied"),
+        content: const Text(
             "You have permanently denied storage permission. Please enable it in app settings."),
         actions: [
           TextButton(
-            child: Text("OK"),
+            child: const Text("OK"),
             onPressed: () {
               Navigator.of(context).pop();
               openAppSettings(); // Opens app settings for the user to manually enable the permission.

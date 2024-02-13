@@ -81,4 +81,16 @@ class CalculatingFunction {
     }
     return '$hour:$minute $amPm';
   }
+
+  static String numberToMkConverter(double number) {
+    if (number >= 1000000) {
+      double result = number / 1000000;
+      return '${result.toStringAsFixed(0)}M';
+    } else if (number >= 1000) {
+      double result = number / 1000;
+      return '${result.toStringAsFixed(0)}K';
+    } else {
+      return number.toString();
+    }
+  }
 }

@@ -12,6 +12,8 @@ import 'package:socioverse/Models/chat_models.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/roomInfoPage.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
@@ -102,7 +104,10 @@ class _ChatPageState extends State<ChatPage> {
     socketHelper.emit('join', {
       'roomId': roomId,
     });
-
+    socketHelper.on('unsend-message', (data) {
+      log(data.toString());
+      _handleUnsendMessage(data);
+    });
     socketHelper.on('typing', (data) {
       log(data.toString());
       _handleMessageTyping(data);
@@ -118,13 +123,25 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  Widget getMessageWidget(Message message) {
+    if (message.thread != null) {
+      return postMessage(message);
+    } else if (message.image != null) {
+      return photoMessage(message);
+    } else {
+      return textMessage(message);
+    }
+  }
+
+  void _handleUnsendMessage(dynamic data) {
+    log(data.toString());
+    Provider.of<ChatProvider>(context, listen: false)
+        .removeMessage(data['messageId']);
+  }
+
   void _handleMessageTyping(dynamic data) {
     log(data.toString());
-    if (data['isTyping']) {
-      Provider.of<ChatProvider>(context, listen: false).setTyping(data);
-    } else {
-      Provider.of<ChatProvider>(context, listen: false).setTyping(data);
-    }
+    Provider.of<ChatProvider>(context, listen: false).setTyping(data);
   }
 
   void _handleMessageSeen(dynamic data, String userId) {
@@ -247,13 +264,15 @@ class _ChatPageState extends State<ChatPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                message.message!,
-                maxLines: null,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+              Flexible(
+                child: Text(
+                  message.message!,
+                  maxLines: null,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
               ),
               const SizedBox(
                 width: 5,
@@ -361,58 +380,84 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            CircularNetworkImageWithSize(
-              imageUrl: widget.user!.profilePic,
-              height: 40,
-              width: 40,
-            ),
-            const SizedBox(
-              width: 10,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.user!.name,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        overflow: TextOverflow.ellipsis,
+        title: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            return InkWell(
+              focusColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+              onTap: () {
+                //if room chat loaded
+
+                if (isLoading == false) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RoomInfoPage(
+                                user: widget.user,
+                                inboxModelList: chatProvider.messages
+                                    .where((element) => element.image != null)
+                                    .toList(),
+                              )));
+                }
+              },
+              child: Row(
+                children: [
+                  CircularNetworkImageWithSize(
+                    imageUrl: widget.user!.profilePic,
+                    height: 40,
+                    width: 40,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.user!.name,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                       ),
-                ),
-                Consumer<ChatProvider>(
-                  builder: (context, chatProvider, child) {
-                    return chatProvider.isTyping &&
-                            chatProvider.typingUserId == widget.user.id
-                        ? Text(
-                            "Typing...",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                          )
-                        : Text(
-                            widget.user!.username,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                          );
-                  },
-                ),
-              ],
-            ),
-          ],
+                      Consumer<ChatProvider>(
+                        builder: (context, chatProvider, child) {
+                          return chatProvider.isTyping &&
+                                  chatProvider.typingUserId == widget.user.id
+                              ? Text(
+                                  "Typing...",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                )
+                              : Text(
+                                  widget.user!.username,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 14,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
         ),
         toolbarHeight: 70,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -516,13 +561,32 @@ class _ChatPageState extends State<ChatPage> {
 
                               Message message =
                                   chatProvider.messages[index - 1];
-                              if (message.thread != null) {
-                                return postMessage(message);
-                              } else if (message.image != null) {
-                                return photoMessage(message);
-                              } else {
-                                return textMessage(message);
-                              }
+                              return InkWell(
+                                focusColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                overlayColor: MaterialStateProperty.all(
+                                    Colors.transparent),
+                                onLongPress: () {
+                                  if (message.sender.isOwner) {
+                                    AlertBoxes.acceptRejectAlertBox(
+                                      context: context,
+                                      title: "Unsend Message",
+                                      content: const Text(
+                                          "Are you sure you want to unsend this message?"),
+                                      onAccept: () async {
+                                        socketHelper.emit('unsend-message', {
+                                          'messageId': message.id,
+                                          'roomId': roomModel.room.id,
+                                        });
+                                      },
+                                      onReject: () {},
+                                    );
+                                  }
+                                },
+                                child: getMessageWidget(message),
+                              );
                             },
                           );
                         },

@@ -62,20 +62,21 @@ class TextFieldBuilder2 extends StatelessWidget {
   String hintTexxt;
   Function onChangedf;
   Widget? prefixxIcon;
-  int maxLines; // Add this property for controlling maxLines
+  int? maxLines; // Add this property for controlling maxLines
 
   TextFieldBuilder2({
     required this.tcontroller,
     required this.hintTexxt,
     required this.onChangedf,
     this.prefixxIcon,
-    this.maxLines = 1, // Default maxLines to 1
+    this.maxLines, // Default maxLines to 1
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      maxLines: null,
+      minLines: 5,
+      maxLines: maxLines,
       controller: tcontroller,
       onChanged: (value) {
         onChangedf();
