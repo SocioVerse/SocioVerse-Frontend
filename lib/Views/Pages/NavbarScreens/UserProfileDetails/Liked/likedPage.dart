@@ -5,7 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
-import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 
 class LikedPage extends StatefulWidget {
   const LikedPage({super.key});

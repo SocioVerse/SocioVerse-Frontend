@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
@@ -19,7 +19,7 @@ import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/services/authentication_services.dart';
+import 'package:socioverse/Services/authentication_services.dart';
 import '../../Widgets/buttons.dart';
 
 class FillProfilePage extends StatefulWidget {

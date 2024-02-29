@@ -21,6 +21,8 @@ class ApiStringConstants {
   static const String fetchAllLikedFeeds = "feeds/liked-feeds";
   static const String createFeedComment = "feeds/create-comment";
   static const String deleteFeeds = "feeds/delete-feed";
+  static const String searchFeedsLocation = "feeds/search-location";
+  static const String searchFeedsHashtags = "feeds/search-hashtags";
 
   //Stories APIs
   static const String createStory = "stories/create-story";

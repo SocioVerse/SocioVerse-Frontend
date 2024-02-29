@@ -7,10 +7,10 @@ class CircularNetworkImageWithoutSize extends StatelessWidget {
   final BoxFit fit;
 
   const CircularNetworkImageWithoutSize({
-    Key? key,
+    super.key,
     required this.imageUrl,
     this.fit = BoxFit.cover,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,11 @@ class CircularNetworkImageWithoutSize extends StatelessWidget {
           imageUrl: imageUrl,
           fit: fit,
           placeholder: (context, url) => Center(
-            child: CircularProgressIndicator(),
+            child: ColoredBox(
+              color: Colors.grey[300]!,
+            ),
           ),
-          errorWidget: (context, url, error) => Icon(Icons.error),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );
@@ -71,9 +73,11 @@ class CircularNetworkImageWithSize extends StatelessWidget {
           width: width,
           fit: BoxFit.cover,
           placeholder: (context, url) => Center(
-            child: CircularProgressIndicator(),
+            child: ColoredBox(
+              color: Colors.grey[300]!,
+            ),
           ),
-          errorWidget: (context, url, error) => Icon(Icons.error),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );
@@ -101,9 +105,11 @@ class CircularNetworkImageWithSizeWithoutPhotoView extends StatelessWidget {
         width: width,
         fit: BoxFit.cover,
         placeholder: (context, url) => Center(
-          child: CircularProgressIndicator(),
+          child: ColoredBox(
+            color: Colors.grey[300]!,
+          ),
         ),
-        errorWidget: (context, url, error) => Icon(Icons.error),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
       ),
     );
   }
@@ -140,9 +146,11 @@ class RoundedNetworkImageWithLoading extends StatelessWidget {
           imageUrl: imageUrl,
           fit: fit,
           placeholder: (context, url) => Center(
-            child: CircularProgressIndicator(),
+            child: ColoredBox(
+              color: Colors.grey[300]!,
+            ),
           ),
-          errorWidget: (context, url, error) => Icon(Icons.error),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );

@@ -13,7 +13,7 @@ import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 
 // class ThreadLayout extends StatefulWidget {
 //   final ThreadModel thread;

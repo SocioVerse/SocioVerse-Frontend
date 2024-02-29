@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import 'package:socioverse/Models/story_models.dart';
+import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageController.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageWidgets.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/services/stories_services.dart';
+import 'package:socioverse/Services/stories_services.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/widgets/story_view.dart';
 

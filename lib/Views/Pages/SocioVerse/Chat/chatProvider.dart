@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:socioverse/Models/chat_models.dart';
+import 'package:socioverse/Models/chatModels.dart';
 
 class ChatProvider extends ChangeNotifier {
   final List<Message> _messages = [];

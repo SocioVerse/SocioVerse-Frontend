@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Utils/CountryList.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';

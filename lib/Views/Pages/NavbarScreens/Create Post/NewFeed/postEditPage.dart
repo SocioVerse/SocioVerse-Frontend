@@ -17,8 +17,8 @@ import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/services/feed_services.dart';
-import 'package:socioverse/services/user_services.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
 class PostEditPage extends StatefulWidget {

@@ -29,8 +29,8 @@ import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart'
     as inboxModel;
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
-import 'package:socioverse/services/authentication_services.dart';
-import 'package:socioverse/services/follow_unfollow_services.dart';
+import 'package:socioverse/Services/authentication_services.dart';
+import 'package:socioverse/Services/follow_unfollow_services.dart';
 import '../../../Widgets/buttons.dart';
 
 class UserProfilePage extends StatefulWidget {
@@ -1328,31 +1328,29 @@ class _UserProfilePageState extends State<UserProfilePage>
                   ThreadViewBuilder(
                     allThreads: userProfileDetailsModel!.threadsWithUserDetails,
                   ),
-                  Container(
-                    child: GridView.builder(
-                        physics: const ClampingScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                          childAspectRatio: 1,
-                        ),
-                        itemCount: 100,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: const DecorationImage(
-                                image: AssetImage(
-                                  "assets/Country_flag/in.png",
-                                ),
-                                fit: BoxFit.cover,
+                  GridView.builder(
+                      physics: const ClampingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                        childAspectRatio: 1,
+                      ),
+                      itemCount: 100,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                "assets/Country_flag/in.png",
                               ),
+                              fit: BoxFit.cover,
                             ),
-                          );
-                        }),
-                  ),
+                          ),
+                        );
+                      }),
                   isRepostsLoading
                       ? const Column(
                           children: [

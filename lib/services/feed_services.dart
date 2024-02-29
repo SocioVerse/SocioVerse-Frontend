@@ -30,21 +30,21 @@ class FeedServices {
     return fetchedFeeds;
   }
 
-  // Future<bool> toogleLikeFeeds({
-  //   required String threadId,
-  // }) async {
-  //   _response = await _helper.post(ApiStringConstants.toogleLikeFeed,
-  //       querryParam: {'threadId': threadId});
-  //   return _response.success;
-  // }
+  Future<bool> toogleLikeFeeds({
+    required String feedId,
+  }) async {
+    _response = await _helper.post(ApiStringConstants.toogleLikeFeed,
+        querryParam: {'feedId': feedId});
+    return _response.success;
+  }
 
-  // Future<String> toogleSaveFeeds({
-  //   required String threadId,
-  // }) async {
-  //   _response = await _helper.post(ApiStringConstants.toogleSaveFeed,
-  //       querryParam: {'threadId': threadId});
-  //   return _response.data;
-  // }
+  Future<String> toogleSaveFeeds({
+    required String feedId,
+  }) async {
+    _response = await _helper.post(ApiStringConstants.toogleSaveFeed,
+        querryParam: {'feedId': feedId});
+    return _response.data;
+  }
 
   // Future<void> createComment(
   //     {required CreateFeedModel createFeedModel}) async {

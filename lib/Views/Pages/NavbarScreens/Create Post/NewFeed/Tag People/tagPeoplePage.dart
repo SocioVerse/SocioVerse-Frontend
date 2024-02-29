@@ -5,7 +5,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/searchedUser.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/services/search_bar_services.dart';
+import 'package:socioverse/Services/search_bar_services.dart';
 
 class TagPeoplePage extends StatefulWidget {
   final List<SearchedUser>? taggedUser;

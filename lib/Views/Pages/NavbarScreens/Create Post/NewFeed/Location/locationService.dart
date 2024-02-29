@@ -9,7 +9,7 @@ class LocationServices {
   Future<List<LocationSearchModel>> getLocation(
       {required String location}) async {
     _response = await _helper.get(
-      ApiStringConstants.searchLocation,
+      ApiStringConstants.searchFeedsLocation,
       querryParam: {'query': location},
     );
 

@@ -17,7 +17,7 @@ import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/services/authentication_services.dart';
+import 'package:socioverse/Services/authentication_services.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   final UserProfileDetailsModelUser user;

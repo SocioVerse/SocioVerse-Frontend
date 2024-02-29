@@ -22,7 +22,7 @@ class AlertBoxes {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              actionsPadding: EdgeInsets.all(20),
+              actionsPadding: const EdgeInsets.all(20),
               surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
               title: Column(
                 children: [
@@ -112,7 +112,7 @@ class AlertBoxes {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -121,7 +121,7 @@ class AlertBoxes {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

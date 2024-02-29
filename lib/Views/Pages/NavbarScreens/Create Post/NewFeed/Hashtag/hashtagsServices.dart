@@ -9,7 +9,7 @@ class HashtagsServices {
   Future<List<HashtagsSearchModel>> getHashtags(
       {required String hashtag}) async {
     _response = await _helper.get(
-      ApiStringConstants.searchHashtags,
+      ApiStringConstants.searchFeedsHashtags,
       querryParam: {'query': hashtag},
     );
 

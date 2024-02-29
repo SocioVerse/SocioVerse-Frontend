@@ -7,7 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
-import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 
 class ThreadData {
   int line;

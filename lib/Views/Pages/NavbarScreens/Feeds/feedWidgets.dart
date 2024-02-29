@@ -25,8 +25,8 @@ import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
-import 'package:socioverse/services/feed_services.dart';
-import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 
 class UserProfileImageStackOf2 extends StatelessWidget {
   List<CommentUser>? commentUserProfilePic;
@@ -614,8 +614,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                 }
                               }));
                         },
-                        onSave: () {
-                          ThreadServices()
+                        onSave: () async {
+                          await ThreadServices()
                               .toogleSaveThreads(threadId: widget.thread.id)
                               .then((value) => Fluttertoast.showToast(
                                     msg: value,
@@ -627,8 +627,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                     fontSize: 16.0,
                                   ));
                         },
-                        onRepost: () {
-                          ThreadServices()
+                        onRepost: () async {
+                          await ThreadServices()
                               .toogleRepostThreads(threadId: widget.thread.id)
                               .then((value) => Fluttertoast.showToast(
                                     msg: value,
@@ -1346,11 +1346,14 @@ class _FeedLayoutState extends State<FeedLayout> {
                             controller: pageController,
                             children: List.generate(
                               widget.feed.images.length,
-                              (index) => RoundedNetworkImageWithLoading(
-                                imageUrl: widget.feed.images[index],
-                                borderRadius:
-                                    10, // Set the desired border radius
-                                fit: BoxFit.cover,
+                              (index) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: RoundedNetworkImageWithLoading(
+                                  imageUrl: widget.feed.images[index],
+                                  borderRadius:
+                                      10, // Set the desired border radius
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             )),
                       ),
@@ -1378,6 +1381,26 @@ class _FeedLayoutState extends State<FeedLayout> {
                                 ),
                               ),
                             ),
+                      widget.feed.mentions.isNotEmpty
+                          ? Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Icon(
+                                  Icons.person_rounded,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  size: 15,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ],
                   ),
                   widget.feed.caption == null || widget.feed.caption!.isEmpty
@@ -1469,6 +1492,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                     child: getFeedFooter(
                       isPost: false,
                       onLike: () async {
+                        await FeedServices()
+                            .toogleLikeFeeds(feedId: widget.feed.id);
                         setState(() {});
                       },
                       onComment: () {
@@ -1483,18 +1508,18 @@ class _FeedLayoutState extends State<FeedLayout> {
                                   }
                                 }));
                       },
-                      onSave: () {
-                        // ThreadServices()
-                        //     .toogleSaveThreads(threadId: widget.feed.id)
-                        //     .then((value) => Fluttertoast.showToast(
-                        //           msg: value,
-                        //           toastLength: Toast.LENGTH_SHORT,
-                        //           gravity: ToastGravity.BOTTOM,
-                        //           timeInSecForIosWeb: 1,
-                        //           backgroundColor: Colors.white,
-                        //           textColor: Colors.black,
-                        //           fontSize: 16.0,
-                        //         ));
+                      onSave: () async {
+                        await FeedServices()
+                            .toogleSaveFeeds(feedId: widget.feed.id)
+                            .then((value) => Fluttertoast.showToast(
+                                  msg: value,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black,
+                                  fontSize: 16.0,
+                                ));
                       },
                     ),
                   ),

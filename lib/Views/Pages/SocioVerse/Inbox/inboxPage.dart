@@ -14,7 +14,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxServices.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/requestInboxPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
-import 'package:socioverse/services/search_bar_services.dart';
+import 'package:socioverse/Services/search_bar_services.dart';
 import '../../../Widgets/textfield_widgets.dart';
 
 class InboxPage extends StatefulWidget {

@@ -1,26 +1,21 @@
 import 'dart:ffi';
+import 'package:recase/recase.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
 
 class LocationProfilePage extends StatefulWidget {
-  String locationName;
-  String city;
-  String state;
-  String country;
-  double postsCount;
+  LocationSearchModel locationSearchModel;
+
   LocationProfilePage({
     super.key,
-    required this.locationName,
-    required this.city,
-    required this.state,
-    required this.country,
-    required this.postsCount,
+    required this.locationSearchModel,
   });
 
   @override
@@ -28,6 +23,8 @@ class LocationProfilePage extends StatefulWidget {
 }
 
 class _LocationProfilePageState extends State<LocationProfilePage> {
+  int __value = 1;
+  int __value1 = 1;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,7 +50,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   elevation: 0,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 15,
               ),
               Row(
@@ -61,15 +58,15 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Center(
-                      child: const Icon(
+                    child: const Center(
+                      child: Icon(
                         Ionicons.location,
                         size: 40,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 15,
                   ),
                   Container(
@@ -79,7 +76,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          widget.locationName,
+                          widget.locationSearchModel.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:
@@ -89,11 +86,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                                   ),
                         ),
                         Text(
-                          widget.city +
-                              ", " +
-                              widget.state +
-                              ", " +
-                              widget.country,
+                          "${widget.locationSearchModel.type.headerCase}, ${widget.locationSearchModel.state} ${widget.locationSearchModel.country}",
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style:
@@ -103,7 +96,11 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                                   ),
                         ),
                         Text(
-                          "${CalculatingFunction.numberToBMKonverter(widget.postsCount)} posts",
+                          widget.locationSearchModel.postCount < 100
+                              ? widget.locationSearchModel.postCount <= 1
+                                  ? "${widget.locationSearchModel.postCount} Post"
+                                  : "${widget.locationSearchModel.postCount} Posts"
+                              : "${CalculatingFunction.numberToMkConverter(widget.locationSearchModel.postCount.toDouble())} Posts",
                           style:
                               Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w300,
@@ -115,19 +112,15 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   ),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
-              SizedBox(
-                width: MyApp.width! - 30,
-                height: 50,
-                child: MyElevatedButton1(
-                  title: "More Information",
-                  ctx: context,
-                  onPressed: () {},
-                ),
+              MyElevatedButton1(
+                title: "More Information",
+                ctx: context,
+                onPressed: () {},
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SizedBox(
                 height: 250,
                 width: MyApp.width! - 30,
@@ -136,7 +129,9 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   child: FlutterMap(
                     options: MapOptions(
                       interactiveFlags: InteractiveFlag.none,
-                      center: LatLng(26.9156, 75.8190),
+                      center: LatLng(
+                          widget.locationSearchModel.geometry.coordinates[1],
+                          widget.locationSearchModel.geometry.coordinates[0]),
                       zoom: 9.2,
                     ),
                     children: [
@@ -148,7 +143,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                       MarkerLayer(
                         markers: [
                           Marker(
-                            point: LatLng(26.9156, 75.8190),
+                            point: const LatLng(26.9156, 75.8190),
                             width: 80,
                             height: 80,
                             builder: (context) => const Icon(
@@ -170,80 +165,179 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
-              DefaultTabController(
-                  length: 2,
-                  child: Column(
-                    children: [
-                      TabBar(
-                        labelColor: Theme.of(context).colorScheme.primary,
-                        unselectedLabelColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        indicatorColor: Theme.of(context).colorScheme.primary,
-                        tabs: const [
-                          Tab(
-                            child: Text("Top"),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Row(
+                  children: [
+                    DropdownButton(
+                      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                      focusColor: Theme.of(context).scaffoldBackgroundColor,
+                      underline: const SizedBox.shrink(),
+                      value: __value1,
+                      items: [
+                        DropdownMenuItem(
+                          value: 1,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(3.0),
+                                child: Icon(
+                                  Ionicons.grid_outline,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "Feeds ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                              ),
+                            ],
                           ),
-                          Tab(
-                            child: Text("Recent"),
-                          )
-                        ],
-                      ),
-                      AutoScaleTabBarView(
-                        children: [
-                          GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
-                                childAspectRatio: 1,
+                        ),
+                        DropdownMenuItem(
+                          value: 2,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(3.0),
+                                child: Icon(
+                                  Ionicons.text,
+                                  size: 15,
+                                ),
                               ),
-                              itemCount: 100,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        "assets/Country_flag/in.png",
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                );
-                              }),
-                          GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 5,
-                                mainAxisSpacing: 5,
+                              const SizedBox(
+                                width: 5,
                               ),
-                              itemCount: 10,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        "assets/Country_flag/in.png",
-                                      ),
-                                      fit: BoxFit.cover,
+                              Text(
+                                "Threads",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                     ),
-                                  ),
-                                );
-                              }),
-                        ],
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          __value1 = value as int;
+                        });
+                      },
+                    ),
+                    const Spacer(),
+                    DropdownButton(
+                      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                      value: __value,
+                      items: [
+                        DropdownMenuItem(
+                          value: 1,
+                          child: Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(3.0),
+                                child: Icon(
+                                  Ionicons.time_outline,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 1,
+                              ),
+                              Text(
+                                "Recent",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 15,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 2,
+                          child: Row(
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.all(3.0),
+                                child: Icon(
+                                  Ionicons.trending_up,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 1,
+                              ),
+                              Text(
+                                "Top",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 15,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          __value = value as int;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              GridView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 5,
+                  ),
+                  itemCount: 10,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: AssetImage(
+                            "assets/Country_flag/in.png",
+                          ),
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ],
-                  )),
+                    );
+                  }),
             ]),
       ),
     ));

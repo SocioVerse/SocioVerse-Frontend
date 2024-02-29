@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +7,10 @@ import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagsServices.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/hashtagProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/services/search_bar_services.dart';
+import 'package:socioverse/Services/search_bar_services.dart';
 
 class SearchHashtagPage extends StatefulWidget {
   final List<HashtagsSearchModel>? hashtagList;
@@ -63,6 +64,7 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
 
   ListTile hashtagsTile({required HashtagsSearchModel hashtag}) {
     return ListTile(
+        onTap: () {},
         leading: CircleAvatar(
             radius: 30,
             backgroundColor: Theme.of(context).colorScheme.primary,

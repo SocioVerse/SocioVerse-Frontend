@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/helpers/api_constants.dart';
-import 'package:socioverse/services/refresh_token_service.dart';
+import 'package:socioverse/Services/refresh_token_service.dart';
 
 import 'apiResponse.dart';
 import 'package:http/http.dart' as http;
