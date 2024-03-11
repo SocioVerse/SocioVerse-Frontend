@@ -7,7 +7,6 @@ import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.da
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/commentPageWidget.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsModel.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsServices.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +30,13 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getThreadComments() async {
     setState(() {
       isLoading = true;
@@ -50,10 +56,8 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => LoadingOverlayAlt(
-                        child: AddCommentPage(
-                          thread: widget.threadModel,
-                        ),
+                  builder: (context) => AddCommentPage(
+                        thread: widget.threadModel,
                       ))).then((value) => getThreadComments());
         },
         shape: RoundedRectangleBorder(
@@ -84,6 +88,7 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
             children: [
               ThreadLayout(
                 isComment: true,
+                isReply: true,
                 thread: widget.threadModel,
                 onComment: getThreadComments,
               ),

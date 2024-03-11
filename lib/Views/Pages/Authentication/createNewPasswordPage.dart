@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
 class CreateNewPasswordPage extends StatefulWidget {
@@ -14,6 +13,13 @@ class CreateNewPasswordPage extends StatefulWidget {
 
 class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
   var isChecked = false;
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,8 +192,7 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
                 Navigator.push(
                     context,
                     CupertinoPageRoute(
-                        builder: (context) =>
-                            LoadingOverlayAlt(child: PasswordSignUpPage())));
+                        builder: (context) => PasswordSignUpPage()));
               },
             ),
             // SizedBox(

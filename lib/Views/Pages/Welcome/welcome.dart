@@ -33,6 +33,13 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(

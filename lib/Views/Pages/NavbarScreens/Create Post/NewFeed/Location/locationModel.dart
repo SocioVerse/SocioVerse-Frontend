@@ -11,26 +11,32 @@ String locationSearchModelToJson(LocationSearchModel data) =>
     json.encode(data.toJson());
 
 class LocationSearchModel {
+  String? id;
   String name;
   String type;
   String country;
   String state;
+  int postCount;
   Geometry geometry;
 
   LocationSearchModel({
+    this.id,
     required this.name,
     required this.type,
     required this.country,
     required this.state,
+    required this.postCount,
     required this.geometry,
   });
 
   factory LocationSearchModel.fromJson(Map<String, dynamic> json) =>
       LocationSearchModel(
+        id: json["_id"],
         name: json["name"],
         type: json["type"],
         country: json["country"] ?? "",
         state: json["state"] == null ? "" : json["state"] + ',',
+        postCount: json["post_count"] ?? 0,
         geometry: Geometry.fromJson(json["geometry"]),
       );
 
@@ -46,21 +52,17 @@ class LocationSearchModel {
 
 class Geometry {
   List<double> coordinates;
-  String type;
 
   Geometry({
     required this.coordinates,
-    required this.type,
   });
 
   factory Geometry.fromJson(Map<String, dynamic> json) => Geometry(
         coordinates:
             List<double>.from(json["coordinates"].map((x) => x?.toDouble())),
-        type: json["type"],
       );
 
   Map<String, dynamic> toJson() => {
         "coordinates": List<dynamic>.from(coordinates.map((x) => x)),
-        "type": type,
       };
 }

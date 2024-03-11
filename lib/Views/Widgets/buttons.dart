@@ -59,6 +59,13 @@ class _CustomOutlineButtonState extends State<CustomOutlineButton> {
   }
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: widget.width1 ?? 100,
@@ -136,6 +143,13 @@ class _MyEleButtonsmallState extends State<MyEleButtonsmall> {
     rtitle = widget.title;
     riconButton = widget.iconButton1;
     _ispressed = widget.ispressed ?? false;
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override

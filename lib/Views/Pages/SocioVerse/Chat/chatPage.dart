@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
-import 'package:socioverse/Models/chat_models.dart';
+import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
@@ -23,7 +23,7 @@ import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/helpers/api_constants.dart';
 import 'package:socioverse/main.dart';
-import 'package:socioverse/services/chatting_services.dart';
+import 'package:socioverse/Services/chatting_services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uuid/uuid.dart';
@@ -50,6 +50,13 @@ class _ChatPageState extends State<ChatPage> {
     print('here');
 
     getRoomInfo();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void dispose() {
@@ -629,6 +636,13 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
       }
     });
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void _sendMessage() {

@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:socioverse/Models/chat_models.dart';
+import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';

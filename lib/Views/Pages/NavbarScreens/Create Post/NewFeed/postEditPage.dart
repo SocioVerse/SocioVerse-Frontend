@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Models/searchedUser.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/searchHashtagsPage.dart';
@@ -12,13 +13,12 @@ import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Locat
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Tag%20People/tagPeoplePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/newFeedModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/services/feed_services.dart';
-import 'package:socioverse/services/user_services.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
 class PostEditPage extends StatefulWidget {
@@ -49,6 +49,13 @@ class _PostEditPageState extends State<PostEditPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getUserInfo() async {
     userEmail =
         await UserServices().getUserDetails().then((value) => value[0].email);
@@ -77,7 +84,7 @@ class _PostEditPageState extends State<PostEditPage> {
                   if (userEmail == null) {
                     return;
                   }
-                  LoadingOverlayAlt.of(context).show();
+                  context.loaderOverlay.show();
                   List<String> images = [];
                   //use for loop
                   for (var i = 0; i < widget.images.length; i++) {
@@ -101,7 +108,7 @@ class _PostEditPageState extends State<PostEditPage> {
                           mentions: taggedUser.map((e) => e.username).toList(),
                           tags: hashtagList.map((e) => e.hashtag).toList()));
                   if (context.mounted) {
-                    LoadingOverlayAlt.of(context).hide();
+                    context.loaderOverlay.hide();
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

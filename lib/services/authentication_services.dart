@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';

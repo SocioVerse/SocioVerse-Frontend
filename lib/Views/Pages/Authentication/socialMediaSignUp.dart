@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 
 class SocialMediaSignUpPage extends StatefulWidget {
   const SocialMediaSignUpPage({super.key});
@@ -39,7 +38,7 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -49,16 +48,16 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => SocialMediaSignUpPage()));
+                          builder: (context) => const SocialMediaSignUpPage()));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.facebook_rounded,
                       color: Colors.blue,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text("Continue with Facebook",
@@ -71,14 +70,14 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -88,14 +87,14 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => SocialMediaSignUpPage()));
+                          builder: (context) => const SocialMediaSignUpPage()));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Ionicons.logo_google,
                         color: Theme.of(context).colorScheme.onPrimary),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text("Continue with Google",
@@ -108,14 +107,14 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                 ),
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             Container(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -125,14 +124,14 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => SocialMediaSignUpPage()));
+                          builder: (context) => const SocialMediaSignUpPage()));
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Ionicons.logo_apple,
                         color: Theme.of(context).colorScheme.onPrimary),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Text("Continue with Apple",
@@ -152,14 +151,14 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
               Expanded(
                 child: Divider(color: Theme.of(context).colorScheme.onPrimary),
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Text(
                 "OR",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               Expanded(
@@ -173,7 +172,7 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -182,8 +181,7 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                   Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) =>
-                              LoadingOverlayAlt(child: PasswordSignInPage())));
+                          builder: (context) => const PasswordSignInPage()));
                 },
                 child: Text("Sign in with password",
                     style: GoogleFonts.openSans(
@@ -208,8 +206,8 @@ class _SocialMediaSignUpPageState extends State<SocialMediaSignUpPage> {
                       Navigator.pushReplacement(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => LoadingOverlayAlt(
-                                  child: PasswordSignUpPage())));
+                              builder: (context) =>
+                                  const PasswordSignUpPage()));
                     },
                     child: Text(
                       "Sign up",

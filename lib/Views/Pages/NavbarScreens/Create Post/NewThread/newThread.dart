@@ -14,8 +14,8 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
-import 'package:socioverse/services/thread_services.dart';
-import 'package:socioverse/services/user_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
+import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
 
 class NewThread extends StatefulWidget {
@@ -45,6 +45,13 @@ class _NewThreadState extends State<NewThread> {
     ));
     for (int i = 0; i < threads.length; i++) {
       focusNodes.add(FocusNode());
+    }
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
@@ -14,7 +15,6 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Pages/Welcome/welcome.dart';
 import 'package:socioverse/Views/UI/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/socketHelper.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
@@ -64,9 +64,9 @@ void main() async {
 
   if (message != null) {
     print("Launched from terminated state");
-    Future.delayed(Duration(seconds: 1), () {});
+    Future.delayed(const Duration(seconds: 1), () {});
   }
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -83,11 +83,33 @@ class MyApp extends StatelessWidget {
           create: (_) => StoryIndexProvider(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'SocioVerse',
-        theme: theme(),
-        home: LoadingOverlayAlt(child: GetInitPage()),
+      child: GlobalLoaderOverlay(
+        overlayColor: Colors.transparent,
+        useDefaultLoading: false,
+        overlayWidgetBuilder: (_) {
+          //ignored progress for the moment
+          return Stack(
+            children: [
+              const Opacity(
+                opacity: 0.8,
+                child: ModalBarrier(dismissible: false, color: Colors.black),
+              ),
+              Center(
+                child: SpinKitRing(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  lineWidth: 1,
+                  duration: const Duration(seconds: 1),
+                ),
+              ),
+            ],
+          );
+        },
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'SocioVerse',
+          theme: theme(),
+          home: const GetInitPage(),
+        ),
       ),
     );
   }

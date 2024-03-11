@@ -7,7 +7,7 @@ import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/follower
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
-import 'package:socioverse/services/follow_unfollow_services.dart';
+import 'package:socioverse/Services/follow_unfollow_services.dart';
 
 class FollowersPage extends StatefulWidget {
   final String? userId;
@@ -24,6 +24,13 @@ class _FollowersPageState extends State<FollowersPage> {
   void initState() {
     getFollowers();
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   getFollowers() async {

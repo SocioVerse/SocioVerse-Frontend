@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/Authentication/forgotPassword.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/services/authentication_services.dart';
+import 'package:socioverse/Services/authentication_services.dart';
 
 import '../../Widgets/buttons.dart';
 
@@ -33,6 +33,13 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
   void initState() {
     setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -219,7 +226,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       );
                       return;
                     } else {
-                      LoadingOverlayAlt.of(context).show();
+                      context.loaderOverlay.show();
                       String? fcmToken =
                           await FirebaseMessaging.instance.getToken();
                       ApiResponse? response = await AuthServices().userLogin(
@@ -229,7 +236,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                             password: passwordController.text.trim(),
                             fcmtoken: fcmToken!),
                       );
-                      LoadingOverlayAlt.of(context).hide();
+                      context.loaderOverlay.hide();
                       if (response!.success == true && context.mounted) {
                         Navigator.pushAndRemoveUntil(
                             context,
@@ -371,8 +378,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => LoadingOverlayAlt(
-                                    child: PasswordSignUpPage())));
+                                builder: (context) => PasswordSignUpPage()));
                       },
                       child: Text(
                         "Sign up",

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/pickImagePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -42,7 +41,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 onTap: () {
                   Navigator.push(context,
                       CupertinoPageRoute(builder: (context) {
-                    return LoadingOverlayAlt(child: const PickImagePage());
+                    return const PickImagePage();
                   }));
                 },
                 leading: Icon(
@@ -67,7 +66,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 onTap: () {
                   Navigator.push(context,
                       CupertinoPageRoute(builder: (context) {
-                    return LoadingOverlayAlt(child: const NewThread());
+                    return const NewThread();
                   }));
                 },
                 leading: Icon(

@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:socioverse/Models/story_models.dart';
+import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';

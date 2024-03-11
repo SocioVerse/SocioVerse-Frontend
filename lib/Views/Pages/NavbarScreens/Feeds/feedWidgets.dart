@@ -1,39 +1,36 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
-import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
-import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
-import 'package:socioverse/services/feed_services.dart';
-import 'package:socioverse/services/thread_services.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 
 class UserProfileImageStackOf2 extends StatelessWidget {
-  List<CommentUser>? commentUserProfilePic;
+  final List<CommentUser>? commentUserProfilePic;
 
   final bool isShowIcon;
 
-  UserProfileImageStackOf2({
+  const UserProfileImageStackOf2({
+    super.key,
     this.commentUserProfilePic,
     required this.isShowIcon,
   });
@@ -132,11 +129,13 @@ class ReplyUserProfileImage extends StatelessWidget {
 class ThreadLayout extends StatefulWidget {
   final ThreadModel thread;
   bool isComment = false;
+  bool isReply = false;
   Function? onComment;
   ThreadLayout(
       {super.key,
       required this.thread,
       this.isComment = false,
+      this.isReply = false,
       this.onComment});
 
   @override
@@ -144,16 +143,21 @@ class ThreadLayout extends StatefulWidget {
 }
 
 class _ThreadLayoutState extends State<ThreadLayout> {
-  bool _havereplies = true;
   int replies = 0;
   @override
   void initState() {
     if (widget.thread.commentUsers.length == 0) {
-      _havereplies = false;
     } else {
       replies = widget.thread.commentUsers.length;
     }
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void isOwner({required BuildContext context}) {
@@ -483,11 +487,9 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             Navigator.push(
                 context,
                 CupertinoPageRoute(
-                    builder: (context) => LoadingOverlayAlt(
-                          child: UserProfilePage(
-                            owner: widget.thread.user.isOwner,
-                            userId: widget.thread.user.id,
-                          ),
+                    builder: (context) => UserProfilePage(
+                          owner: widget.thread.user.isOwner,
+                          userId: widget.thread.user.id,
                         )));
           },
           contentPadding: EdgeInsets.zero,
@@ -513,21 +515,36 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             widget.thread.user.occupation,
             style: Theme.of(context).textTheme.bodySmall,
           ),
-          trailing: IconButton(
-            onPressed: () {
-              if (widget.thread.user.isOwner == true) {
-                log("here ");
-                isOwner(
-                  context: context,
-                );
-              } else {
-                isNotOwner();
-              }
-            },
-            icon: Icon(
-              Ionicons.ellipsis_horizontal_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+          trailing: Wrap(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  CalculatingFunction.getTimeDiff(widget.thread.createdAt),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 10,
+                      ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    if (widget.thread.user.isOwner == true) {
+                      isOwner(
+                        context: context,
+                      );
+                    } else {
+                      isNotOwner();
+                    }
+                  },
+                  child: Icon(
+                    Ionicons.ellipsis_horizontal_circle_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Row(
@@ -561,7 +578,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                 color: Theme.of(context).colorScheme.onPrimary,
                               ),
                         ),
-                        widget.thread.images.length == 0
+                        widget.thread.images.isEmpty
                             ? const SizedBox.shrink()
                             : const SizedBox(
                                 height: 10,
@@ -601,21 +618,21 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                           setState(() {});
                         },
                         onComment: () {
-                          Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (context) => LoadingOverlayAlt(
-                                        child: AddCommentPage(
+                          if (widget.isComment == false) {
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => AddCommentPage(
                                           thread: widget.thread,
-                                        ),
-                                      ))).then((value) => setState(() {
-                                if (widget.onComment != null) {
-                                  widget.onComment!();
-                                }
-                              }));
+                                        ))).then((value) => setState(() {
+                                  if (widget.onComment != null) {
+                                    widget.onComment!();
+                                  }
+                                }));
+                          }
                         },
-                        onSave: () {
-                          ThreadServices()
+                        onSave: () async {
+                          await ThreadServices()
                               .toogleSaveThreads(threadId: widget.thread.id)
                               .then((value) => Fluttertoast.showToast(
                                     msg: value,
@@ -627,8 +644,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                     fontSize: 16.0,
                                   ));
                         },
-                        onRepost: () {
-                          ThreadServices()
+                        onRepost: () async {
+                          await ThreadServices()
                               .toogleRepostThreads(threadId: widget.thread.id)
                               .then((value) => Fluttertoast.showToast(
                                     msg: value,
@@ -682,12 +699,14 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   ),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ThreadCommentPage(
-                              threadModel: widget.thread,
-                            ))).then((value) => setState(() {}));
+                if (widget.isReply == false) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ThreadCommentPage(
+                                threadModel: widget.thread,
+                              ))).then((value) => setState(() {}));
+                }
               },
               child: Text(
                 "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
@@ -927,10 +946,15 @@ class AllCaughtUp extends StatelessWidget {
 
 class FeedLayout extends StatefulWidget {
   final FeedModel feed;
+  bool isOnCommentPage = false;
   bool isComment = false;
   Function? onComment;
   FeedLayout(
-      {super.key, required this.feed, this.isComment = false, this.onComment});
+      {super.key,
+      required this.feed,
+      this.isComment = false,
+      this.onComment,
+      this.isOnCommentPage = false});
 
   @override
   State<FeedLayout> createState() => _FeedLayoutState();
@@ -947,6 +971,13 @@ class _FeedLayoutState extends State<FeedLayout> {
       replies = widget.feed.commentUsers.length;
     }
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void isOwner({required BuildContext context}) {
@@ -986,13 +1017,17 @@ class _FeedLayoutState extends State<FeedLayout> {
                     content: const Text(
                         "Are you sure you want to delete this feed?"),
                     onAccept: () async {
+                      context.loaderOverlay.show();
                       await FeedServices()
                           .deleteFeed(feedId: widget.feed.id)
-                          .then((value) => Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MyApp()),
-                              (route) => false));
+                          .then((value) {
+                        context.loaderOverlay.hide();
+                        return Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MyApp()),
+                            (route) => false);
+                      });
                     },
                     onReject: () {},
                   );
@@ -1250,6 +1285,123 @@ class _FeedLayoutState extends State<FeedLayout> {
     );
   }
 
+  void showMentionsBottomSheet(BuildContext context, String feedId) {
+    showModalBottomSheet(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        context: context,
+        builder: (context) {
+          return Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(
+                  Icons.horizontal_rule_rounded,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  color: Theme.of(context).colorScheme.secondary,
+                  thickness: 2,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                FutureBuilder<List<User>>(
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Expanded(
+                        child: Center(
+                          child: SpinKitRing(
+                            color: Theme.of(context).colorScheme.tertiary,
+                            lineWidth: 1,
+                            duration: const Duration(seconds: 1),
+                          ),
+                        ),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Error: ${snapshot.error}",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasData) {
+                      List<User> mentions = snapshot.data!;
+                      return Column(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 15.0, right: 15),
+                            child: Expanded(
+                              child: ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: mentions.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      onTap: () => Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              builder: (context) =>
+                                                  UserProfilePage(
+                                                    owner:
+                                                        mentions[index].isOwner,
+                                                    userId: mentions[index].id,
+                                                  ))),
+                                      leading: CircularNetworkImageWithSize(
+                                        imageUrl: mentions[index].profilePic,
+                                        height: 40,
+                                        width: 40,
+                                      ),
+                                      title: Text(
+                                        mentions[index].username,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              fontSize: 16,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary,
+                                            ),
+                                      ),
+                                      subtitle: Text(
+                                        "Occupation",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(
+                                              fontSize: 14,
+                                            ),
+                                      ),
+                                    );
+                                  }),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                  future: FeedServices().fetchFeedMentions(feedId: feedId),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   PageController pageController = PageController(initialPage: 0);
 
   @override
@@ -1262,11 +1414,9 @@ class _FeedLayoutState extends State<FeedLayout> {
             Navigator.push(
                 context,
                 CupertinoPageRoute(
-                    builder: (context) => LoadingOverlayAlt(
-                          child: UserProfilePage(
-                            owner: widget.feed.user.isOwner,
-                            userId: widget.feed.user.id,
-                          ),
+                    builder: (context) => UserProfilePage(
+                          owner: widget.feed.user.isOwner,
+                          userId: widget.feed.user.id,
                         )));
           },
           contentPadding: EdgeInsets.zero,
@@ -1293,6 +1443,7 @@ class _FeedLayoutState extends State<FeedLayout> {
               : Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.location_on_rounded,
@@ -1302,27 +1453,46 @@ class _FeedLayoutState extends State<FeedLayout> {
                       const SizedBox(
                         width: 5,
                       ),
-                      Text(
-                        widget.feed.location!,
-                        style: Theme.of(context).textTheme.bodySmall,
+                      Flexible(
+                        child: Text(
+                          widget.feed.location!,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ),
                     ],
                   ),
                 ),
-          trailing: IconButton(
-            onPressed: () {
-              if (widget.feed.user.isOwner == true) {
-                isOwner(
-                  context: context,
-                );
-              } else {
-                isNotOwner();
-              }
-            },
-            icon: Icon(
-              Ionicons.ellipsis_horizontal_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+          trailing: Wrap(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  CalculatingFunction.getTimeDiff(widget.feed.createdAt),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 10,
+                      ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    if (widget.feed.user.isOwner == true) {
+                      isOwner(
+                        context: context,
+                      );
+                    } else {
+                      isNotOwner();
+                    }
+                  },
+                  child: Icon(
+                    Ionicons.ellipsis_horizontal_circle_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Row(
@@ -1346,11 +1516,14 @@ class _FeedLayoutState extends State<FeedLayout> {
                             controller: pageController,
                             children: List.generate(
                               widget.feed.images.length,
-                              (index) => RoundedNetworkImageWithLoading(
-                                imageUrl: widget.feed.images[index],
-                                borderRadius:
-                                    10, // Set the desired border radius
-                                fit: BoxFit.cover,
+                              (index) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: RoundedNetworkImageWithLoading(
+                                  imageUrl: widget.feed.images[index],
+                                  borderRadius:
+                                      10, // Set the desired border radius
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             )),
                       ),
@@ -1378,6 +1551,32 @@ class _FeedLayoutState extends State<FeedLayout> {
                                 ),
                               ),
                             ),
+                      widget.feed.mentions.isNotEmpty
+                          ? Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: InkWell(
+                                onTap: () {
+                                  showMentionsBottomSheet(
+                                      context, widget.feed.id);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    Icons.person_rounded,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    size: 15,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
                     ],
                   ),
                   widget.feed.caption == null || widget.feed.caption!.isEmpty
@@ -1395,7 +1594,7 @@ class _FeedLayoutState extends State<FeedLayout> {
                               child: Row(
                                 children: [
                                   Text(
-                                    widget.feed.user.username + " ",
+                                    "${widget.feed.user.username} ",
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium!
@@ -1469,32 +1668,36 @@ class _FeedLayoutState extends State<FeedLayout> {
                     child: getFeedFooter(
                       isPost: false,
                       onLike: () async {
+                        await FeedServices()
+                            .toogleLikeFeeds(feedId: widget.feed.id);
                         setState(() {});
                       },
                       onComment: () {
-                        Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (context) => LoadingOverlayAlt(
-                                        child: const CommentPage())))
-                            .then((value) => setState(() {
-                                  if (widget.onComment != null) {
-                                    widget.onComment!();
-                                  }
-                                }));
+                        if (widget.isOnCommentPage == false) {
+                          Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => CommentPage(
+                                        feed: widget.feed,
+                                      ))).then((value) => setState(() {
+                                if (widget.onComment != null) {
+                                  widget.onComment!();
+                                }
+                              }));
+                        }
                       },
-                      onSave: () {
-                        // ThreadServices()
-                        //     .toogleSaveThreads(threadId: widget.feed.id)
-                        //     .then((value) => Fluttertoast.showToast(
-                        //           msg: value,
-                        //           toastLength: Toast.LENGTH_SHORT,
-                        //           gravity: ToastGravity.BOTTOM,
-                        //           timeInSecForIosWeb: 1,
-                        //           backgroundColor: Colors.white,
-                        //           textColor: Colors.black,
-                        //           fontSize: 16.0,
-                        //         ));
+                      onSave: () async {
+                        await FeedServices()
+                            .toogleSaveFeeds(feedId: widget.feed.id)
+                            .then((value) => Fluttertoast.showToast(
+                                  msg: value,
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black,
+                                  fontSize: 16.0,
+                                ));
                       },
                     ),
                   ),
@@ -1536,10 +1739,11 @@ class _FeedLayoutState extends State<FeedLayout> {
             TextButton(
               onPressed: () {
                 Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CommentPage()))
-                    .then((value) => setState(() {}));
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CommentPage(
+                              feed: widget.feed,
+                            ))).then((value) => setState(() {}));
               },
               child: Text(
                 "${widget.feed.commentCount} ${widget.feed.commentCount > 1 ? "replies" : "reply"} • ${widget.feed.likeCount} ${widget.feed.likeCount > 1 ? "likes" : "like"}",

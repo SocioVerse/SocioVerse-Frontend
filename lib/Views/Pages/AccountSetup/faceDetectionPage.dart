@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:face_camera/face_camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 
 class FaceDetectionPage extends StatefulWidget {
@@ -23,6 +23,13 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   void initState() {
     numOfPics = 0;
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override

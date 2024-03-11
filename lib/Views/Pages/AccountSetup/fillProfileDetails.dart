@@ -9,17 +9,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Models/authUser_models.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/services/authentication_services.dart';
+import 'package:socioverse/Services/authentication_services.dart';
 import '../../Widgets/buttons.dart';
 
 class FillProfilePage extends StatefulWidget {
@@ -56,6 +56,13 @@ class _FillProfilePageState extends State<FillProfilePage> {
     cCode.text = "+91";
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   TextField textFieldBuilder(
       {required TextEditingController tcontroller,
       required String hintTexxt,
@@ -80,8 +87,8 @@ class _FillProfilePageState extends State<FillProfilePage> {
       maxLength: hintTexxt == "Phone number*" ? 10 : null,
       decoration: InputDecoration(
         suffixIcon: suffixxIcon,
-        counter: Offstage(),
-        contentPadding: EdgeInsets.all(20),
+        counter: const Offstage(),
+        contentPadding: const EdgeInsets.all(20),
         filled: true,
         fillColor: Theme.of(context).colorScheme.secondary,
         hintText: hintTexxt,
@@ -152,7 +159,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                   size: 100,
                                 )
                               : profileImageLoading == true
-                                  ? Center(
+                                  ? const Center(
                                       child: CircularProgressIndicator(),
                                     )
                                   : CircularNetworkImageWithoutSize(
@@ -172,7 +179,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             ),
                             child: IconButton(
                               iconSize: 30,
-                              padding: EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
                               onPressed: () async {
                                 currentImage =
                                     await ImagePickerFunctionsHelper()
@@ -228,7 +235,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             tcontroller: cCode,
                             hintTexxt: "+91",
                             onChangedf: () {})),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -297,7 +304,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             });
                           }
                         },
-                        child: Icon(
+                        child: const Icon(
                           Ionicons.calendar,
                           color: Colors.white,
                         )),
@@ -345,7 +352,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             color: Theme.of(context).colorScheme.primary,
                             size: 15,
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 10,
                           ),
                           Text(
@@ -422,17 +429,17 @@ class _FillProfilePageState extends State<FillProfilePage> {
                           signupUser.profilePic = currentImage;
                           signupUser.faceImageDataset = faceImages;
                           log(signupUser.toJson().toString());
-                          LoadingOverlayAlt.of(context).show();
+                          context.loaderOverlay.show();
                           ApiResponse? response =
                               await AuthServices().userSignUp(
                             signupUser: signupUser,
                           );
-                          LoadingOverlayAlt.of(context).hide();
+                          context.loaderOverlay.hide();
                           if (response!.success == true && context.mounted) {
                             Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => MainPage()),
+                                    builder: (context) => const MainPage()),
                                 (route) => false);
                           } else {
                             Fluttertoast.showToast(

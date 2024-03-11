@@ -22,6 +22,13 @@ class _ActivityPageState extends State<ActivityPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getLatestFollowRequest() async {
     setState(() {
       isLoading = true;
