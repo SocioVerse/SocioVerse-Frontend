@@ -5,13 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Services/thread_services.dart';
@@ -45,6 +45,13 @@ class _AddCommentPageState extends State<AddCommentPage> {
     ));
     for (int i = 0; i < threads.length; i++) {
       focusNodes.add(FocusNode());
+    }
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
 
@@ -126,7 +133,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
               actions: [
                 IconButton(
                   onPressed: () async {
-                    LoadingOverlayAlt.of(context).show();
+                    context.loaderOverlay.show();
 
                     widget.thread.commentCount += threads.length;
                     CreateThreadModel createThreadModel = CreateThreadModel(
@@ -149,7 +156,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                     await ThreadServices()
                         .createComment(createThreadModel: createThreadModel)
                         .then((value) {
-                      LoadingOverlayAlt.of(context).hide();
+                      context.loaderOverlay.hide();
                       Navigator.pop(context);
                     });
                   },
@@ -166,7 +173,10 @@ class _AddCommentPageState extends State<AddCommentPage> {
             body: SingleChildScrollView(
               child: Column(
                 children: [
-                  ThreadLayout(thread: widget.thread),
+                  ThreadLayout(
+                    thread: widget.thread,
+                    isComment: true,
+                  ),
                   Column(
                     children: threads.asMap().entries.map((entry) {
                       final index = entry.key;

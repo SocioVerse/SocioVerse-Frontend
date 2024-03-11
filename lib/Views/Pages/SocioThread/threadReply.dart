@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
-import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 class ThreadReply extends StatefulWidget {
   const ThreadReply({required this.text, required this.imageUrl});
@@ -15,22 +14,28 @@ class _ThreadReplyState extends State<ThreadReply> {
   double verticalDividerLength1 = 38;
   double verticalDividerLength2 = 38;
   bool _isExtended = false;
-  bool _haveReplies = true;
+  final bool _haveReplies = true;
   final List<String> extendedReplies = [
     'Extended Reply 1',
     'Extended Reply 2',
     'Extended Reply 3',
     'Extended Reply 4',
   ];
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   Widget buildExtendedReplies() {
     return ListView.builder(
       itemCount: _isExtended ? extendedReplies.length : 0,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -59,7 +64,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                               color: Colors.black,
                             ),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.add,
                             size: 15,
                             color: Colors.black,
@@ -69,9 +74,9 @@ class _ThreadReplyState extends State<ThreadReply> {
                     ],
                   ),
                   index == extendedReplies.length - 1
-                      ? SizedBox()
+                      ? const SizedBox()
                       : Container(
-                          margin: EdgeInsets.symmetric(vertical: 10),
+                          margin: const EdgeInsets.symmetric(vertical: 10),
                           height: verticalDividerLength2 + 45,
                           width: 2,
                           decoration: BoxDecoration(
@@ -82,7 +87,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                 ],
               ),
               Padding(
-                padding: EdgeInsets.only(left: 10),
+                padding: const EdgeInsets.only(left: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -91,7 +96,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'lepan1m',
                             style: TextStyle(
                               color: Colors.white,
@@ -99,7 +104,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                             ),
                           ),
                           Container(
-                            child: Row(
+                            child: const Row(
                               children: [
                                 Text('41 m'),
                                 SizedBox(width: 10),
@@ -110,33 +115,33 @@ class _ThreadReplyState extends State<ThreadReply> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 3),
-                    Text('Nice Flag'),
-                    SizedBox(height: 13),
+                    const SizedBox(height: 3),
+                    const Text('Nice Flag'),
+                    const SizedBox(height: 13),
                     Container(
                       width: 135,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.favorite_border_rounded,
                             size: 23,
                           ),
                           InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => NewThread()));
+                                  builder: (context) => const NewThread()));
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.mode_comment_outlined,
                               size: 23,
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.reply_all_sharp,
                             size: 23,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.share,
                             size: 23,
                           ),
@@ -144,13 +149,13 @@ class _ThreadReplyState extends State<ThreadReply> {
                       ),
                     ),
                     index == extendedReplies.length - 1
-                        ? SizedBox(height: 10)
-                        : SizedBox(height: 15),
+                        ? const SizedBox(height: 10)
+                        : const SizedBox(height: 15),
                     index == extendedReplies.length - 1
-                        ? SizedBox()
+                        ? const SizedBox()
                         : Row(
                             children: [
-                              UserProfileImageStackOf2(
+                              const UserProfileImageStackOf2(
                                 isShowIcon: false,
                               ),
                               Text(
@@ -181,7 +186,7 @@ class _ThreadReplyState extends State<ThreadReply> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1a1a22),
+        backgroundColor: const Color(0xFF1a1a22),
         elevation: 0.15,
         shadowColor: Colors.white,
         leading: IconButton(
@@ -190,8 +195,8 @@ class _ThreadReplyState extends State<ThreadReply> {
                 _isExtended = !_isExtended;
               });
             },
-            icon: Icon(Icons.arrow_back)),
-        title: Text(
+            icon: const Icon(Icons.arrow_back)),
+        title: const Text(
           'Thread',
           style: TextStyle(
             fontSize: 20,
@@ -199,8 +204,8 @@ class _ThreadReplyState extends State<ThreadReply> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
+          const Padding(
+            padding: EdgeInsets.only(right: 10),
             child: Icon(
               Icons.notifications_none,
               size: 24,
@@ -245,18 +250,18 @@ class _ThreadReplyState extends State<ThreadReply> {
                                             borderRadius:
                                                 BorderRadius.circular(10),
                                           ),
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.add,
                                             size: 15,
                                             color: Colors.black,
                                           ),
                                         ),
                                       )
-                                    : SizedBox()
+                                    : const SizedBox()
                               ],
                             ),
-                            SizedBox(width: 10),
-                            Text(
+                            const SizedBox(width: 10),
+                            const Text(
                               'lepan1m',
                               style: TextStyle(
                                 color: Colors.white,
@@ -265,7 +270,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                             ),
                           ],
                         ),
-                        Row(
+                        const Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text('41 m'),
@@ -275,15 +280,15 @@ class _ThreadReplyState extends State<ThreadReply> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Text(
                       widget.text,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Image.asset(
@@ -293,38 +298,38 @@ class _ThreadReplyState extends State<ThreadReply> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Container(
                       width: 135,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.favorite_border_rounded,
                             size: 23,
                           ),
                           InkWell(
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => NewThread()));
+                                  builder: (context) => const NewThread()));
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.mode_comment_outlined,
                               size: 23,
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.reply_all_sharp,
                             size: 23,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.share,
                             size: 23,
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Text(
@@ -348,15 +353,15 @@ class _ThreadReplyState extends State<ThreadReply> {
                 itemCount: 4,
                 shrinkWrap: true,
                 physics:
-                    NeverScrollableScrollPhysics(), // Disable inner ListView scrolling
+                    const NeverScrollableScrollPhysics(), // Disable inner ListView scrolling
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
                       Column(
                         children: [
-                          Divider(thickness: 0.5),
+                          const Divider(thickness: 0.5),
                           Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 5),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +392,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                                                 color: Colors.black,
                                               ),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.add,
                                               size: 15,
                                               color: Colors.black,
@@ -398,8 +403,10 @@ class _ThreadReplyState extends State<ThreadReply> {
                                     ),
                                     Container(
                                       margin: _isExtended
-                                          ? EdgeInsets.only(top: 10, bottom: 5)
-                                          : EdgeInsets.symmetric(vertical: 10),
+                                          ? const EdgeInsets.only(
+                                              top: 10, bottom: 5)
+                                          : const EdgeInsets.symmetric(
+                                              vertical: 10),
                                       height: verticalDividerLength1,
                                       width: 2,
                                       decoration: BoxDecoration(
@@ -419,16 +426,16 @@ class _ThreadReplyState extends State<ThreadReply> {
                                               });
                                             },
                                             child: !_isExtended
-                                                ? UserProfileImageStackOf2(
+                                                ? const UserProfileImageStackOf2(
                                                     isShowIcon: true,
                                                   )
-                                                : SizedBox(),
+                                                : const SizedBox(),
                                           )
-                                        : SizedBox(),
+                                        : const SizedBox(),
                                   ],
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.only(left: 10),
+                                  padding: const EdgeInsets.only(left: 10),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -441,7 +448,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
+                                            const Text(
                                               'lepan1m',
                                               style: TextStyle(
                                                 color: Colors.white,
@@ -449,7 +456,7 @@ class _ThreadReplyState extends State<ThreadReply> {
                                               ),
                                             ),
                                             Container(
-                                              child: Row(
+                                              child: const Row(
                                                 children: [
                                                   Text('41 m'),
                                                   SizedBox(width: 10),
@@ -460,12 +467,12 @@ class _ThreadReplyState extends State<ThreadReply> {
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 3),
-                                      Text('Nice Flag'),
-                                      SizedBox(height: 13),
+                                      const SizedBox(height: 3),
+                                      const Text('Nice Flag'),
+                                      const SizedBox(height: 13),
                                       Container(
                                         width: 135,
-                                        child: Row(
+                                        child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
@@ -488,23 +495,25 @@ class _ThreadReplyState extends State<ThreadReply> {
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 15),
+                                      const SizedBox(height: 15),
                                       GestureDetector(
                                         onTap: () {
                                           Navigator.of(context).push(
                                             MaterialPageRoute(
-                                              builder: (context) => ThreadReply(
-                                                  text: 'none', imageUrl: 'no'),
+                                              builder: (context) =>
+                                                  const ThreadReply(
+                                                      text: 'none',
+                                                      imageUrl: 'no'),
                                             ),
                                           );
                                         },
                                         child: Row(
                                           children: [
                                             _isExtended
-                                                ? UserProfileImageStackOf2(
+                                                ? const UserProfileImageStackOf2(
                                                     isShowIcon: false,
                                                   )
-                                                : SizedBox(),
+                                                : const SizedBox(),
                                             Text(
                                               '2 replies ',
                                               style: TextStyle(

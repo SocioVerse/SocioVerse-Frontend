@@ -48,6 +48,13 @@ class _NewThreadState extends State<NewThread> {
     }
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void fetchUserdata() async {
     user = await UserServices().getUserDetails();
     setState(() {});

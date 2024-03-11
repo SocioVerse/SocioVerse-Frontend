@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.29.71:4000";
+  static const String baseUrl = "192.168.201.238:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -19,8 +19,17 @@ class ApiStringConstants {
   static const String fetchAllFeedComments = "feeds/read-comment-replies";
   static const String fetchAllSavedFeeds = "feeds/saved-feeds";
   static const String fetchAllLikedFeeds = "feeds/liked-feeds";
-  static const String createFeedComment = "feeds/create-comment";
-  static const String deleteFeeds = "feeds/delete-feed";
+  static const String fetchFeedsMentions = "feeds/fetch-mentioned-users";
+  static const String createFeedComment = "feeds/create-feed-comment";
+  static const String fetchFeedComments = "feeds/fetch-feed-comments";
+  static const String fetchcommentReplies = "feeds/fetch-comment-replies"; //
+  static const String toggleFeedCommentLike =
+      "feeds/toggle-feed-commment-like"; //
+
+  static const String getFeedById = "feeds/fetch-feed-by-id"; //
+  static const String createCommentReply = "feeds/create-comment-reply"; //
+  static const String deleteFeeds = "feeds/delete-feed"; //
+  static const String deleteFeedComment = "feeds/delete-feed-commment"; //
   static const String searchFeedsLocation = "feeds/search-location";
   static const String searchFeedsHashtags = "feeds/search-hashtags";
 
@@ -42,6 +51,7 @@ class ApiStringConstants {
   static const String toogleFollowReq = "users/create-follow-request";
   static const String unFollow = "users/unfollow-user";
   static const String searchUser = "users/search-user";
+  static const String searchFeedsByMetadata = "users/search-metadata";
   static const String searchLocation = "users/search-location";
   static const String searchHashtags = "users/search-hashtags";
   static const String fetchLatestFolloweRequests =
@@ -60,8 +70,15 @@ class ApiStringConstants {
   static const String fetchRepostThreads = "users/fetch-reposted-thread";
   static const String fetchAllStories = "users/fetch-all-stories";
   static const String fetchAllStorySeen = "users/fetch-all-stories-seens";
+  static const String fetchUserFeeds = "users/fetch-user-feeds";
 
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
   static const String fetchInbox = "users/all-recent-chats";
+
+  //Hashtags APIs
+  static const String fetchHashtagsFeed = "hashtags/fetch-hashtags-feeds";
+
+  //Location APIs
+  static const String fetchLocationFeed = "location/fetch-location-feeds";
 }

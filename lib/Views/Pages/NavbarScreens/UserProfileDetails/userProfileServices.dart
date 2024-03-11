@@ -1,3 +1,4 @@
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
@@ -55,5 +56,27 @@ class UserProfileDetailsServices {
       }
     }
     return fetchedThreads;
+  }
+
+  Future<List<FeedThumbnail>> getUserFeeds({String? userId}) async {
+    List<FeedThumbnail> fetchedFeeds = [];
+    _response = userId == null
+        ? await _helper.get(
+            ApiStringConstants.fetchUserFeeds,
+            isPublic: false,
+          )
+        : await _helper.get(
+            ApiStringConstants.fetchUserFeeds,
+            querryParam: {
+              "userId": userId,
+            },
+            isPublic: false,
+          );
+    if (_response.success == true) {
+      for (var feed in _response.data) {
+        fetchedFeeds.add(FeedThumbnail.fromJson(feed));
+      }
+    }
+    return fetchedFeeds;
   }
 }

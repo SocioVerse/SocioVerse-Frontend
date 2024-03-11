@@ -421,9 +421,7 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
         ? const NoPostYet()
         : Container(
             child: ListView.builder(
-              physics: widget.shrinkWrap
-                  ? const NeverScrollableScrollPhysics()
-                  : const ClampingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               shrinkWrap: widget.shrinkWrap,
               padding: const EdgeInsets.only(top: 10),
               itemCount: allThreads.length,
@@ -484,6 +482,12 @@ class ExpandableTextWidget extends StatefulWidget {
 
 class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   bool isExpanded = false;
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

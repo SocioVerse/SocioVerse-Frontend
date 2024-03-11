@@ -1,5 +1,7 @@
 import 'dart:ffi';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:recase/recase.dart';
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
@@ -7,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationService.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
 
@@ -25,6 +29,13 @@ class LocationProfilePage extends StatefulWidget {
 class _LocationProfilePageState extends State<LocationProfilePage> {
   int __value = 1;
   int __value1 = 1;
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,82 +182,99 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    DropdownButton(
-                      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                      focusColor: Theme.of(context).scaffoldBackgroundColor,
-                      underline: const SizedBox.shrink(),
-                      value: __value1,
-                      items: [
-                        DropdownMenuItem(
-                          value: 1,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(3.0),
-                                child: Icon(
-                                  Ionicons.grid_outline,
-                                  size: 15,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "Feeds ",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        DropdownMenuItem(
-                          value: 2,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Padding(
-                                padding: EdgeInsets.all(3.0),
-                                child: Icon(
-                                  Ionicons.text,
-                                  size: 15,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                "Threads",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          __value1 = value as int;
-                        });
-                      },
+                    const Padding(
+                      padding: EdgeInsets.all(3.0),
+                      child: Icon(
+                        Ionicons.grid_outline,
+                        size: 15,
+                      ),
                     ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Feeds ",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                    // DropdownButton(
+                    //   dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                    //   focusColor: Theme.of(context).scaffoldBackgroundColor,
+                    //   underline: const SizedBox.shrink(),
+                    //   value: __value1,
+                    //   items: [
+                    //     DropdownMenuItem(
+                    //       value: 1,
+                    //       child: Row(
+                    //         crossAxisAlignment: CrossAxisAlignment.end,
+                    //         children: [
+                    //           const Padding(
+                    //             padding: EdgeInsets.all(3.0),
+                    //             child: Icon(
+                    //               Ionicons.grid_outline,
+                    //               size: 15,
+                    //             ),
+                    //           ),
+                    //           const SizedBox(
+                    //             width: 5,
+                    //           ),
+                    //           Text(
+                    //             "Feeds ",
+                    //             style: Theme.of(context)
+                    //                 .textTheme
+                    //                 .bodyMedium!
+                    //                 .copyWith(
+                    //                   fontWeight: FontWeight.w500,
+                    //                   fontSize: 18,
+                    //                   color:
+                    //                       Theme.of(context).colorScheme.onPrimary,
+                    //                 ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //     DropdownMenuItem(
+                    //       value: 2,
+                    //       child: Row(
+                    //         crossAxisAlignment: CrossAxisAlignment.end,
+                    //         children: [
+                    //           const Padding(
+                    //             padding: EdgeInsets.all(3.0),
+                    //             child: Icon(
+                    //               Ionicons.text,
+                    //               size: 15,
+                    //             ),
+                    //           ),
+                    //           const SizedBox(
+                    //             width: 5,
+                    //           ),
+                    //           Text(
+                    //             "Threads",
+                    //             style: Theme.of(context)
+                    //                 .textTheme
+                    //                 .bodyMedium!
+                    //                 .copyWith(
+                    //                   fontWeight: FontWeight.w500,
+                    //                   fontSize: 18,
+                    //                   color:
+                    //                       Theme.of(context).colorScheme.onPrimary,
+                    //                 ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     )
+                    //   ],
+                    //   onChanged: (value) {
+                    //     setState(() {
+                    //       __value1 = value as int;
+                    //     });
+                    //   },
+                    // ),
                     const Spacer(),
                     DropdownButton(
                       dropdownColor: Theme.of(context).scaffoldBackgroundColor,
@@ -316,28 +344,71 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                   ],
                 ),
               ),
-              GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                  ),
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: DecorationImage(
-                          image: AssetImage(
-                            "assets/Country_flag/in.png",
-                          ),
-                          fit: BoxFit.cover,
-                        ),
+              FutureBuilder(
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: SpinKitRing(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        lineWidth: 1,
+                        duration: const Duration(seconds: 1),
                       ),
                     );
-                  }),
+                  }
+                  List<FeedThumbnail> feedThumbnail =
+                      snapshot.data as List<FeedThumbnail>;
+                  return GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5,
+                        mainAxisSpacing: 5,
+                      ),
+                      itemCount: feedThumbnail.length,
+                      itemBuilder: (context, index) {
+                        return Stack(
+                          children: [
+                            Positioned.fill(
+                              child: RoundedNetworkImageWithLoading(
+                                imageUrl: feedThumbnail[index].images[0],
+                              ),
+                            ),
+                            Positioned(
+                              bottom: 5,
+                              left: 5,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      spreadRadius: 1,
+                                      blurRadius: 2,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                child: SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: RoundedNetworkImageWithLoading(
+                                    imageUrl:
+                                        feedThumbnail[index].userId.profilePic,
+                                    borderRadius: 5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      });
+                },
+                future: LocationServices().getLocationFeed(
+                    locationId: widget.locationSearchModel.id ?? "",
+                    isRecent: __value == 1 ? true : false),
+              ),
             ]),
       ),
     ));

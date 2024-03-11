@@ -28,6 +28,13 @@ class _TagPeoplePageState extends State<TagPeoplePage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void getQueryUser() async {
     setState(() {
       isSearching = true;

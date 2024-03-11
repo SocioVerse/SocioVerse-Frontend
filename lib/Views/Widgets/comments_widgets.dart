@@ -1,9 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsModel.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentModel.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
@@ -147,7 +157,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                     GridView.builder(
                       shrinkWrap: true,
                       itemCount: widget.thread.images.length,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3,
@@ -173,7 +183,6 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                 onLike: () async {
                   await ThreadServices()
                       .toogleLikeThreads(threadId: widget.thread.commentId);
-
                   setState(() {});
                 },
                 onComment: () {
@@ -189,7 +198,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
             ],
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Divider(
           height: 0,
           color: Theme.of(context).colorScheme.tertiary,
@@ -206,7 +215,7 @@ class CommentBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: threadReplies.length,
       itemBuilder: (context, index) {
@@ -218,8 +227,102 @@ class CommentBuilder extends StatelessWidget {
   }
 }
 
-class PostCaption extends StatelessWidget {
-  const PostCaption({super.key});
+class FeedCommentWidget extends StatefulWidget {
+  final FeedModel? feed;
+  final FeedComment feedComment;
+  final Function? onDelete;
+  final bool isComment;
+  const FeedCommentWidget({
+    super.key,
+    this.feed,
+    this.onDelete,
+    required this.feedComment,
+    this.isComment = false,
+  });
+
+  @override
+  State<FeedCommentWidget> createState() => _FeedCommentWidgetState();
+}
+
+class _FeedCommentWidgetState extends State<FeedCommentWidget> {
+  void showMentionsBottomSheet(BuildContext context, FeedComment feedComment) {
+    if (feedComment.userId.isOwner) {
+      showModalBottomSheet(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          context: context,
+          builder: (context) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  Icons.horizontal_rule_rounded,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Ionicons.trash_bin,
+                    color: Colors.red,
+                  ),
+                  title: Text(
+                    'Delete',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 16),
+                  ),
+                  onTap: () async {
+                    context.loaderOverlay.show();
+
+                    await FeedServices()
+                        .deleteFeedComment(commentId: feedComment.id)
+                        .then((value) => {
+                              if (context.mounted)
+                                {
+                                  if (widget.onDelete != null)
+                                    widget.onDelete!(),
+                                  context.loaderOverlay.hide(),
+                                  Navigator.pop(context)
+                                }
+                            });
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Ionicons.copy_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  title: Text(
+                    'Copy',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontSize: 16),
+                  ),
+                  onTap: () async {
+                    await Clipboard.setData(
+                        ClipboardData(text: feedComment.content));
+                    Fluttertoast.showToast(
+                      msg: "Comment Copied Successfully",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.white,
+                      textColor: Colors.black,
+                      fontSize: 16.0,
+                    );
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -228,159 +331,180 @@ class PostCaption extends StatelessWidget {
       child: Column(
         children: [
           ListTile(
-            contentPadding: EdgeInsets.all(0),
-            leading: CircleAvatar(
-              radius: 30,
-              backgroundColor: Theme.of(context).colorScheme.onBackground,
-              child: Icon(
-                Ionicons.person,
-                color: Theme.of(context).colorScheme.background,
-                size: 30,
+            onTap: () {
+              Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                      builder: (context) => UserProfilePage(
+                            userId: widget.feedComment.userId.id,
+                            owner: widget.feedComment.userId.isOwner,
+                          )));
+            },
+            contentPadding: const EdgeInsets.all(0),
+            leading: SizedBox(
+              height: 40,
+              width: 40,
+              child: CircularNetworkImageWithSize(
+                imageUrl: widget.feedComment.userId.profilePic,
+                height: 35,
+                width: 35,
               ),
             ),
             title: Text(
-              "Username",
+              widget.feedComment.userId.username,
               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onPrimary),
             ),
             subtitle: Text(
-              "Occupation",
+              widget.feedComment.userId.occupation,
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            trailing: Icon(
-              Ionicons.ellipsis_horizontal_circle_outline,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+            trailing: Wrap(children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  CalculatingFunction.getTimeDiff(widget.feedComment.createdAt),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 10,
+                      ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: InkWell(
+                  onTap: () {
+                    showMentionsBottomSheet(context, widget.feedComment);
+                  },
+                  child: Icon(
+                    Ionicons.ellipsis_horizontal_circle_outline,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ]),
           ),
           Container(
-            padding: EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.symmetric(vertical: 20),
             decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.onSurface,
                 border: Border.symmetric(
                     horizontal: BorderSide(
                         color: Theme.of(context).colorScheme.secondary,
                         width: 2))),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eget nunc vitae tortor aliquam aliquet. ",
-                  style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(
+                  width: 60,
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "6 hrs ago",
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Ionicons.heart_outline,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
                     Text(
-                      "1.2k",
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      widget.feedComment.content,
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Icon(
-                      Ionicons.chatbubble_ellipses_outline,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    SizedBox(
-                      width: 10,
+                    const SizedBox(
+                      height: 20,
                     ),
                     Text(
-                      "1.2k",
+                      CalculatingFunction.getTimeDiff(
+                          widget.feedComment.createdAt),
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            await FeedServices().toggleFeedCommentLike(
+                                commentId: widget.feedComment.id);
+                            widget.feedComment.isLiked =
+                                !widget.feedComment.isLiked;
+                            if (widget.feedComment.isLiked) {
+                              widget.feedComment.likeCount++;
+                            } else {
+                              widget.feedComment.likeCount--;
+                            }
+                            setState(() {});
+                          },
+                          child: widget.feedComment.isLiked
+                              ? const Icon(
+                                  Ionicons.heart,
+                                  color: Color(0xffFF4D67),
+                                )
+                              : Icon(
+                                  Ionicons.heart_outline,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          widget.feedComment.likeCount.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            if (widget.isComment) return;
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => CommentReplyPage(
+                                          onDeleted: () {
+                                            if (widget.onDelete != null)
+                                              widget.onDelete!();
+                                          },
+                                          feedComment: widget.feedComment,
+                                        ))).then((value) {
+                              if (value != null) {
+                                if (value as bool == true) {
+                                  widget.onDelete!();
+                                }
+                              }
+                              setState(() {});
+                            });
+                          },
+                          child: Icon(
+                            Ionicons.chatbubble_ellipses_outline,
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          widget.feedComment.commentCount.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall!
+                              .copyWith(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CommentFeild extends StatelessWidget {
-  const CommentFeild({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(30),
-      decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onSurface,
-          border: Border.all(color: Color(0xff2A2B39)),
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(40), topRight: Radius.circular(40)),
-          boxShadow: [
-            BoxShadow(
-                color: Theme.of(context).colorScheme.background,
-                blurRadius: 10,
-                offset: const Offset(0, 10))
-          ]),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              onChanged: (value) {},
-              cursorOpacityAnimates: true,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16, color: Theme.of(context).colorScheme.surface),
-              decoration: InputDecoration(
-                filled: true,
-                contentPadding: const EdgeInsets.all(20),
-                fillColor: Theme.of(context).colorScheme.secondary,
-                hintText: "Your comment...",
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontSize: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-          TextButton(
-            onPressed: () {},
-            child: Text('Post',
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.primary)),
           ),
         ],
       ),

@@ -16,6 +16,13 @@ class _LocationSearchPageState extends State<LocationSearchPage> {
   List<LocationSearchModel> searchedLocation = [];
   TextEditingController searchText = TextEditingController();
   bool isSearching = false;
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void getQueryLocation() async {
     setState(() {
       isSearching = true;

@@ -26,6 +26,13 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   }
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     faceImage = null;
     return Scaffold(

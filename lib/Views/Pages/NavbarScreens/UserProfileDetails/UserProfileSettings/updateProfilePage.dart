@@ -8,11 +8,11 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/userProfileSettingsServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
@@ -45,6 +45,13 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     bioController.text = widget.user.bio ?? "";
 
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   TextField textFieldBuilder(
@@ -229,7 +236,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           );
                           return;
                         } else {
-                          LoadingOverlayAlt.of(context).show();
+                          context.loaderOverlay.show();
                           if (profileImage != null) {
                             await FirebaseHelper.deleteFolder(
                                 "${widget.user.email}/profilepic");
@@ -247,7 +254,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           await UserProfileSettingsServices()
                               .updateProfile(widget.user)
                               .then((response) {
-                            LoadingOverlayAlt.of(context).hide();
+                            context.loaderOverlay.hide();
                             if (response.success == true && context.mounted) {
                               Navigator.pushAndRemoveUntil(
                                   context,

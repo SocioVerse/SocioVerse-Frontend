@@ -37,6 +37,13 @@ class CreateNewThreadAlertBox extends StatefulWidget {
 class _CreateNewThreadAlertBoxState extends State<CreateNewThreadAlertBox> {
   bool _privateThread = false;
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,

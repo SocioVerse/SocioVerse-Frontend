@@ -20,6 +20,13 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getFollowRequest() async {
     setState(() {
       isLoading = true;

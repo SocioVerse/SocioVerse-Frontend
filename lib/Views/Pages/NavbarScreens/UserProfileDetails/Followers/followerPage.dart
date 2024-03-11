@@ -26,6 +26,13 @@ class _FollowersPageState extends State<FollowersPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   getFollowers() async {
     setState(() {
       isLoading = true;

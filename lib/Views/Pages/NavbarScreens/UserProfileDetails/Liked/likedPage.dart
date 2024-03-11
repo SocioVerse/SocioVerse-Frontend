@@ -3,9 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
+
+import '../../../../Widgets/Global/imageLoadingWidgets.dart';
 
 class LikedPage extends StatefulWidget {
   const LikedPage({super.key});
@@ -18,20 +22,36 @@ class _LikedPageState extends State<LikedPage> {
   bool isSavedThreadLoading = false;
   bool isSavedPostLoading = false;
   List<ThreadModel> likedThreads = [];
-  Key _refreshKey = UniqueKey();
+  List<FeedThumbnail> likedFeeds = [];
   @override
   void initState() {
-    getSavedThreads();
+    getLikedThreads();
     super.initState();
   }
 
-  getSavedThreads() async {
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  getLikedThreads() async {
     setState(() {
       isSavedThreadLoading = true;
     });
     likedThreads = await ThreadServices().getLikedThreads();
     setState(() {
-      _refreshKey = UniqueKey();
+      isSavedThreadLoading = false;
+    });
+  }
+
+  getLikedFeeds() async {
+    setState(() {
+      isSavedThreadLoading = true;
+    });
+    likedFeeds = await FeedServices().getLikedFeeds();
+    setState(() {
       isSavedThreadLoading = false;
     });
   }
@@ -44,7 +64,7 @@ class _LikedPageState extends State<LikedPage> {
         appBar: AppBar(
           automaticallyImplyLeading: true,
           title: Text(
-            "Liked",
+            "Saved",
             style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                   fontWeight: FontWeight.bold,
                   fontSize: 25,
@@ -59,8 +79,10 @@ class _LikedPageState extends State<LikedPage> {
             indicatorWeight: 3,
             dividerColor: Theme.of(context).colorScheme.onPrimary,
             onTap: (value) {
-              if (value == 1) {
-                getSavedThreads();
+              if (value == 0) {
+                getLikedThreads();
+              } else {
+                getLikedFeeds();
               }
             },
             tabs: const [
@@ -86,7 +108,7 @@ class _LikedPageState extends State<LikedPage> {
                       size: 20,
                     ),
                     SizedBox(width: 5), // Add spacing between icon and text
-                    Text("Posts"),
+                    Text("Feeds"),
                   ],
                 ),
               ),
@@ -96,54 +118,80 @@ class _LikedPageState extends State<LikedPage> {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
         ),
-        body: SingleChildScrollView(
-          child: AutoScaleTabBarView(
-            physics: NeverScrollableScrollPhysics(),
-            key: _refreshKey,
-            children: [
-              isSavedThreadLoading
-                  ? const Column(
-                      children: [
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Center(
-                            child: SpinKitRing(
-                          color: Colors.white,
-                          lineWidth: 1,
-                          duration: Duration(seconds: 1),
-                        )),
-                      ],
-                    )
-                  : ThreadViewBuilder(
-                      allThreads: likedThreads,
-                      shrinkWrap: true,
-                    ),
-              GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    childAspectRatio: 1,
+        body: TabBarView(
+          children: [
+            isSavedThreadLoading
+                ? const Expanded(
+                    child: Center(
+                        child: SpinKitRing(
+                      color: Colors.white,
+                      lineWidth: 1,
+                      duration: Duration(seconds: 1),
+                    )),
+                  )
+                : ThreadViewBuilder(
+                    allThreads: likedThreads,
+                    shrinkWrap: true,
                   ),
-                  itemCount: 100,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: const DecorationImage(
-                          image: AssetImage(
-                            "assets/Country_flag/in.png",
-                          ),
-                          fit: BoxFit.cover,
+            isSavedPostLoading
+                ? const Expanded(
+                    child: Center(
+                        child: SpinKitRing(
+                      color: Colors.white,
+                      lineWidth: 1,
+                      duration: Duration(seconds: 1),
+                    )),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: GridView.builder(
+                        shrinkWrap: true,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
                         ),
-                      ),
-                    );
-                  }),
-            ],
-          ),
+                        itemCount: likedFeeds.length,
+                        itemBuilder: (context, index) {
+                          return Stack(
+                            children: [
+                              Positioned.fill(
+                                child: RoundedNetworkImageWithLoading(
+                                  imageUrl: likedFeeds[index].images[0],
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 5,
+                                left: 5,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.5),
+                                        spreadRadius: 1,
+                                        blurRadius: 2,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: RoundedNetworkImageWithLoading(
+                                      imageUrl:
+                                          likedFeeds[index].userId.profilePic,
+                                      borderRadius: 5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                  ),
+          ],
         ),
       ),
     );

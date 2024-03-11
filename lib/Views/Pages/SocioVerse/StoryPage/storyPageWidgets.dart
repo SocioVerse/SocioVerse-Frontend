@@ -6,7 +6,6 @@ import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:story_view/controller/story_controller.dart';
@@ -32,6 +31,13 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
     setState(() {
       widget.readStoryModel.isLiked = !widget.readStoryModel.isLiked;
     });
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   Future<void> getStorySeens() async {
@@ -196,17 +202,12 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                                               context,
                                               CupertinoPageRoute(
                                                   builder: (context) =>
-                                                      LoadingOverlayAlt(
-                                                        child: UserProfilePage(
-                                                          owner:
-                                                              storySeensModel!
-                                                                  .users[index]
-                                                                  .isOwner,
-                                                          userId:
-                                                              storySeensModel!
-                                                                  .users[index]
-                                                                  .id,
-                                                        ),
+                                                      UserProfilePage(
+                                                        owner: storySeensModel!
+                                                            .users[index]
+                                                            .isOwner,
+                                                        userId: storySeensModel!
+                                                            .users[index].id,
                                                       )));
                                         },
                                         contentPadding: EdgeInsets.zero,
@@ -409,6 +410,13 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextField(

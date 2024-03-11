@@ -5,7 +5,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/postEditPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,6 +45,13 @@ class _PickImagePageState extends State<PickImagePage> {
     super.initState();
     _initializePhotoManager();
     _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void _scrollListener() async {
@@ -157,10 +163,8 @@ class _PickImagePageState extends State<PickImagePage> {
                     Navigator.push(
                       context,
                       CupertinoPageRoute(
-                          builder: (context) => LoadingOverlayAlt(
-                                child: PostEditPage(
-                                  images: value,
-                                ),
+                          builder: (context) => PostEditPage(
+                                images: value,
                               )),
                     );
                   }
@@ -411,6 +415,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void initState() {
     super.initState();
     _initializeController();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   Future<void> _initializeController() async {

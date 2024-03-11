@@ -33,6 +33,13 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void getQueryhashtag() async {
     setState(() {
       isSearching = true;

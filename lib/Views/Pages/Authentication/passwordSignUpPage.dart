@@ -10,7 +10,6 @@ import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
@@ -32,6 +31,13 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
   void initState() {
     setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   @override
@@ -132,7 +138,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       .bodyMedium!
                       .copyWith(fontSize: 16),
                   suffixIcon: IconButton(
-                    padding: EdgeInsets.only(right: 20),
+                    padding: const EdgeInsets.only(right: 20),
                     onPressed: () {
                       setState(() {
                         isPasswordVisible = !isPasswordVisible;
@@ -166,7 +172,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
@@ -206,7 +212,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 15),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -254,14 +260,14 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                   child:
                       Divider(color: Theme.of(context).colorScheme.onPrimary),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Text(
                   "OR continue with",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Expanded(
@@ -279,7 +285,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -287,7 +293,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         ),
                       ),
                       onPressed: () {},
-                      child: Icon(
+                      child: const Icon(
                         Icons.facebook_rounded,
                         color: Colors.blue,
                         size: 35,
@@ -297,7 +303,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -315,7 +321,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -323,7 +329,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         ),
                       ),
                       onPressed: () {},
-                      child: Icon(
+                      child: const Icon(
                         Ionicons.logo_apple,
                         color: Colors.white,
                         size: 35,
@@ -347,8 +353,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => LoadingOverlayAlt(
-                                    child: PasswordSignInPage())));
+                                builder: (context) =>
+                                    const PasswordSignInPage()));
                       },
                       child: Text(
                         "Sign in",

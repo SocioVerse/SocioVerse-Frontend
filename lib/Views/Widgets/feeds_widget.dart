@@ -1,27 +1,15 @@
-import 'dart:developer';
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
-import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
-import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
-import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:socioverse/Services/stories_services.dart';
-import 'package:socioverse/Services/thread_services.dart';
-import 'package:socioverse/Views/Pages/SocioThread/widgets.dart';
 
 import 'buttons.dart';
 
@@ -40,6 +28,13 @@ class _StoriesScrollerState extends State<StoriesScroller> {
   void initState() {
     getProfileStories();
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   getProfileStories() async {

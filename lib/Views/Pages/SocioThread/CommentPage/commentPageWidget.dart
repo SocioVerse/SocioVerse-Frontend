@@ -31,6 +31,13 @@ class _CommentPageThreadLayoutState extends State<CommentPageThreadLayout> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   StatefulBuilder getThreadFooter({
     required bool isPost,
     required Function onLike,

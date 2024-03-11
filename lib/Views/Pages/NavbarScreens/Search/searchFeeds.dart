@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
 import 'package:socioverse/Utils/calculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
@@ -33,7 +34,6 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     with SingleTickerProviderStateMixin {
   List<SearchedUser> searchedUser = [];
   bool isUserFetched = false;
-  UniqueKey _refreshKey = UniqueKey();
   List<LocationSearchModel> searchedLocation = [];
   bool isSearchingLocation = false;
   bool isSearchingHashtag = false;
@@ -47,9 +47,17 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     "Tags",
     "Places",
   ];
+  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   int selectedChip = 0;
@@ -295,30 +303,74 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                           ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: GridView.builder(
-                        shrinkWrap: true,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                          childAspectRatio: 1,
-                        ),
-                        itemCount: 100,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: const DecorationImage(
-                                image: AssetImage(
-                                  "assets/Country_flag/in.png",
-                                ),
-                                fit: BoxFit.cover,
-                              ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: FutureBuilder(
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: SpinKitRing(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              lineWidth: 1,
+                              duration: const Duration(seconds: 1),
                             ),
                           );
-                        }),
+                        }
+                        List<FeedThumbnail> feedThumbnail =
+                            snapshot.data as List<FeedThumbnail>;
+                        return GridView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 5,
+                              mainAxisSpacing: 5,
+                            ),
+                            itemCount: feedThumbnail.length,
+                            itemBuilder: (context, index) {
+                              return Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: RoundedNetworkImageWithLoading(
+                                      imageUrl: feedThumbnail[index].images[0],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 5,
+                                    left: 5,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 2,
+                                            offset: const Offset(0, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: RoundedNetworkImageWithLoading(
+                                          imageUrl: feedThumbnail[index]
+                                              .userId
+                                              .profilePic,
+                                          borderRadius: 5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            });
+                      },
+                      future: SearchBarServices()
+                          .getFeedsMetadata(metadata: searchText.text.trim()),
+                    ),
                   ),
                   Expanded(
                     child: isSearchingHashtag
@@ -342,6 +394,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                                       Navigator.push(context,
                                           MaterialPageRoute(builder: (context) {
                                         return HashtagProfilePage(
+                                          id: searchedHashtags[index].id,
                                           hashTag:
                                               searchedHashtags[index].hashtag,
                                           postsCount:

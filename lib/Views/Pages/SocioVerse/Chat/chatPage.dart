@@ -52,6 +52,13 @@ class _ChatPageState extends State<ChatPage> {
     getRoomInfo();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void dispose() {
     scrollChat.dispose();
     socketHelper.dispose();
@@ -629,6 +636,13 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
       }
     });
     super.initState();
+  }
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
   }
 
   void _sendMessage() {

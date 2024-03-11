@@ -1,3 +1,4 @@
+import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
@@ -49,5 +50,19 @@ class SearchBarServices {
       locationList.add(LocationSearchModel.fromJson(element));
     });
     return locationList;
+  }
+
+  Future<List<FeedThumbnail>> getFeedsMetadata(
+      {required String metadata}) async {
+    _response = await _helper.get(
+      ApiStringConstants.searchFeedsByMetadata,
+      querryParam: {'query': metadata},
+    );
+
+    List<FeedThumbnail> mentionsList = [];
+    _response.data.forEach((element) {
+      mentionsList.add(FeedThumbnail.fromJson(element));
+    });
+    return mentionsList;
   }
 }

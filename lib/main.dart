@@ -15,7 +15,6 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Pages/Welcome/welcome.dart';
 import 'package:socioverse/Views/UI/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:socioverse/Views/Widgets/Global/loadingOverlay.dart';
 import 'package:socioverse/helpers/ServiceHelpers/socketHelper.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
@@ -85,23 +84,31 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: GlobalLoaderOverlay(
-        overlayColor: Colors.grey.withOpacity(0.8),
+        overlayColor: Colors.transparent,
         useDefaultLoading: false,
         overlayWidgetBuilder: (_) {
           //ignored progress for the moment
-          return Center(
-            child: SpinKitRing(
-              color: Theme.of(context).colorScheme.tertiary,
-              lineWidth: 1,
-              duration: const Duration(seconds: 1),
-            ),
+          return Stack(
+            children: [
+              const Opacity(
+                opacity: 0.8,
+                child: ModalBarrier(dismissible: false, color: Colors.black),
+              ),
+              Center(
+                child: SpinKitRing(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  lineWidth: 1,
+                  duration: const Duration(seconds: 1),
+                ),
+              ),
+            ],
           );
         },
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'SocioVerse',
           theme: theme(),
-          home: LoadingOverlayAlt(child: const GetInitPage()),
+          home: const GetInitPage(),
         ),
       ),
     );

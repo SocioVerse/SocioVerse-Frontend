@@ -21,6 +21,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: NavigatorPage.pages[_selectedIndex],

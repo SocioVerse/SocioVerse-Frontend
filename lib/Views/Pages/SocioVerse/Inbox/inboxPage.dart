@@ -37,6 +37,13 @@ class _InboxPageState extends State<InboxPage> {
     super.initState();
   }
 
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   void getInbox() async {
     search.addListener(() {
       if (search.text.isEmpty) {
