@@ -421,7 +421,9 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
         ? const NoPostYet()
         : Container(
             child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
+              physics: widget.shrinkWrap
+                  ? const NeverScrollableScrollPhysics()
+                  : const ClampingScrollPhysics(),
               shrinkWrap: widget.shrinkWrap,
               padding: const EdgeInsets.only(top: 10),
               itemCount: allThreads.length,

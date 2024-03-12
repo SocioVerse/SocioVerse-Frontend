@@ -1356,6 +1356,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: GridView.builder(
                               shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,

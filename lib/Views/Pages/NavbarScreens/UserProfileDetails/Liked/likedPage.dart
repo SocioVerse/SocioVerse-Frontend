@@ -8,6 +8,7 @@ import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 
 import '../../../../Widgets/Global/imageLoadingWidgets.dart';
 
@@ -157,8 +158,21 @@ class _LikedPageState extends State<LikedPage> {
                           return Stack(
                             children: [
                               Positioned.fill(
-                                child: RoundedNetworkImageWithLoading(
-                                  imageUrl: likedFeeds[index].images[0],
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CommentPage(
+                                          feedId: likedFeeds[index].id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: RoundedNetworkImageWithLoading(
+                                    gestureEnabled: false,
+                                    imageUrl: likedFeeds[index].images[0],
+                                  ),
                                 ),
                               ),
                               Positioned(

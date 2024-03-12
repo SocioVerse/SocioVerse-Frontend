@@ -10,6 +10,7 @@ import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
 class SavedPage extends StatefulWidget {
@@ -159,8 +160,21 @@ class _SavedPageState extends State<SavedPage> {
                           return Stack(
                             children: [
                               Positioned.fill(
-                                child: RoundedNetworkImageWithLoading(
-                                  imageUrl: savedFeeds[index].images[0],
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CommentPage(
+                                          feedId: savedFeeds[index].id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: RoundedNetworkImageWithLoading(
+                                    gestureEnabled: false,
+                                    imageUrl: savedFeeds[index].images[0],
+                                  ),
                                 ),
                               ),
                               Positioned(
