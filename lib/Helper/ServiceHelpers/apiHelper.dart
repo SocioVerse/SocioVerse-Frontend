@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/helpers/api_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Services/refresh_token_service.dart';
-
 import 'apiResponse.dart';
 import 'package:http/http.dart' as http;
-
 import '../ServiceHelpers/appExceptions.dart';
 
 class ApiHelper {

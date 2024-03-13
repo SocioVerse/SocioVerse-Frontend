@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityServices.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Models/activityModels.dart';
+import 'package:socioverse/Services/activity_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityWidgets.dart';
 
 import '../../../Widgets/buttons.dart';
@@ -58,11 +59,7 @@ class _ActivityPageState extends State<ActivityPage> {
       ),
       body: isLoading
           ? Center(
-              child: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              ),
+              child: SpinKit.ring,
             )
           : SingleChildScrollView(
               child: Padding(

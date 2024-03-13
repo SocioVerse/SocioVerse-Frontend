@@ -8,9 +8,10 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
@@ -1296,107 +1297,94 @@ class _FeedLayoutState extends State<FeedLayout> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         context: context,
         builder: (context) {
-          return Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                Icon(
-                  Icons.horizontal_rule_rounded,
-                  size: 50,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Divider(
-                  color: Theme.of(context).colorScheme.secondary,
-                  thickness: 2,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                FutureBuilder<List<User>>(
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Expanded(
-                        child: Center(
-                          child: SpinKitRing(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            lineWidth: 1,
-                            duration: const Duration(seconds: 1),
+          return SizedBox(
+            height: 300,
+            child: Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  Icon(
+                    Icons.horizontal_rule_rounded,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Divider(
+                    color: Theme.of(context).colorScheme.secondary,
+                    thickness: 2,
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  FutureBuilder<List<User>>(
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: SpinKit.ring,
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Error: ${snapshot.error}",
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                        ),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          "Error: ${snapshot.error}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      );
-                    }
+                        );
+                      }
 
-                    if (snapshot.hasData) {
-                      List<User> mentions = snapshot.data!;
-                      return Column(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 15.0, right: 15),
-                            child: Expanded(
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: mentions.length,
-                                  itemBuilder: (context, index) {
-                                    return ListTile(
-                                      onTap: () => Navigator.push(
-                                          context,
-                                          CupertinoPageRoute(
-                                              builder: (context) =>
-                                                  UserProfilePage(
-                                                    owner:
-                                                        mentions[index].isOwner,
-                                                    userId: mentions[index].id,
-                                                  ))),
-                                      leading: CircularNetworkImageWithSize(
-                                        imageUrl: mentions[index].profilePic,
-                                        height: 40,
-                                        width: 40,
-                                      ),
-                                      title: Text(
-                                        mentions[index].username,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .copyWith(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
-                                            ),
-                                      ),
-                                      subtitle: Text(
-                                        "Occupation",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(
-                                              fontSize: 14,
-                                            ),
-                                      ),
-                                    );
-                                  }),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                  future: FeedServices().fetchFeedMentions(feedId: feedId),
-                ),
-              ],
+                      if (snapshot.hasData) {
+                        List<User> mentions = snapshot.data!;
+                        return Expanded(
+                          child: ListView.builder(
+                              itemCount: mentions.length,
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  onTap: () => Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                          builder: (context) => UserProfilePage(
+                                                owner: mentions[index].isOwner,
+                                                userId: mentions[index].id,
+                                              ))),
+                                  leading: CircularNetworkImageWithSize(
+                                    imageUrl: mentions[index].profilePic,
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                  title: Text(
+                                    mentions[index].username,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 16,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  ),
+                                  subtitle: Text(
+                                    "Occupation",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall!
+                                        .copyWith(
+                                          fontSize: 14,
+                                        ),
+                                  ),
+                                );
+                              }),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                    future: FeedServices().fetchFeedMentions(feedId: feedId),
+                  ),
+                ],
+              ),
             ),
           );
         });

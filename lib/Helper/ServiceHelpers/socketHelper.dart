@@ -1,9 +1,8 @@
 import 'dart:developer';
-
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/helpers/api_constants.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketHelper {

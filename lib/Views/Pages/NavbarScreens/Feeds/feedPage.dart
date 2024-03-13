@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:socioverse/Helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/Helpers/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
@@ -164,8 +164,9 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                                       child: InkWell(
                                         onTap: () async {
                                           String? storyImage =
-                                              await ImagePickerFunctionsHelper()
-                                                  .requestStoryPicker(context)
+                                              await ImagePickerFunctionsHelper
+                                                      .requestStoryPicker(
+                                                          context)
                                                   .then((value) async {
                                             if (value != null) {
                                               return await FirebaseHelper

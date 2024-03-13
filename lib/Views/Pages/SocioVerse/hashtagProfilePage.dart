@@ -1,9 +1,10 @@
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagsServices.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Services/hashtags_services.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
@@ -270,11 +271,7 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
-                  child: SpinKitRing(
-                    color: Theme.of(context).colorScheme.tertiary,
-                    lineWidth: 1,
-                    duration: const Duration(seconds: 1),
-                  ),
+                  child: SpinKit.ring,
                 );
               }
               List<FeedThumbnail> feedThumbnail =

@@ -1101,11 +1101,7 @@
 //     return Scaffold(
 //       body: isLoading
 //           ? Center(
-//               child: SpinKitRing(
-//               color: Theme.of(context).colorScheme.tertiary,
-//               lineWidth: 1,
-//               duration: const Duration(seconds: 1),
-//             ))
+//               child: SpinKit.ring)
 //           : RefreshIndicator(
 //               onRefresh: () async {
 //                 await getUserProfileDetails();

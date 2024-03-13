@@ -1,7 +1,7 @@
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/api_constants.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/api_constants.dart';
+import 'package:socioverse/Models/activityModels.dart';
 
 class ActivityServices {
   ApiHelper _helper = ApiHelper();

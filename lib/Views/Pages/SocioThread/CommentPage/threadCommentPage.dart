@@ -1,12 +1,13 @@
 import 'dart:developer';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/commentPageWidget.dart';
-import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsModel.dart';
-import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentsServices.dart';
+import 'package:socioverse/Models/threadCommentsModel.dart';
+import 'package:socioverse/Services/thread_comments_services.dart';
 import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -96,12 +97,7 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
                 height: 20,
               ),
               isLoading == true
-                  ? Center(
-                      child: SpinKitRing(
-                      color: Theme.of(context).colorScheme.tertiary,
-                      lineWidth: 1,
-                      duration: const Duration(seconds: 1),
-                    ))
+                  ? Center(child: SpinKit.ring)
                   : CommentBuilder(
                       threadReplies: threadReplies,
                     ),

@@ -1,34 +1,30 @@
-import 'dart:developer';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagsServices.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/hashtagProfilePage.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Models/searchedUser.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/Services/search_bar_services.dart';
 
-class SearchHashtagPage extends StatefulWidget {
-  final List<HashtagsSearchModel>? hashtagList;
-  const SearchHashtagPage({Key? key, this.hashtagList}) : super(key: key);
+class TagPeoplePage extends StatefulWidget {
+  final List<SearchedUser>? taggedUser;
+  const TagPeoplePage({Key? key, this.taggedUser}) : super(key: key);
 
   @override
-  State<SearchHashtagPage> createState() => _SearchHashtagPageState();
+  State<TagPeoplePage> createState() => _TagPeoplePageState();
 }
 
-class _SearchHashtagPageState extends State<SearchHashtagPage> {
-  List<HashtagsSearchModel> searchedHashtags = [];
-  List<HashtagsSearchModel> selectedHashtags = [];
+class _TagPeoplePageState extends State<TagPeoplePage> {
+  List<SearchedUser> searchedUser = [];
+  List<SearchedUser> selectedUser = [];
   TextEditingController searchText = TextEditingController();
   bool isSearching = false;
   @override
   void initState() {
-    if (widget.hashtagList != null) {
-      selectedHashtags = widget.hashtagList!;
+    if (widget.taggedUser != null) {
+      selectedUser = widget.taggedUser!;
     }
     super.initState();
   }
@@ -40,64 +36,48 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
     }
   }
 
-  void getQueryhashtag() async {
+  void getQueryUser() async {
     setState(() {
       isSearching = true;
     });
     if (searchText.text.trim().isNotEmpty) {
-      searchedHashtags =
-          await HashtagsServices().getHashtags(hashtag: searchText.text);
-    } else {
-      searchedHashtags.clear();
-    }
-
-    if (searchedHashtags
-            .where((element) => element.hashtag == searchText.text.trim())
-            .isEmpty &&
-        searchText.text.trim().isNotEmpty) {
-      searchedHashtags.insert(
-        0,
-        HashtagsSearchModel(
-          id: UniqueKey().toString(),
-          hashtag: searchText.text.trim(),
-          postCount: 0,
-        ),
-      );
+      searchedUser = await SearchBarServices()
+          .fetchSearchedUser(searchQuery: searchText.text);
     }
     setState(() {
       isSearching = false;
     });
   }
 
-  ListTile hashtagsTile({required HashtagsSearchModel hashtag}) {
+  ListTile personListTile({
+    required SearchedUser user,
+  }) {
     return ListTile(
         onTap: () {},
-        leading: CircleAvatar(
-            radius: 30,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            child: Icon(
-              Icons.tag,
-              color: Theme.of(context).colorScheme.onPrimary,
-            )),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 40,
+            width: 40,
+            child: CircularNetworkImageWithSize(
+              imageUrl: user.profilePic,
+              height: 35,
+              width: 35,
+            ),
+          ),
+        ),
         title: Text(
-          hashtag.hashtag,
+          user.name,
           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                 fontSize: 16,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
         ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            hashtag.postCount < 100
-                ? hashtag.postCount <= 1
-                    ? "${hashtag.postCount} Post"
-                    : "${hashtag.postCount} Posts"
-                : "${CalculatingFunction.numberToMkConverter(hashtag.postCount.toDouble())} Posts",
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
+        subtitle: Text(
+          user.username,
+          style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                fontSize: 12,
+              ),
         ),
         trailing: Checkbox(
           shape: RoundedRectangleBorder(
@@ -107,16 +87,14 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                 width: 1.0,
                 color: Theme.of(context).colorScheme.tertiary,
               )),
-          value: selectedHashtags
-              .where((element) => element.hashtag == hashtag.hashtag)
-              .isNotEmpty,
+          value:
+              selectedUser.where((element) => element.id == user.id).isNotEmpty,
           onChanged: (value) {
             setState(() {
               if (value!) {
-                selectedHashtags.add(hashtag);
+                selectedUser.add(user);
               } else {
-                selectedHashtags.removeWhere(
-                    (element) => element.hashtag == hashtag.hashtag);
+                selectedUser.removeWhere((element) => element.id == user.id);
               }
             });
           },
@@ -128,7 +106,7 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Add Hashtags",
+          "Tag People",
           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -140,7 +118,7 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context, selectedHashtags);
+              Navigator.pop(context, selectedUser);
             },
             child: Text(
               "Done",
@@ -165,9 +143,9 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                   padding: const EdgeInsets.only(left: 10, right: 10),
                   child: TextFieldBuilder(
                     tcontroller: searchText,
-                    hintTexxt: "Search Hashtags...",
+                    hintTexxt: "Search User...",
                     onChangedf: () {
-                      getQueryhashtag();
+                      getQueryUser();
                     },
                     prefixxIcon: Icon(
                       Ionicons.search,
@@ -176,17 +154,17 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                selectedHashtags.isEmpty
+                selectedUser.isEmpty
                     ? const SizedBox.shrink()
                     : SizedBox(
                         height: 40,
                         child: ListView.separated(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
-                          itemCount: selectedHashtags.length,
+                          itemCount: selectedUser.length,
                           itemBuilder: (context, index) {
                             return Chip(
-                              label: Text(selectedHashtags[index].hashtag,
+                              label: Text(selectedUser[index].name,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -197,8 +175,8 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                                   Theme.of(context).colorScheme.secondary,
                               onDeleted: () {
                                 setState(() {
-                                  selectedHashtags.removeWhere((element) =>
-                                      element.id == selectedHashtags[index].id);
+                                  selectedUser.removeWhere((element) =>
+                                      element.id == selectedUser[index].id);
                                 });
                               },
                             );
@@ -216,31 +194,27 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                         children: [
                           const SizedBox(height: 20),
                           Center(
-                            child: SpinKitRing(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              lineWidth: 1,
-                              duration: const Duration(seconds: 1),
-                            ),
+                            child: SpinKit.ring,
                           ),
                         ],
                       )
-                    : searchedHashtags.isEmpty
+                    : searchedUser.isEmpty
                         ? const Column(
                             children: [
                               SizedBox(height: 20),
                               Center(
-                                child: Text("No hashtag Found"),
+                                child: Text("No User Found"),
                               ),
                             ],
                           )
                         : ListView.builder(
                             shrinkWrap: true,
-                            itemCount: searchedHashtags.length,
+                            itemCount: searchedUser.length,
                             physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) {
                               return Column(children: [
-                                hashtagsTile(
-                                  hashtag: searchedHashtags[index],
+                                personListTile(
+                                  user: searchedUser[index],
                                 ),
                                 const SizedBox(
                                   height: 10,

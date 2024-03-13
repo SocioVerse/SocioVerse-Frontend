@@ -1,11 +1,11 @@
 import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -141,8 +141,9 @@ class _StoriesScrollerState extends State<StoriesScroller> {
                                       child: InkWell(
                                         onTap: () async {
                                           String? storyImage =
-                                              await ImagePickerFunctionsHelper()
-                                                  .requestStoryPicker(context)
+                                              await ImagePickerFunctionsHelper
+                                                      .requestStoryPicker(
+                                                          context)
                                                   .then((value) async {
                                             if (value != null) {
                                               return await FirebaseHelper

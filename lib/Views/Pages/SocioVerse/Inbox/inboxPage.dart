@@ -4,13 +4,14 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/searchedUser.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxServices.dart';
+import 'package:socioverse/Models/inboxModel.dart';
+import 'package:socioverse/Services/inbox_services.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/requestInboxPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
@@ -457,11 +458,7 @@ class _InboxPageState extends State<InboxPage> {
                               },
                             )
                           : Center(
-                              child: SpinKitRing(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                lineWidth: 1,
-                                duration: const Duration(seconds: 1),
-                              ),
+                              child: SpinKit.ring,
                             ),
                 ],
               ),

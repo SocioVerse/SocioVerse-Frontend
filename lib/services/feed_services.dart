@@ -5,10 +5,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/newFeedModels.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentModel.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/api_constants.dart';
+import 'package:socioverse/Models/commentModel.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Helper/api_constants.dart';
+import 'package:socioverse/Models/authUserModels.dart';
+import 'package:socioverse/Models/userSignUpModel.dart';
 
 class FeedServices {
   ApiHelper _helper = ApiHelper();

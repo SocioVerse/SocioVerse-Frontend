@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
-import 'package:socioverse/Views/Pages/Welcome/welcome.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Views/Pages/welcome.dart';
 
 class GetInitPage extends StatelessWidget {
   const GetInitPage({super.key});
@@ -25,21 +24,16 @@ class GetInitPage extends StatelessWidget {
       builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data![0] == true) {
-            return MainPage();
+            return const MainPage();
           } else {
             if (snapshot.data![1] == true) {
-              return PasswordSignInPage();
+              return const PasswordSignInPage();
             } else {
-              return WelcomePage();
+              return const WelcomePage();
             }
           }
         } else {
-          return Scaffold(
-              body: SpinKitRing(
-            color: Theme.of(context).colorScheme.tertiary,
-            lineWidth: 1,
-            duration: const Duration(seconds: 1),
-          ));
+          return Scaffold(body: SpinKit.ring);
         }
       },
     );

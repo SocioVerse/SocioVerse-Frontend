@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestServices.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Models/followRequestModel.dart';
+import 'package:socioverse/Services/follow_request_services.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
 class FollowRequestsPage extends StatefulWidget {
@@ -55,12 +56,7 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
         elevation: 0,
       ),
       body: isLoading
-          ? Center(
-              child: SpinKitRing(
-              color: Theme.of(context).colorScheme.tertiary,
-              lineWidth: 1,
-              duration: const Duration(seconds: 1),
-            ))
+          ? Center(child: SpinKit.ring)
           : ListView.builder(
               itemCount: followRequestModel.length,
               itemBuilder: (context, index) {

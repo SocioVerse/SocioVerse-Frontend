@@ -9,8 +9,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ImagePickerFunctionsHelper {
-  final picker = ImagePicker();
-  Future<File?> pickImage(BuildContext context, {bool forStory = false}) async {
+  static final picker = ImagePicker();
+  static Future<File?> pickImage(BuildContext context,
+      {bool forStory = false}) async {
     print("Image Uploadinng.....");
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
@@ -47,7 +48,7 @@ class ImagePickerFunctionsHelper {
     }
   }
 
-  Future<List<File>?> pickMultipleImage(BuildContext context,
+  static Future<List<File>?> pickMultipleImage(BuildContext context,
       {bool forStory = false}) async {
     print("Image Uploading.....");
     final pickedFiles = await picker.pickMultiImage();
@@ -59,7 +60,7 @@ class ImagePickerFunctionsHelper {
     return null;
   }
 
-  Future<List<File>?> cropMultipleImages(
+  static Future<List<File>?> cropMultipleImages(
       BuildContext context, List<File> pickedFiles, bool forStory) async {
     print("Image Cropping.....");
     List<File> croppedFileList = [];
@@ -83,7 +84,7 @@ class ImagePickerFunctionsHelper {
     return croppedFileList;
   }
 
-  Future<File?> _cropImage(BuildContext context, String sourcePath,
+  static Future<File?> _cropImage(BuildContext context, String sourcePath,
       CropAspectRatio aspectRatio) async {
     try {
       CroppedFile? croppedFile = await ImageCropper().cropImage(
@@ -118,7 +119,7 @@ class ImagePickerFunctionsHelper {
     return null;
   }
 
-  void showPermissionError({required BuildContext context}) {
+  static void showPermissionError({required BuildContext context}) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -138,7 +139,7 @@ class ImagePickerFunctionsHelper {
     );
   }
 
-  Future<List<File>?> requestPermissionsAndPickMultipleFile(
+  static Future<List<File>?> requestPermissionsAndPickMultipleFile(
       BuildContext context) async {
     List<File>? image;
     var status = await Permission.storage.status;
@@ -169,7 +170,8 @@ class ImagePickerFunctionsHelper {
     return image;
   }
 
-  Future<File?> requestPermissionsAndPickFile(BuildContext context) async {
+  static Future<File?> requestPermissionsAndPickFile(
+      BuildContext context) async {
     File? image;
     var status = await Permission.storage.status;
     DeviceInfoPlugin plugin = DeviceInfoPlugin();
@@ -199,7 +201,7 @@ class ImagePickerFunctionsHelper {
     return image;
   }
 
-  Future<File?> requestStoryPicker(BuildContext context) async {
+  static Future<File?> requestStoryPicker(BuildContext context) async {
     File? image;
     var status = await Permission.storage.status;
     DeviceInfoPlugin plugin = DeviceInfoPlugin();

@@ -5,7 +5,6 @@ import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/threadReply.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';

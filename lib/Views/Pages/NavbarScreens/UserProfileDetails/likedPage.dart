@@ -1,33 +1,33 @@
-import 'dart:developer';
-
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
-import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
-class SavedPage extends StatefulWidget {
-  const SavedPage({super.key});
+import '../../../Widgets/Global/imageLoadingWidgets.dart';
+
+class LikedPage extends StatefulWidget {
+  const LikedPage({super.key});
 
   @override
-  State<SavedPage> createState() => _SavedPageState();
+  State<LikedPage> createState() => _LikedPageState();
 }
 
-class _SavedPageState extends State<SavedPage> {
+class _LikedPageState extends State<LikedPage> {
   bool isSavedThreadLoading = false;
   bool isSavedPostLoading = false;
-  List<ThreadModel> savedThreads = [];
-  List<FeedThumbnail> savedFeeds = [];
+  List<ThreadModel> likedThreads = [];
+  List<FeedThumbnail> likedFeeds = [];
   @override
   void initState() {
-    getSavedThreads();
+    getLikedThreads();
     super.initState();
   }
 
@@ -38,23 +38,23 @@ class _SavedPageState extends State<SavedPage> {
     }
   }
 
-  getSavedThreads() async {
+  getLikedThreads() async {
     setState(() {
       isSavedThreadLoading = true;
     });
-    savedThreads = await ThreadServices().getSavedThreads();
+    likedThreads = await ThreadServices().getLikedThreads();
     setState(() {
       isSavedThreadLoading = false;
     });
   }
 
-  getSavedFeeds() async {
+  getLikedFeeds() async {
     setState(() {
-      isSavedPostLoading = true;
+      isSavedThreadLoading = true;
     });
-    savedFeeds = await FeedServices().getSavedFeeds();
+    likedFeeds = await FeedServices().getLikedFeeds();
     setState(() {
-      isSavedPostLoading = false;
+      isSavedThreadLoading = false;
     });
   }
 
@@ -81,11 +81,10 @@ class _SavedPageState extends State<SavedPage> {
             indicatorWeight: 3,
             dividerColor: Theme.of(context).colorScheme.onPrimary,
             onTap: (value) {
-              log(value.toString());
               if (value == 0) {
-                getSavedThreads();
+                getLikedThreads();
               } else {
-                getSavedFeeds();
+                getLikedFeeds();
               }
             },
             tabs: const [
@@ -124,27 +123,21 @@ class _SavedPageState extends State<SavedPage> {
         body: TabBarView(
           children: [
             isSavedThreadLoading
-                ? const Expanded(
-                    child: Center(
-                        child: SpinKitRing(
-                      color: Colors.white,
-                      lineWidth: 1,
-                      duration: Duration(seconds: 1),
-                    )),
+                ? Expanded(
+                    child: Center(child: SpinKit.ring),
                   )
                 : ThreadViewBuilder(
-                    allThreads: savedThreads,
+                    allThreads: likedThreads,
                     shrinkWrap: true,
                   ),
             isSavedPostLoading
-                ? const Expanded(
-                    child: Center(
-                        child: SpinKitRing(
-                      color: Colors.white,
-                      lineWidth: 1,
-                      duration: Duration(seconds: 1),
-                    )),
-                  )
+                ? LayoutBuilder(builder: (context, constrant) {
+                    return SizedBox(
+                      height: constrant.maxHeight,
+                      width: constrant.maxWidth,
+                      child: Center(child: SpinKit.ring),
+                    );
+                  })
                 : Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: GridView.builder(
@@ -155,7 +148,7 @@ class _SavedPageState extends State<SavedPage> {
                           crossAxisSpacing: 5,
                           mainAxisSpacing: 5,
                         ),
-                        itemCount: savedFeeds.length,
+                        itemCount: likedFeeds.length,
                         itemBuilder: (context, index) {
                           return Stack(
                             children: [
@@ -166,14 +159,14 @@ class _SavedPageState extends State<SavedPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => CommentPage(
-                                          feedId: savedFeeds[index].id,
+                                          feedId: likedFeeds[index].id,
                                         ),
                                       ),
                                     );
                                   },
                                   child: RoundedNetworkImageWithLoading(
                                     gestureEnabled: false,
-                                    imageUrl: savedFeeds[index].images[0],
+                                    imageUrl: likedFeeds[index].images[0],
                                   ),
                                 ),
                               ),
@@ -197,7 +190,7 @@ class _SavedPageState extends State<SavedPage> {
                                     width: 20,
                                     child: RoundedNetworkImageWithLoading(
                                       imageUrl:
-                                          savedFeeds[index].userId.profilePic,
+                                          likedFeeds[index].userId.profilePic,
                                       borderRadius: 5,
                                     ),
                                   ),

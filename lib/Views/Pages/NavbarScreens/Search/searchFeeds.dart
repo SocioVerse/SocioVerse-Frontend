@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationService.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Models/hashtagModels.dart';
+import 'package:socioverse/Models/locationModel.dart';
+import 'package:socioverse/Services/location_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/hashtagProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/locationProfilePage.dart';
@@ -271,11 +272,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   Expanded(
                     child: searchText.text.isNotEmpty && isUserFetched == false
                         ? Center(
-                            child: SpinKitRing(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              lineWidth: 1,
-                              duration: const Duration(seconds: 1),
-                            ),
+                            child: SpinKit.ring,
                           )
                         : ListView.builder(
                             shrinkWrap: true,
@@ -309,11 +306,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return Center(
-                            child: SpinKitRing(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              lineWidth: 1,
-                              duration: const Duration(seconds: 1),
-                            ),
+                            child: SpinKit.ring,
                           );
                         }
                         List<FeedThumbnail> feedThumbnail =
@@ -375,11 +368,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   Expanded(
                     child: isSearchingHashtag
                         ? Center(
-                            child: SpinKitRing(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              lineWidth: 1,
-                              duration: const Duration(seconds: 1),
-                            ),
+                            child: SpinKit.ring,
                           )
                         : searchedHashtags.isEmpty
                             ? const Center(
@@ -450,11 +439,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   Expanded(
                     child: isSearchingLocation
                         ? Center(
-                            child: SpinKitRing(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              lineWidth: 1,
-                              duration: const Duration(seconds: 1),
-                            ),
+                            child: SpinKit.ring,
                           )
                         : searchedLocation.isEmpty
                             ? const Center(

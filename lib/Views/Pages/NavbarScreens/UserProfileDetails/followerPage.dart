@@ -2,8 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Services/followers_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
@@ -127,11 +128,7 @@ class _FollowersPageState extends State<FollowersPage> {
       ),
       body: isLoading
           ? Center(
-              child: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              ),
+              child: SpinKit.ring,
             )
           : ListView.builder(
               itemCount: _followersModelList!.length,

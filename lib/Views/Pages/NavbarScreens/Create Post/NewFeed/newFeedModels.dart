@@ -1,4 +1,4 @@
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
+import 'package:socioverse/Models/locationModel.dart';
 
 class FeedData {
   List<String> mentions;

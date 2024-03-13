@@ -10,15 +10,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Services/authentication_services.dart';
 import '../../Widgets/buttons.dart';
 
@@ -181,10 +181,9 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               iconSize: 30,
                               padding: const EdgeInsets.all(0),
                               onPressed: () async {
-                                currentImage =
-                                    await ImagePickerFunctionsHelper()
+                                currentImage = await ImagePickerFunctionsHelper
                                         .requestPermissionsAndPickFile(context)
-                                        .then((value) async {
+                                    .then((value) async {
                                   if (value != null) {
                                     setState(() {
                                       profileImageLoading = true;
@@ -315,9 +314,10 @@ class _FillProfilePageState extends State<FillProfilePage> {
                   children: [
                     TextButton(
                       onPressed: () async {
-                        faceImages = await ImagePickerFunctionsHelper()
-                            .pickMultipleImage(context)
-                            .then((value) async {
+                        faceImages =
+                            await ImagePickerFunctionsHelper.pickMultipleImage(
+                                    context)
+                                .then((value) async {
                           if (value != null) {
                             List<String> faceImagesList = [];
                             setState(() {
@@ -370,10 +370,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                       ),
                     ),
                     faceImageLoading == true
-                        ? SpinKitThreeBounce(
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20,
-                          )
+                        ? SpinKit.threeBounce
                         : faceImages != null
                             ? Icon(
                                 Icons.done,

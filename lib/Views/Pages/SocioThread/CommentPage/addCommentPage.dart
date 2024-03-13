@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
@@ -66,7 +66,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
       final textPainter = TextPainter(
         text: TextSpan(
           text: thread.textEditingController.text,
-          style: TextStyle(fontSize: 15),
+          style: const TextStyle(fontSize: 15),
         ),
         textDirection: TextDirection.ltr,
         maxLines: 100,
@@ -112,14 +112,10 @@ class _AddCommentPageState extends State<AddCommentPage> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ? Scaffold(
-            body: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1)))
+        ? Scaffold(body: SpinKit.ring)
         : Scaffold(
             appBar: AppBar(
-              backgroundColor: Color(0xFF1a1a22),
+              backgroundColor: const Color(0xFF1a1a22),
               elevation: 0.15,
               automaticallyImplyLeading: false,
               shadowColor: Colors.white,
@@ -196,7 +192,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                   width: 35,
                                 ),
                                 Container(
-                                  margin: EdgeInsets.only(top: 10),
+                                  margin: const EdgeInsets.only(top: 10),
                                   height: thread.isSelected
                                       ? thread.verticalDividerLength
                                       : thread.verticalDividerLength - 38,
@@ -209,7 +205,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                               ],
                             ),
                             Container(
-                              margin: EdgeInsets.only(left: 15),
+                              margin: const EdgeInsets.only(left: 15),
                               width: MediaQuery.of(context).size.width - 74,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,17 +216,17 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                     children: [
                                       Text(
                                         '${user[0].username}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       thread.textEditingController.text.isEmpty
-                                          ? SizedBox(width: 1)
+                                          ? const SizedBox(width: 1)
                                           : Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 10),
+                                              padding: const EdgeInsets.only(
+                                                  right: 10),
                                               child: GestureDetector(
                                                 onTap: () {
                                                   if (threads.length > 1) {
@@ -275,7 +271,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                     autofocus: true,
                                     maxLines: null,
                                     cursorColor: Colors.white,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 15,
                                       color: Colors.white,
                                     ),
@@ -286,7 +282,8 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                         color: Colors.grey.shade600,
                                       ),
                                       contentPadding:
-                                          EdgeInsets.symmetric(vertical: 5),
+                                          const EdgeInsets.symmetric(
+                                              vertical: 5),
                                       focusedBorder: InputBorder.none,
                                       enabledBorder: InputBorder.none,
                                     ),
@@ -313,7 +310,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                       });
                                     },
                                   ),
-                                  SizedBox(height: 0),
+                                  const SizedBox(height: 0),
                                   thread.isUploading == true
                                       ? LinearProgressIndicator(
                                           color: Theme.of(context)
@@ -363,7 +360,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                                             .removeAt(index);
                                                       });
                                                     },
-                                                    icon: Icon(
+                                                    icon: const Icon(
                                                       Icons.remove_circle,
                                                       color: Colors.red,
                                                     ),
@@ -375,11 +372,12 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                         ),
                                   thread.isSelected
                                       ? Padding(
-                                          padding: EdgeInsets.only(top: 12),
+                                          padding:
+                                              const EdgeInsets.only(top: 12),
                                           child: GestureDetector(
                                             onTap: () async {
                                               List<File>? images =
-                                                  await ImagePickerFunctionsHelper()
+                                                  await ImagePickerFunctionsHelper
                                                       .pickMultipleImage(
                                                           context);
 
@@ -400,7 +398,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                                   String url = await FirebaseHelper
                                                       .uploadFile(
                                                           images[i].path,
-                                                          "${Uuid().v4()}",
+                                                          "${const Uuid().v4()}",
                                                           "${user[0].email}/threads",
                                                           FirebaseHelper.Image);
                                                   thread.images.add(url);
@@ -410,14 +408,14 @@ class _AddCommentPageState extends State<AddCommentPage> {
                                                 thread.isUploading = false;
                                               });
                                             },
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.photo_library_rounded,
                                               color: Color.fromARGB(
                                                   137, 245, 201, 201),
                                             ),
                                           ),
                                         )
-                                      : SizedBox(height: 0),
+                                      : const SizedBox(height: 0),
                                 ],
                               ),
                             )

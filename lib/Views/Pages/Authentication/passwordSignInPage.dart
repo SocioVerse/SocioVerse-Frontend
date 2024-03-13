@@ -5,13 +5,13 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Views/Pages/Authentication/forgotPassword.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Services/authentication_services.dart';
 
 import '../../Widgets/buttons.dart';

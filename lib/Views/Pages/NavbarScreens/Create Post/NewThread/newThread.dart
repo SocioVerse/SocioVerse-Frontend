@@ -6,14 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:pinput/pinput.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
@@ -112,12 +113,7 @@ class _NewThreadState extends State<NewThread> {
   @override
   Widget build(BuildContext context) {
     return user.isEmpty
-        ? Scaffold(
-            body: SpinKitRing(
-            color: Theme.of(context).colorScheme.tertiary,
-            lineWidth: 1,
-            duration: const Duration(seconds: 1),
-          ))
+        ? Scaffold(body: SpinKit.ring)
         : Scaffold(
             appBar: AppBar(
               backgroundColor: const Color(0xFF1a1a22),
@@ -357,7 +353,7 @@ class _NewThreadState extends State<NewThread> {
                                           child: GestureDetector(
                                             onTap: () async {
                                               List<File>? images =
-                                                  await ImagePickerFunctionsHelper()
+                                                  await ImagePickerFunctionsHelper
                                                       .pickMultipleImage(
                                                           context);
 

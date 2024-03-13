@@ -1,8 +1,8 @@
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/api_constants.dart';
+import 'package:socioverse/Models/activityModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/api_constants.dart';
 
 class FollowersServices {
   ApiHelper _helper = ApiHelper();
