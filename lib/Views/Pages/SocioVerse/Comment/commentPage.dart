@@ -2,10 +2,11 @@ import 'dart:math';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentModel.dart';
+import 'package:socioverse/Models/commentModel.dart';
 import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -146,11 +147,7 @@ class _CommentPageState extends State<CommentPage> {
       ),
       body: isLoading == true
           ? Center(
-              child: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              ),
+              child: SpinKit.ring,
             )
           : Stack(
               children: [
@@ -166,11 +163,7 @@ class _CommentPageState extends State<CommentPage> {
                       ),
                       isLoading
                           ? Center(
-                              child: SpinKitRing(
-                                color: Theme.of(context).colorScheme.tertiary,
-                                lineWidth: 1,
-                                duration: const Duration(seconds: 1),
-                              ),
+                              child: SpinKit.ring,
                             )
                           : ListView.builder(
                               shrinkWrap: true,
@@ -350,11 +343,7 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
                 ),
                 isLoading
                     ? Center(
-                        child: SpinKitRing(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          lineWidth: 1,
-                          duration: const Duration(seconds: 1),
-                        ),
+                        child: SpinKit.ring,
                       )
                     : ListView.builder(
                         shrinkWrap: true,

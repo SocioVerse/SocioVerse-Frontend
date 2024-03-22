@@ -1,11 +1,9 @@
 import 'dart:developer';
 
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/chatModels.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/helpers/api_constants.dart';
 
 class ChattingServices {
   final ApiHelper _helper = ApiHelper();

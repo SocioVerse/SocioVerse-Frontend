@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:socioverse/Helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/Helpers/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/storyModels.dart';
+import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/stories_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
@@ -30,12 +32,10 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
   List<ProfileStoryModel> profileStories = [];
   bool isLoading = false;
   List<FeedModel> allFeeds = [];
+  List<ThreadModel> allThreads = [];
+  int __value1 = 1;
   @override
   void initState() {
-    _showAppbar = true;
-    _scrollController.addListener(() {
-      _scrollListener();
-    });
     getFeedData();
     super.initState();
   }
@@ -47,35 +47,25 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     }
   }
 
-  void _scrollListener() {
-    if (_scrollController.offset > _previousOffset) {
-      // User is scrolling downward, hide the app bar
-      if (_showAppbar) {
-        setState(() {
-          _showAppbar = false;
-        });
-      }
-    } else {
-      // User is scrolling upward, show the app bar
-      if (!_showAppbar) {
-        setState(() {
-          _showAppbar = true;
-        });
-      }
-    }
-    _previousOffset = _scrollController.offset;
-  }
-
   getFeedData() async {
     setState(() {
       isLoading = true;
     });
-    List<dynamic> feeds = await Future.wait([
-      StoriesServices().fetchAllStories(),
-      FeedServices().getFollowingFeeds()
-    ]);
-    profileStories = feeds[0] as List<ProfileStoryModel>;
-    allFeeds = feeds[1] as List<FeedModel>;
+    if (__value1 == 1) {
+      List<dynamic> feeds = await Future.wait([
+        StoriesServices().fetchAllStories(),
+        FeedServices().getFollowingFeeds()
+      ]);
+      profileStories = feeds[0] as List<ProfileStoryModel>;
+      allFeeds = feeds[1] as List<FeedModel>;
+    } else {
+      List<dynamic> feeds = await Future.wait([
+        StoriesServices().fetchAllStories(),
+        ThreadServices().getFollowingThreads()
+      ]);
+      profileStories = feeds[0] as List<ProfileStoryModel>;
+      allThreads = feeds[1] as List<ThreadModel>;
+    }
     setState(() {
       isLoading = false;
     });
@@ -174,8 +164,9 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                                       child: InkWell(
                                         onTap: () async {
                                           String? storyImage =
-                                              await ImagePickerFunctionsHelper()
-                                                  .requestStoryPicker(context)
+                                              await ImagePickerFunctionsHelper
+                                                      .requestStoryPicker(
+                                                          context)
                                                   .then((value) async {
                                             if (value != null) {
                                               return await FirebaseHelper
@@ -269,6 +260,40 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
           );
   }
 
+  Widget threadViewBuilder() {
+    return isLoading == false
+        ? allThreads.isEmpty
+            ? const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 80,
+                  ),
+                  AllCaughtUp(),
+                ],
+              )
+            : ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                padding: const EdgeInsets.only(top: 10),
+                itemCount: allThreads.length,
+                itemBuilder: (context, index) {
+                  return ThreadLayout(
+                    thread: allThreads[index],
+                  );
+                },
+              )
+        : ListView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(top: 10),
+            itemCount: 2,
+            itemBuilder: (context, index) {
+              return ThreadShimmer();
+            },
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -302,6 +327,81 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                   //   },
                   //   icon: Icon(Ionicons.link),
                   // ),
+                  DropdownButton(
+                    dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+                    focusColor: Theme.of(context).scaffoldBackgroundColor,
+                    underline: const SizedBox.shrink(),
+                    value: __value1,
+                    alignment: Alignment.centerRight,
+                    items: [
+                      DropdownMenuItem(
+                        value: 1,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(3.0),
+                              child: Icon(
+                                Ionicons.grid_outline,
+                                size: 15,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "Feeds",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 2,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(3.0),
+                              child: Icon(
+                                Ionicons.text,
+                                size: 15,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "Threads",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        __value1 = value as int;
+                        getFeedData();
+                      });
+                    },
+                  ),
                   IconButton(
                     onPressed: () {
                       Navigator.push(context,
@@ -329,7 +429,7 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
                       height: 0,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
-                    feedViewBuilder(),
+                    __value1 == 1 ? feedViewBuilder() : threadViewBuilder(),
                     // Add more widgets as needed
                   ],
                 ),

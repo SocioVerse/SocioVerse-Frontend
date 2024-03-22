@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart';
+import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
 class RoomInfoPage extends StatefulWidget {

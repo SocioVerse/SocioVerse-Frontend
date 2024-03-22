@@ -50,6 +50,28 @@ class CalculatingFunction {
     return '$daysAgo days';
   }
 
+  static bool isStrongPassword(String password) {
+    RegExp passwordPattern = RegExp(
+      r'^(?=.*[A-Z])' // At least one uppercase letter
+      r'(?=.*[a-z])' // At least one lowercase letter
+      r'(?=.*?[0-9])' // At least one digit
+      r'.{8,}$', // At least 8 characters long
+    );
+
+    return passwordPattern.hasMatch(password);
+  }
+
+  static bool isEmailValid(String email) {
+    RegExp emailPattern = RegExp(
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+      caseSensitive: false,
+      multiLine: false,
+    );
+
+    // Check if the email matches the pattern
+    return emailPattern.hasMatch(email);
+  }
+
   static String getDay(DateTime dateTime) {
     DateTime now = DateTime.now().toLocal();
 

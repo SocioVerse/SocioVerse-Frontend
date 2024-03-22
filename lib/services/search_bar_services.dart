@@ -1,10 +1,10 @@
+import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/feedModel.dart';
+import 'package:socioverse/Models/hashtagModels.dart';
+import 'package:socioverse/Models/locationModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/api_constants.dart';
 
 class SearchBarServices {
   ApiHelper _helper = ApiHelper();

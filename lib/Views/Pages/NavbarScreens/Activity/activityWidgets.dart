@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/FollowRequests/followRequestsPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/followRequestsPage.dart';
+import 'package:socioverse/Models/activityModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';

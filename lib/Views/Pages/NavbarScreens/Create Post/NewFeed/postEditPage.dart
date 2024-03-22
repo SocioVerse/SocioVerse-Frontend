@@ -5,18 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/searchedUser.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/hashtagModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Hashtag/searchHashtagsPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationSearchPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Tag%20People/tagPeoplePage.dart';
+import 'package:socioverse/Models/hashtagModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/searchHashtagsPage.dart';
+import 'package:socioverse/Models/locationModel.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/locationSearchPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/tagPeoplePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/newFeedModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/user_services.dart';
 import 'package:uuid/uuid.dart';
@@ -127,11 +126,7 @@ class _PostEditPageState extends State<PostEditPage> {
         ],
       ),
       body: userEmail == null
-          ? SpinKitRing(
-              color: Theme.of(context).colorScheme.tertiary,
-              lineWidth: 1,
-              duration: const Duration(seconds: 1),
-            )
+          ? SpinKit.ring
           : SingleChildScrollView(
               child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),

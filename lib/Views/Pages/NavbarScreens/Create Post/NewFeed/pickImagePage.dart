@@ -4,8 +4,9 @@ import 'dart:typed_data';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/postEditPage.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -156,8 +157,8 @@ class _PickImagePageState extends State<PickImagePage> {
                     files.add(value);
                   }
                 }
-                ImagePickerFunctionsHelper()
-                    .cropMultipleImages(context, files, false)
+                ImagePickerFunctionsHelper.cropMultipleImages(
+                        context, files, false)
                     .then((value) {
                   if (value != null) {
                     Navigator.push(
@@ -179,11 +180,7 @@ class _PickImagePageState extends State<PickImagePage> {
       ),
       body: isStatus == false
           ? Center(
-              child: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              ),
+              child: SpinKit.ring,
             )
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10.0),

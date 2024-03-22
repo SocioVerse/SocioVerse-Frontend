@@ -119,3 +119,79 @@ class TextFieldBuilder2 extends StatelessWidget {
     );
   }
 }
+
+class CustomInputField extends StatelessWidget {
+  final TextEditingController controller;
+  final String hintText;
+  final IconData prefixIcon;
+  final Widget? suffixIcon;
+  final bool obscureText;
+  final ValueChanged<String>? onChanged;
+
+  const CustomInputField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.prefixIcon,
+    this.suffixIcon,
+    this.obscureText = false,
+    this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      cursorOpacityAnimates: true,
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.surface,
+          ),
+      obscureText: obscureText,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        filled: true,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Icon(
+            prefixIcon,
+            size: 20,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        suffixIcon: suffixIcon != null
+            ? IconButton(
+                padding: const EdgeInsets.only(right: 20),
+                onPressed: () {
+                  if (suffixIcon != null && onChanged != null) {
+                    onChanged!('');
+                  }
+                },
+                icon: suffixIcon!,
+              )
+            : null,
+        fillColor: Theme.of(context).colorScheme.secondary,
+        hintText: hintText,
+        hintStyle:
+            Theme.of(context).textTheme.bodyMedium!.copyWith(fontSize: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}

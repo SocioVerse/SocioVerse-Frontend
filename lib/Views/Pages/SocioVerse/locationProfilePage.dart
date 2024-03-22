@@ -1,15 +1,16 @@
 import 'dart:ffi';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:recase/recase.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/Location/locationService.dart';
+import 'package:socioverse/Models/locationModel.dart';
+import 'package:socioverse/Services/location_services.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
@@ -28,7 +29,6 @@ class LocationProfilePage extends StatefulWidget {
 
 class _LocationProfilePageState extends State<LocationProfilePage> {
   int __value = 1;
-  int __value1 = 1;
   @override
   void setState(fn) {
     if (mounted) {
@@ -348,11 +348,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: SpinKitRing(
-                        color: Theme.of(context).colorScheme.tertiary,
-                        lineWidth: 1,
-                        duration: const Duration(seconds: 1),
-                      ),
+                      child: SpinKit.ring,
                     );
                   }
                   List<FeedThumbnail> feedThumbnail =

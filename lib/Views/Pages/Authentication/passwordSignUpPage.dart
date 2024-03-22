@@ -6,14 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Models/authUserModels.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Utils/Validators.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Services/authentication_services.dart';
+import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 
 class PasswordSignUpPage extends StatefulWidget {
   const PasswordSignUpPage({super.key});
@@ -31,13 +36,6 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
   void initState() {
     setBooleanIntoCache(SharedPreferenceString.isIntroDone, true);
     super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
   }
 
   @override
@@ -70,133 +68,56 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
               const SizedBox(
                 height: 40,
               ),
-              TextField(
+              CustomInputField(
                 controller: emailController,
-                cursorOpacityAnimates: true,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16, color: Theme.of(context).colorScheme.surface),
-                decoration: InputDecoration(
-                  filled: true,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Icon(
-                      Icons.mail_rounded,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
-                  fillColor: Theme.of(context).colorScheme.secondary,
-                  hintText: "Email",
-                  hintStyle: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(fontSize: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
+                prefixIcon: Icons.mail_rounded,
+                hintText: "Email",
               ),
               const SizedBox(
                 height: 20,
               ),
-              TextField(
-                controller: passwordController,
-                cursorOpacityAnimates: true,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16, color: Theme.of(context).colorScheme.surface),
-                obscureText: isPasswordVisible ? true : false,
-                decoration: InputDecoration(
-                  filled: true,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Icon(
-                      Icons.lock_rounded,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
-                  fillColor: Theme.of(context).colorScheme.secondary,
-                  hintText: "Password",
-                  hintStyle: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(fontSize: 16),
-                  suffixIcon: IconButton(
-                    padding: const EdgeInsets.only(right: 20),
-                    onPressed: () {
-                      setState(() {
-                        isPasswordVisible = !isPasswordVisible;
-                      });
-                    },
-                    icon: Icon(
-                      isPasswordVisible
-                          ? Icons.visibility_off_rounded
-                          : Icons.visibility_rounded,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
+              Consumer<PasswordSignUpPageProvider>(
+                  builder: (context, provider, child) => CustomInputField(
+                        controller: passwordController,
+                        obscureText: provider.isObscure ? true : false,
+                        prefixIcon: Icons.lock_rounded,
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            provider.isObscure = !provider.isObscure;
+                          },
+                          child: Icon(
+                            provider.isObscure
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                        hintText: "Password",
+                      )),
               const SizedBox(
                 height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Checkbox(
-                      value: isChecked,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      checkColor: Theme.of(context).colorScheme.surface,
-                      fillColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.secondary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: BorderSide(
-                          width: 2,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                  Consumer<PasswordSignUpPageProvider>(
+                    builder: (context, provider, child) => Checkbox(
+                        value: provider.isRememberMe,
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        checkColor: Theme.of(context).colorScheme.surface,
+                        fillColor: MaterialStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.secondary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          isChecked = value!;
-                          print(value);
-                        });
-                      }),
+                        onChanged: (value) {
+                          provider.isRememberMe = value!;
+                        }),
+                  ),
                   Text(
                     "Remember me",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -218,6 +139,11 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                     ),
                   ),
                   onPressed: () async {
+                    bool isValid = ValidationHelper.validateEmailAndPassword(
+                        context,
+                        emailController.text.trim(),
+                        passwordController.text.trim());
+                    if (!isValid) return;
                     ApiResponse response = await AuthServices()
                         .isEmailExists(email: emailController.text.trim());
                     if (response.success == true) {
@@ -282,58 +208,49 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Icon(
-                        Icons.facebook_rounded,
-                        color: Colors.blue,
-                        size: 35,
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                  ),
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Icon(
-                        Ionicons.logo_google,
-                        color: Colors.white,
-                        size: 35,
-                      ),
+                    onPressed: () {},
+                    child: const Icon(
+                      Icons.facebook_rounded,
+                      color: Colors.blue,
+                      size: 35,
                     ),
                   ),
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      onPressed: () {},
-                      child: const Icon(
-                        Ionicons.logo_apple,
-                        color: Colors.white,
-                        size: 35,
+                    ),
+                    onPressed: () {},
+                    child: const Icon(
+                      Ionicons.logo_google,
+                      color: Colors.white,
+                      size: 35,
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
+                    ),
+                    onPressed: () {},
+                    child: const Icon(
+                      Ionicons.logo_apple,
+                      color: Colors.white,
+                      size: 35,
                     ),
                   ),
                 ],

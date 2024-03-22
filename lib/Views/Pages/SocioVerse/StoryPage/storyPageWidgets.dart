@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
@@ -94,11 +95,7 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Expanded(
                         child: Center(
-                          child: SpinKitRing(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            lineWidth: 1,
-                            duration: const Duration(seconds: 1),
-                          ),
+                          child: SpinKit.ring,
                         ),
                       );
                     } else {

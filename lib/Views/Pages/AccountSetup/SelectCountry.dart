@@ -1,8 +1,9 @@
 import 'dart:developer';
 
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/countryListPageProvider.dart';
 import 'package:socioverse/Models/authUserModels.dart';
-import 'package:socioverse/Utils/CountryList.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
@@ -20,19 +21,10 @@ class SelectCountryPage extends StatefulWidget {
 class _SelectCountryPageState extends State<SelectCountryPage> {
   TextEditingController searchCountry = TextEditingController();
   int selectCountry = 0;
-  late List<MapEntry<String, String>> CountryList;
   @override
   void initState() {
     super.initState();
     selectCountry = 0;
-    CountryList = Country.entries.toList();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
   }
 
   @override
@@ -40,19 +32,22 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
     return Scaffold(
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 4, left: 8, right: 8, top: 0),
-        child: MyElevatedButton1(
-            title: "Continue",
-            onPressed: () {
-              widget.signupUser.country = CountryList[selectCountry].value;
+        child: Consumer<CountryListProvider>(builder: (context, prov, child) {
+          return MyElevatedButton1(
+              title: "Continue",
+              onPressed: () {
+                widget.signupUser.country =
+                    prov.countryList[selectCountry].value;
 
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FillProfilePage(
-                            signupUser: widget.signupUser,
-                          )));
-            },
-            ctx: context),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FillProfilePage(
+                              signupUser: widget.signupUser,
+                            )));
+              },
+              ctx: context);
+        }),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
@@ -71,144 +66,144 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
-              controller: searchCountry,
-              onChanged: (value) {
-                setState(() {
-                  CountryList = Country.entries
-                      .where((element) => element.value
-                          .toLowerCase()
-                          .contains(value.toLowerCase()))
-                      .toList();
-                });
-              },
-              cursorOpacityAnimates: true,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16, color: Theme.of(context).colorScheme.surface),
-              decoration: InputDecoration(
-                filled: true,
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Icon(
-                    Ionicons.search,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.surface,
+            Consumer<CountryListProvider>(builder: (context, prov, child) {
+              return TextField(
+                controller: searchCountry,
+                onChanged: (value) {
+                  prov.onChangedDSearch(value);
+                },
+                cursorOpacityAnimates: true,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 16, color: Theme.of(context).colorScheme.surface),
+                decoration: InputDecoration(
+                  filled: true,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Icon(
+                      Ionicons.search,
+                      size: 20,
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                  ),
+                  fillColor: Theme.of(context).colorScheme.secondary,
+                  hintText: "Search",
+                  hintStyle: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(fontSize: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  ),
+                  focusColor: Theme.of(context).colorScheme.primary,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
                 ),
-                fillColor: Theme.of(context).colorScheme.secondary,
-                hintText: "Search",
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontSize: 16),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                focusColor: Theme.of(context).colorScheme.primary,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
+              );
+            }),
+            const SizedBox(
               height: 20,
             ),
-            CountryList.length != 0
-                ? Expanded(
-                    child: ListView.builder(
-                      itemCount: CountryList.length,
-                      itemBuilder: (context, index) {
-                        String path =
-                            "assets/Country_flag/${CountryList[index].key.toLowerCase()}.png";
-                        return Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: ListTile(
-                            onTap: () => {
-                              setState(() {
-                                selectCountry = index;
-                              })
-                            },
-                            shape: RoundedRectangleBorder(
-                              side: selectCountry == index
-                                  ? BorderSide(
-                                      width: 2,
-                                      color:
-                                          Theme.of(context).colorScheme.primary)
-                                  : BorderSide(width: 0),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            contentPadding: EdgeInsets.all(20),
-                            tileColor: Theme.of(context).colorScheme.secondary,
-                            leading: CircleAvatar(
-                              radius: 25,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.background,
-                              backgroundImage: AssetImage(
-                                path,
-                              ),
-                            ),
-                            title: Wrap(
-                              children: [
-                                Text(
-                                  CountryList[index].key,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        fontSize: 16,
-                                      ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  CountryList[index].value,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        fontSize: 16,
+            Consumer<CountryListProvider>(builder: (context, prov, child) {
+              return prov.countryList.length != 0
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: prov.countryList.length,
+                        itemBuilder: (context, index) {
+                          String path =
+                              "assets/Country_flag/${prov.countryList[index].key.toLowerCase()}.png";
+                          return Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: ListTile(
+                              onTap: () => {
+                                setState(() {
+                                  selectCountry = index;
+                                })
+                              },
+                              shape: RoundedRectangleBorder(
+                                side: selectCountry == index
+                                    ? BorderSide(
+                                        width: 2,
                                         color: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary,
-                                      ),
+                                            .primary)
+                                    : const BorderSide(width: 0),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              contentPadding: const EdgeInsets.all(20),
+                              tileColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              leading: CircleAvatar(
+                                radius: 25,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.background,
+                                backgroundImage: AssetImage(
+                                  path,
                                 ),
-                              ],
+                              ),
+                              title: Wrap(
+                                children: [
+                                  Text(
+                                    prov.countryList[index].key,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 16,
+                                        ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    prov.countryList[index].value,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 16,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Radio(
+                                  value: index,
+                                  activeColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  groupValue: selectCountry,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      selectCountry = value!;
+                                    });
+                                  }),
                             ),
-                            trailing: Radio(
-                                value: index,
-                                activeColor:
-                                    Theme.of(context).colorScheme.primary,
-                                groupValue: selectCountry,
-                                onChanged: (value) {
-                                  setState(() {
-                                    selectCountry = value!;
-                                  });
-                                }),
+                          );
+                        },
+                      ),
+                    )
+                  : Text(
+                      "No Country Found",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 16,
+                            color: Theme.of(context).colorScheme.onPrimary,
                           ),
-                        );
-                      },
-                    ),
-                  )
-                : Text(
-                    "No Country Found",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  ),
+                    );
+            }),
           ],
         ),
       ),

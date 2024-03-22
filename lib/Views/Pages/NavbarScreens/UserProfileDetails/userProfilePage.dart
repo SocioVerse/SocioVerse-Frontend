@@ -3,15 +3,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Followers/followerPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Following/followingPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Liked/likedPage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/Saved/savedPage.dart';
+import 'package:socioverse/Services/user_profile_services.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followerPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followingPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/likedPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/savedPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/updateProfilePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileServices.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
 
@@ -21,14 +22,11 @@ import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart'
-    as inboxModel;
+import 'package:socioverse/Models/inboxModel.dart' as inboxModel;
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
 import 'package:socioverse/Services/authentication_services.dart';
 import 'package:socioverse/Services/follow_unfollow_services.dart';
@@ -810,12 +808,7 @@ class _UserProfilePageState extends State<UserProfilePage>
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? Center(
-              child: SpinKitRing(
-              color: Theme.of(context).colorScheme.tertiary,
-              lineWidth: 1,
-              duration: const Duration(seconds: 1),
-            ))
+          ? Center(child: SpinKit.ring)
           : RefreshIndicator(
               onRefresh: () async {
                 await getUserProfileDetails();
@@ -1335,12 +1328,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(
-                            child: SpinKitRing(
-                              color: Colors.white,
-                              lineWidth: 1,
-                              duration: Duration(seconds: 1),
-                            ),
+                          return Center(
+                            child: SpinKit.ring,
                           );
                         }
                         if (snapshot.hasError) {
@@ -1356,6 +1345,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: GridView.builder(
                               shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
@@ -1388,12 +1378,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const Center(
-                              child: SpinKitRing(
-                                color: Colors.white,
-                                lineWidth: 1,
-                                duration: Duration(seconds: 1),
-                              ),
+                            return Center(
+                              child: SpinKit.ring,
                             );
                           }
                           if (snapshot.hasError) {

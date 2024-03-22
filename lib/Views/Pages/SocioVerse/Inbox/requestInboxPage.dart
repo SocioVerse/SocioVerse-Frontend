@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxModel.dart';
+import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 
 class RequestInboxPage extends StatefulWidget {

@@ -1,34 +1,28 @@
 import 'dart:async';
-import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/ServiceHelpers/socketHelper.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Models/chatModels.dart';
-import 'package:socioverse/Utils/calculatingFunctions.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
+import 'package:socioverse/Models/inboxModel.dart';
+import 'package:socioverse/Services/chatting_services.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/roomInfoPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/socketHelper.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/helpers/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/helpers/api_constants.dart';
 import 'package:socioverse/main.dart';
-import 'package:socioverse/Services/chatting_services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uuid/uuid.dart';
-
-import '../Inbox/inboxModel.dart';
 
 class ChatPage extends StatefulWidget {
   final User user;
@@ -47,8 +41,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    print('here');
-
     getRoomInfo();
   }
 
@@ -95,7 +87,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _scrollToBottomAndEmitSeenMessages() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (scrollChat.hasClients) {
         scrollChat.jumpTo(
           scrollChat.position.maxScrollExtent,
@@ -159,7 +151,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleNewMessage(dynamic data, String userId, String roomId) {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       if (scrollChat.hasClients) {
         scrollChat.jumpTo(
           scrollChat.position.maxScrollExtent,
@@ -413,7 +405,7 @@ class _ChatPageState extends State<ChatPage> {
               child: Row(
                 children: [
                   CircularNetworkImageWithSize(
-                    imageUrl: widget.user!.profilePic,
+                    imageUrl: widget.user.profilePic,
                     height: 40,
                     width: 40,
                   ),
@@ -424,7 +416,7 @@ class _ChatPageState extends State<ChatPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.user!.name,
+                        widget.user.name,
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                               fontWeight: FontWeight.w500,
                               fontSize: 16,
@@ -447,7 +439,7 @@ class _ChatPageState extends State<ChatPage> {
                                       ),
                                 )
                               : Text(
-                                  widget.user!.username,
+                                  widget.user.username,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
@@ -490,11 +482,7 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: isLoading
           ? Center(
-              child: SpinKitRing(
-                color: Theme.of(context).colorScheme.tertiary,
-                lineWidth: 1,
-                duration: const Duration(seconds: 1),
-              ),
+              child: SpinKit.ring,
             )
           : Column(children: [
               Expanded(
@@ -611,8 +599,7 @@ class ChatInputWidget extends StatefulWidget {
   final String roomId;
   final IO.Socket socketHelper;
   const ChatInputWidget(
-      {Key? key, required this.roomId, required this.socketHelper})
-      : super(key: key);
+      {super.key, required this.roomId, required this.socketHelper});
 
   @override
   _ChatInputWidgetState createState() => _ChatInputWidgetState();
@@ -670,7 +657,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
           IconButton(
             onPressed: () async {
               List<File>? images =
-                  await ImagePickerFunctionsHelper().pickMultipleImage(context);
+                  await ImagePickerFunctionsHelper.pickMultipleImage(context);
 
               if (images != null) {
                 for (int i = 0; i < images.length; i++) {

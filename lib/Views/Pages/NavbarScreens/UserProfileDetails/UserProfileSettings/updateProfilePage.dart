@@ -9,14 +9,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/userProfileSettingsServices.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Services/user_profile_settings_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
-import 'package:socioverse/helpers/FirebaseHelper/firebaseHelperFunctions.dart';
-import 'package:socioverse/helpers/ImagePickerHelper/imagePickerHelper.dart';
-import 'package:socioverse/helpers/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Services/authentication_services.dart';
 
 class UpdateProfilePage extends StatefulWidget {
@@ -177,9 +176,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                               iconSize: 30,
                               padding: EdgeInsets.all(0),
                               onPressed: () async {
-                                profileImage =
-                                    await ImagePickerFunctionsHelper()
-                                        .requestPermissionsAndPickFile(context);
+                                profileImage = await ImagePickerFunctionsHelper
+                                    .requestPermissionsAndPickFile(context);
 
                                 print(currentImage.toString());
                                 if (currentImage != null) {
