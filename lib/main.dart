@@ -1,22 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:face_camera/face_camera.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/countryListPageProvider.dart';
+import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
+import 'package:socioverse/Controllers/multiProviderList.dart';
+import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
+import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
+import 'package:socioverse/Controllers/welcomePageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
-import 'package:socioverse/Helper/get_Routes.dart';
-import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
-import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
-import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Pages/welcome.dart';
 import 'package:socioverse/Views/UI/theme.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:socioverse/push_notifications.dart';
 import 'Views/Pages/SocioVerse/StoryPage/storyPageController.dart';
 import 'firebase_options.dart';
@@ -76,11 +73,7 @@ class MyApp extends StatelessWidget {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<StoryIndexProvider>(
-          create: (_) => StoryIndexProvider(),
-        ),
-      ],
+      providers: Providers.providers,
       child: GlobalLoaderOverlay(
         overlayColor: Colors.transparent,
         useDefaultLoading: false,
@@ -102,7 +95,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'SocioVerse',
           theme: MyTheme.theme(),
-          home: const GetInitPage(),
+          home: WelcomePage(),
         ),
       ),
     );

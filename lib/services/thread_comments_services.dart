@@ -2,8 +2,6 @@ import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/threadModel.dart';
-import 'package:socioverse/Models/activityModels.dart';
-import 'package:socioverse/Models/threadCommentsModel.dart';
 
 class ThreadCommentServices {
   ApiHelper _helper = ApiHelper();

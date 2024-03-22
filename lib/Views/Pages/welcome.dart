@@ -2,40 +2,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/welcomePageProvider.dart';
 import 'package:socioverse/Views/Pages/Authentication/socialMediaSignUp.dart';
 
-class WelcomePage extends StatefulWidget {
-  const WelcomePage({super.key});
+class WelcomePage extends StatelessWidget {
+  WelcomePage({super.key});
 
-  @override
-  State<WelcomePage> createState() => _WelcomePageState();
-}
-
-class _WelcomePageState extends State<WelcomePage> {
-  List<String> title = [
+  final List<String> title = [
     'The Best Social Media App of The Century',
     'Lets Connect with Everyone',
     'Everything You Can Do in One App',
   ];
-  List<String> description = [
+
+  final List<String> description = [
     'Introducing SocioVerse! Connect, share, and stay updated with a vibrant community. Join the buzz and download today!',
     'The ultimate platform to forge connections and engage with a diverse community. Join us today!',
     'Unlock endless possibilities with this app, empowering you to explore, create, connect, and more. Discover it now!'
   ];
-  CarouselController buttonCarouselController = CarouselController();
-  int cnt = 0;
-  @override
-  void initState() {
-    cnt = 0;
-    super.initState();
-  }
 
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+  final CarouselController buttonCarouselController = CarouselController();
 
   @override
   Widget build(BuildContext context) {
@@ -45,22 +32,19 @@ class _WelcomePageState extends State<WelcomePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Container(
-                // decoration: const BoxDecoration(
-                //   image: DecorationImage(
-                //     image: AssetImage("assets/images/welcome.png"),
-                //     fit: BoxFit.cover,
-                //   ),
-                // ),
-                ),
+            child: Padding(
+              padding: const EdgeInsets.all(50),
+              child: Lottie.asset('assets/lottie/welcome.json'),
+            ),
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.only(top: 0, left: 20, right: 20, bottom: 20),
+              padding: const EdgeInsets.only(
+                  top: 0, left: 20, right: 20, bottom: 20),
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.onSurface,
-                  border: Border.all(color: Color(0xff2A2B39)),
-                  borderRadius: BorderRadius.only(
+                  border: Border.all(color: const Color(0xff2A2B39)),
+                  borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(40),
                       topRight: Radius.circular(40)),
                   boxShadow: [
@@ -77,78 +61,81 @@ class _WelcomePageState extends State<WelcomePage> {
                     size: 50,
                     color: Theme.of(context).colorScheme.secondary,
                   ),
-                  CarouselSlider(
-                    disableGesture: false,
-                    carouselController: buttonCarouselController,
-                    options: CarouselOptions(
-                      initialPage: cnt,
-                      enableInfiniteScroll: false,
-                      enlargeCenterPage: true,
-                      viewportFraction: 1,
-                      pauseAutoPlayOnTouch: true,
-                      scrollDirection: Axis.horizontal,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          // _current = index;
-                        });
-                      },
-                    ),
-                    items: title.map((i) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(i,
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                  textAlign: TextAlign.center),
-                              const SizedBox(height: 20),
-                              Text(description[title.indexOf(i)],
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  textAlign: TextAlign.center),
-                            ],
-                          );
+                  Consumer<WelcomePageProvider>(
+                    builder: (context, value, child) => CarouselSlider(
+                      disableGesture: false,
+                      carouselController: buttonCarouselController,
+                      options: CarouselOptions(
+                        initialPage: value.currentPage,
+                        enableInfiniteScroll: false,
+                        enlargeCenterPage: true,
+                        viewportFraction: 1,
+                        pauseAutoPlayOnTouch: true,
+                        scrollDirection: Axis.horizontal,
+                        onPageChanged: (index, reason) {
+                          value.currentPage = index;
                         },
-                      );
-                    }).toList(),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
                       ),
-                      onPressed: () {
-                        if (cnt >= 2)
-                          Navigator.push(
-                              context,
-                              CupertinoPageRoute(
-                                  builder: (context) =>
-                                      SocialMediaSignUpPage()));
-                        cnt++;
-                        setState(() {
+                      items: title.map((i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(i,
+                                    style:
+                                        Theme.of(context).textTheme.bodyLarge,
+                                    textAlign: TextAlign.center),
+                                const SizedBox(height: 20),
+                                Text(description[title.indexOf(i)],
+                                    style:
+                                        Theme.of(context).textTheme.bodyMedium,
+                                    textAlign: TextAlign.center),
+                              ],
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  Consumer<WelcomePageProvider>(
+                    builder: (context, value, child) => SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onPressed: () {
+                          if (value.currentPage >= 2) {
+                            Navigator.push(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) =>
+                                        const SocialMediaSignUpPage()));
+                          }
+                          value.currentPage = value.currentPage + 1;
                           buttonCarouselController.nextPage(
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.linear);
-                        });
-                      },
-                      child: Text("Next",
-                          style: GoogleFonts.openSans(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimary),
-                          textAlign: TextAlign.center),
+                        },
+                        child: Text("Next",
+                            style: GoogleFonts.openSans(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onPrimary),
+                            textAlign: TextAlign.center),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -159,7 +146,8 @@ class _WelcomePageState extends State<WelcomePage> {
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => SocialMediaSignUpPage()));
+                                builder: (context) =>
+                                    const SocialMediaSignUpPage()));
                       },
                       child: Text("Skip",
                           style: GoogleFonts.openSans(

@@ -1,5 +1,5 @@
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:socioverse/Views/UI/appColorPallate.dart';
+import 'package:socioverse/Views/UI/themeColors.dart';
 
 class SpinKit {
   static SpinKitRing ring = const SpinKitRing(

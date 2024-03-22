@@ -29,7 +29,7 @@ class GetInitPage extends StatelessWidget {
             if (snapshot.data![1] == true) {
               return const PasswordSignInPage();
             } else {
-              return const WelcomePage();
+              return WelcomePage();
             }
           }
         } else {

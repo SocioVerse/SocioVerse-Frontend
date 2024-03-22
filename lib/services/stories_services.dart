@@ -1,14 +1,9 @@
 import 'dart:developer';
 
-import 'package:socioverse/Models/storyModels.dart';
-import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Helper/api_constants.dart';
-import 'package:socioverse/Models/authUserModels.dart';
-import 'package:socioverse/Models/userSignUpModel.dart';
+import 'package:socioverse/Models/storyModels.dart';
 
 class StoriesServices {
   ApiHelper _helper = ApiHelper();

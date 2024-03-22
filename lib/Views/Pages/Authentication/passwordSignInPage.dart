@@ -5,6 +5,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
@@ -13,6 +15,7 @@ import 'package:socioverse/Views/Pages/Authentication/forgotPassword.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Services/authentication_services.dart';
+import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 
 import '../../Widgets/buttons.dart';
 
@@ -117,88 +120,48 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
               const SizedBox(
                 height: 20,
               ),
-              TextField(
-                controller: passwordController,
-                cursorOpacityAnimates: true,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16, color: Theme.of(context).colorScheme.surface),
-                obscureText: isPasswordVisible ? true : false,
-                decoration: InputDecoration(
-                  filled: true,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Icon(
-                      Icons.lock_rounded,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.surface,
-                    ),
-                  ),
-                  fillColor: Theme.of(context).colorScheme.secondary,
-                  hintText: "Password",
-                  hintStyle: Theme.of(context)
-                      .textTheme
-                      .bodyMedium!
-                      .copyWith(fontSize: 16),
-                  suffixIcon: IconButton(
-                    padding: EdgeInsets.only(right: 20),
-                    onPressed: () {
-                      setState(() {
-                        isPasswordVisible = !isPasswordVisible;
-                      });
-                    },
-                    icon: Icon(
-                      isPasswordVisible
-                          ? Icons.visibility_off_rounded
-                          : Icons.visibility_rounded,
-                      color: Colors.white,
-                    ),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  focusColor: Theme.of(context).colorScheme.primary,
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
+              Consumer<PasswordSignInPageProvider>(
+                  builder: (context, provider, child) => CustomInputField(
+                        controller: passwordController,
+                        obscureText: provider.isObscure ? true : false,
+                        prefixIcon: Icons.lock_rounded,
+                        suffixIcon: InkWell(
+                          onTap: () {
+                            provider.isObscure = !provider.isObscure;
+                          },
+                          child: Icon(
+                            provider.isObscure
+                                ? Icons.visibility_off_rounded
+                                : Icons.visibility_rounded,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                        hintText: "Password",
+                      )),
+              const SizedBox(
                 height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Checkbox(
-                      value: isChecked,
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      checkColor: Theme.of(context).colorScheme.surface,
-                      fillColor: MaterialStateProperty.all<Color>(
-                          Theme.of(context).colorScheme.secondary),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: BorderSide(
-                          width: 2,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                  Consumer<PasswordSignInPageProvider>(
+                    builder: (context, provider, child) => Checkbox(
+                        value: provider.isRememberMe,
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        checkColor: Theme.of(context).colorScheme.surface,
+                        fillColor: MaterialStateProperty.all<Color>(
+                            Theme.of(context).colorScheme.secondary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          isChecked = value!;
-                          print(value);
-                        });
-                      }),
+                        onChanged: (value) {
+                          provider.isRememberMe = value!;
+                        }),
+                  ),
                   Text(
                     "Remember me",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -236,11 +199,12 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                             password: passwordController.text.trim(),
                             fcmtoken: fcmToken!),
                       );
-                      context.loaderOverlay.hide();
+                      if (context.mounted) context.loaderOverlay.hide();
                       if (response!.success == true && context.mounted) {
                         Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => MainPage()),
+                            MaterialPageRoute(
+                                builder: (context) => const MainPage()),
                             (route) => false);
                       } else {
                         Fluttertoast.showToast(
@@ -256,7 +220,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                     }
                   },
                   ctx: context),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(
@@ -267,7 +231,8 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.push(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => ForgotPasswordPage()));
+                                builder: (context) =>
+                                    const ForgotPasswordPage()));
                       },
                       child: Text(
                         "Forgot the password?",
@@ -277,7 +242,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       )),
                 ],
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Row(children: [
@@ -285,14 +250,14 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                   child:
                       Divider(color: Theme.of(context).colorScheme.onPrimary),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Text(
                   "OR continue with",
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
                 Expanded(
@@ -310,7 +275,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -318,7 +283,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         ),
                       ),
                       onPressed: () {},
-                      child: Icon(
+                      child: const Icon(
                         Icons.facebook_rounded,
                         color: Colors.blue,
                         size: 35,
@@ -328,7 +293,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -346,7 +311,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                   Container(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         backgroundColor:
                             Theme.of(context).colorScheme.secondary,
                         shape: RoundedRectangleBorder(
@@ -378,7 +343,8 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         Navigator.pushReplacement(
                             context,
                             CupertinoPageRoute(
-                                builder: (context) => PasswordSignUpPage()));
+                                builder: (context) =>
+                                    const PasswordSignUpPage()));
                       },
                       child: Text(
                         "Sign up",

@@ -18,4 +18,5 @@ class ThemeColors {
   static const Color appBarColor = Colors.white;
   static const Color appBarSurface = Color(0xff1A1B22);
   static const Color elevatedButtonBackground = Color(0xffFF4D67);
+  static const Color bodyText = Color(0xffA9AAAC);
 }

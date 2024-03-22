@@ -1,9 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
@@ -11,11 +9,11 @@ import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Models/userModel.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
-import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Services/user_services.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThreadWidgets.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
+import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:uuid/uuid.dart';
 
 class AddCommentPage extends StatefulWidget {

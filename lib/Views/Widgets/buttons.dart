@@ -203,3 +203,51 @@ class _MyEleButtonsmallState extends State<MyEleButtonsmall> {
     );
   }
 }
+
+class SocialMediaButton extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color iconColor;
+  final VoidCallback onPressed;
+
+  const SocialMediaButton({
+    super.key,
+    required this.icon,
+    required this.text,
+    required this.onPressed,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          backgroundColor: Theme.of(context).colorScheme.secondary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor),
+            const SizedBox(width: 10),
+            Text(
+              text,
+              style: GoogleFonts.openSans(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

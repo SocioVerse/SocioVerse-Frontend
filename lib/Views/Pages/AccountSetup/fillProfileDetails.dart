@@ -10,6 +10,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
@@ -37,15 +39,10 @@ class _FillProfilePageState extends State<FillProfilePage> {
   TextEditingController phone = TextEditingController();
   TextEditingController cCode = TextEditingController();
   TextEditingController occupation = TextEditingController();
-  TextEditingController dob = TextEditingController();
   String? currentImage;
   List<String>? faceImages;
-  bool? profileImageLoading;
-  bool? faceImageLoading = false;
   String initValue = "Select your Birth Date";
-  bool isDateSelected = false;
-  DateTime? birthDate; // instance of DateTime
-  String? birthDateInString;
+
   late SignupUser signupUser;
   @override
   void initState() {
@@ -54,13 +51,6 @@ class _FillProfilePageState extends State<FillProfilePage> {
     currentImage = null;
     super.initState();
     cCode.text = "+91";
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
   }
 
   TextField textFieldBuilder(
@@ -147,26 +137,30 @@ class _FillProfilePageState extends State<FillProfilePage> {
                     width: 150,
                     child: Stack(
                       children: [
-                        CircleAvatar(
-                          radius: 150,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.onBackground,
-                          child: currentImage == null
-                              ? Icon(
-                                  Ionicons.person,
-                                  color:
-                                      Theme.of(context).colorScheme.background,
-                                  size: 100,
-                                )
-                              : profileImageLoading == true
-                                  ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : CircularNetworkImageWithoutSize(
-                                      imageUrl: currentImage!,
-                                      fit: BoxFit.cover,
-                                    ),
-                        ),
+                        Consumer<FillProfileProvider>(
+                            builder: (context, prov, child) {
+                          return CircleAvatar(
+                            radius: 150,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.onBackground,
+                            child: currentImage == null
+                                ? Icon(
+                                    Ionicons.person,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .background,
+                                    size: 100,
+                                  )
+                                : prov.profileImageLoading == true
+                                    ? const Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : CircularNetworkImageWithoutSize(
+                                        imageUrl: currentImage!,
+                                        fit: BoxFit.cover,
+                                      ),
+                          );
+                        }),
                         Positioned(
                           bottom: 10,
                           right: 0,
@@ -177,41 +171,42 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               borderRadius: BorderRadius.circular(10),
                               color: Theme.of(context).colorScheme.primary,
                             ),
-                            child: IconButton(
-                              iconSize: 30,
-                              padding: const EdgeInsets.all(0),
-                              onPressed: () async {
-                                currentImage = await ImagePickerFunctionsHelper
-                                        .requestPermissionsAndPickFile(context)
-                                    .then((value) async {
-                                  if (value != null) {
-                                    setState(() {
-                                      profileImageLoading = true;
-                                    });
-                                    await FirebaseHelper.deleteFolder(
-                                        "${signupUser!.email!}/profilepic");
-                                    return await FirebaseHelper.uploadFile(
-                                        value.path,
-                                        signupUser.email!,
-                                        "${signupUser.email!}/profilepic",
-                                        FirebaseHelper.Image);
-                                  } else {
-                                    return null;
-                                  }
-                                });
-
-                                print(currentImage.toString());
-                                if (currentImage != null) {
-                                  setState(() {
-                                    profileImageLoading = false;
+                            child: Consumer<FillProfileProvider>(
+                                builder: (context, prov, child) {
+                              return IconButton(
+                                iconSize: 30,
+                                padding: const EdgeInsets.all(0),
+                                onPressed: () async {
+                                  currentImage =
+                                      await ImagePickerFunctionsHelper
+                                              .requestPermissionsAndPickFile(
+                                                  context)
+                                          .then((value) async {
+                                    if (value != null) {
+                                      prov.profileImageLoading = true;
+                                      await FirebaseHelper.deleteFolder(
+                                          "${signupUser!.email!}/profilepic");
+                                      return await FirebaseHelper.uploadFile(
+                                          value.path,
+                                          signupUser.email!,
+                                          "${signupUser.email!}/profilepic",
+                                          FirebaseHelper.Image);
+                                    } else {
+                                      return null;
+                                    }
                                   });
-                                }
-                              },
-                              icon: Icon(
-                                Icons.edit,
-                                color: Theme.of(context).colorScheme.shadow,
-                              ),
-                            ),
+
+                                  print(currentImage.toString());
+                                  if (currentImage != null) {
+                                    prov.profileImageLoading = false;
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: Theme.of(context).colorScheme.shadow,
+                                ),
+                              );
+                            }),
                           ),
                         )
                       ],
@@ -258,189 +253,145 @@ class _FillProfilePageState extends State<FillProfilePage> {
                     tcontroller: occupation,
                     hintTexxt: "Occupation*",
                     onChangedf: () {}),
-                textFieldBuilder(
-                    tcontroller: dob,
-                    hintTexxt: "DOB*",
-                    suffixxIcon: GestureDetector(
-                        onTap: () async {
-                          final DateTime? picked = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                            builder: (context, child) {
-                              return Theme(
-                                data: ThemeData.dark().copyWith(
-                                  colorScheme: ColorScheme.dark(
-                                    primary:
-                                        Theme.of(context).colorScheme.primary,
-                                    onPrimary:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                    surfaceTint: Theme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    surface:
+                Consumer<FillProfileProvider>(builder: (context, prov, child) {
+                  return textFieldBuilder(
+                      tcontroller: prov.dob,
+                      hintTexxt: "DOB*",
+                      suffixxIcon: GestureDetector(
+                          onTap: () async {
+                            final DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                              builder: (context, child) {
+                                return Theme(
+                                  data: ThemeData.dark().copyWith(
+                                    colorScheme: ColorScheme.dark(
+                                      primary:
+                                          Theme.of(context).colorScheme.primary,
+                                      onPrimary: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      surfaceTint: Theme.of(context)
+                                          .colorScheme
+                                          .background,
+                                      surface: Theme.of(context)
+                                          .colorScheme
+                                          .secondary,
+                                      onSurface: Theme.of(context)
+                                          .colorScheme
+                                          .background,
+                                    ),
+                                    dialogBackgroundColor:
                                         Theme.of(context).colorScheme.secondary,
-                                    onSurface: Theme.of(context)
-                                        .colorScheme
-                                        .background,
                                   ),
-                                  dialogBackgroundColor:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                child: child!,
-                              );
-                            },
-                          );
+                                  child: child!,
+                                );
+                              },
+                            );
 
-                          if (picked != null && picked != birthDate) {
-                            setState(() {
-                              birthDate = picked;
-                              birthDateInString =
-                                  "${birthDate!.day}/${birthDate!.month}/${birthDate!.year}";
-                              isDateSelected = true;
-                              dob.text = birthDateInString!;
-                            });
-                          }
-                        },
-                        child: const Icon(
-                          Ionicons.calendar,
-                          color: Colors.white,
-                        )),
-                    readOnly: true,
-                    onChangedf: () {}),
+                            if (picked != null && picked != prov.birthDate) {
+                              prov.birthDate = picked;
+                              prov.birthDateInString =
+                                  "${prov.birthDate!.day}/${prov.birthDate!.month}/${prov.birthDate!.year}";
+                              prov.isDateSelected = true;
+                              prov.dob.text = prov.birthDateInString!;
+                            }
+                          },
+                          child: const Icon(
+                            Ionicons.calendar,
+                            color: Colors.white,
+                          )),
+                      readOnly: true,
+                      onChangedf: () {});
+                }),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: () async {
-                        faceImages =
-                            await ImagePickerFunctionsHelper.pickMultipleImage(
-                                    context)
-                                .then((value) async {
-                          if (value != null) {
-                            List<String> faceImagesList = [];
-                            setState(() {
-                              faceImageLoading = true;
-                            });
-                            await FirebaseHelper.deleteFolder(
-                                "${signupUser.email!}/faceImages");
-                            for (int i = 0; i < value.length; i++) {
-                              String? faceImage =
-                                  await FirebaseHelper.uploadFile(
-                                      value[i].path,
-                                      "${signupUser.email!}-face-dataset-$i",
-                                      "${signupUser.email!}/faceImages",
-                                      FirebaseHelper.Image);
-                              faceImagesList.add(faceImage);
+                    Consumer<FillProfileProvider>(
+                        builder: (context, prov, child) {
+                      return TextButton(
+                        onPressed: () async {
+                          faceImages = await ImagePickerFunctionsHelper
+                                  .pickMultipleImage(context)
+                              .then((value) async {
+                            if (value != null) {
+                              List<String> faceImagesList = [];
+                              prov.faceImageLoading = true;
+                              await FirebaseHelper.deleteFolder(
+                                  "${signupUser.email!}/faceImages");
+                              for (int i = 0; i < value.length; i++) {
+                                String? faceImage =
+                                    await FirebaseHelper.uploadFile(
+                                        value[i].path,
+                                        "${signupUser.email!}-face-dataset-$i",
+                                        "${signupUser.email!}/faceImages",
+                                        FirebaseHelper.Image);
+                                faceImagesList.add(faceImage);
+                              }
+                              return faceImagesList;
+                            } else {
+                              return null;
                             }
-                            return faceImagesList;
-                          } else {
-                            return null;
-                          }
-                        });
-                        if (faceImages != null) {
-                          setState(() {
-                            faceImageLoading = false;
                           });
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.face_2,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 15,
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            "Add Face Search (Optional)",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontSize: 12,
+                          if (faceImages != null) {
+                            prov.faceImageLoading = false;
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.face_2,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 15,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Add Face Search (Optional)",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 12,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                    Consumer<FillProfileProvider>(
+                        builder: (context, prov, child) {
+                      return prov.faceImageLoading == true
+                          ? SpinKit.threeBounce
+                          : faceImages != null
+                              ? Icon(
+                                  Icons.done,
                                   color: Theme.of(context).colorScheme.primary,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                    faceImageLoading == true
-                        ? SpinKit.threeBounce
-                        : faceImages != null
-                            ? Icon(
-                                Icons.done,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 15,
-                              )
-                            : Icon(
-                                Icons.info_outline,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 15,
-                              ),
+                                  size: 15,
+                                )
+                              : Icon(
+                                  Icons.info_outline,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 15,
+                                );
+                    }),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: MyElevatedButton1(
-                      title: "Continue",
-                      onPressed: () async {
-                        if (faceImageLoading == true) {
-                          Fluttertoast.showToast(
-                            msg: "Wait for face images to upload",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0,
-                          );
-                          return;
-                        }
-                        if (fullName.text.isEmpty ||
-                            username.text.isEmpty ||
-                            phone.text.isEmpty ||
-                            occupation.text.isEmpty ||
-                            dob.text.isEmpty ||
-                            currentImage == null) {
-                          Fluttertoast.showToast(
-                            msg: "Fill all details",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0,
-                          );
-                          return;
-                        } else {
-                          signupUser.name = fullName.text;
-                          signupUser.username = username.text;
-                          signupUser.phoneNumber = phone.text;
-                          signupUser.occupation = occupation.text;
-                          signupUser.dob = birthDate;
-                          signupUser.profilePic = currentImage;
-                          signupUser.faceImageDataset = faceImages;
-                          log(signupUser.toJson().toString());
-                          context.loaderOverlay.show();
-                          ApiResponse? response =
-                              await AuthServices().userSignUp(
-                            signupUser: signupUser,
-                          );
-                          context.loaderOverlay.hide();
-                          if (response!.success == true && context.mounted) {
-                            Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const MainPage()),
-                                (route) => false);
-                          } else {
+                Consumer<FillProfileProvider>(builder: (context, prov, child) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: MyElevatedButton1(
+                        title: "Continue",
+                        onPressed: () async {
+                          if (prov.faceImageLoading == true) {
                             Fluttertoast.showToast(
-                              msg: response!.message.toString(),
+                              msg: "Wait for face images to upload",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 1,
@@ -448,11 +399,61 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               textColor: Colors.black,
                               fontSize: 16.0,
                             );
+                            return;
                           }
-                        }
-                      },
-                      ctx: context),
-                ),
+                          if (fullName.text.isEmpty ||
+                              username.text.isEmpty ||
+                              phone.text.isEmpty ||
+                              occupation.text.isEmpty ||
+                              prov.dob.text.isEmpty ||
+                              currentImage == null) {
+                            Fluttertoast.showToast(
+                              msg: "Fill all details",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.white,
+                              textColor: Colors.black,
+                              fontSize: 16.0,
+                            );
+                            return;
+                          } else {
+                            signupUser.name = fullName.text;
+                            signupUser.username = username.text;
+                            signupUser.phoneNumber = phone.text;
+                            signupUser.occupation = occupation.text;
+                            signupUser.dob = prov.birthDate;
+                            signupUser.profilePic = currentImage;
+                            signupUser.faceImageDataset = faceImages;
+                            log(signupUser.toJson().toString());
+                            context.loaderOverlay.show();
+                            ApiResponse? response =
+                                await AuthServices().userSignUp(
+                              signupUser: signupUser,
+                            );
+                            context.loaderOverlay.hide();
+                            if (response!.success == true && context.mounted) {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const MainPage()),
+                                  (route) => false);
+                            } else {
+                              Fluttertoast.showToast(
+                                msg: response!.message.toString(),
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.white,
+                                textColor: Colors.black,
+                                fontSize: 16.0,
+                              );
+                            }
+                          }
+                        },
+                        ctx: context),
+                  );
+                }),
               ],
             ),
           ),

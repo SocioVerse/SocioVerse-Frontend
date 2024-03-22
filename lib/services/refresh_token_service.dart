@@ -3,8 +3,6 @@ import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Helper/api_constants.dart';
-import 'package:socioverse/Models/authUserModels.dart';
-import 'package:socioverse/Models/userSignUpModel.dart';
 
 class RefreshToken {
   final ApiHelper _helper = ApiHelper();

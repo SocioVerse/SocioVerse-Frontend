@@ -10,7 +10,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 class FaceDetectionPage extends StatefulWidget {
   final SignupUser signupUser;
 
-  FaceDetectionPage({super.key, required this.signupUser});
+  const FaceDetectionPage({super.key, required this.signupUser});
 
   @override
   State<FaceDetectionPage> createState() => _FaceDetectionPageState();
@@ -57,7 +57,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
                 Navigator.pushAndRemoveUntil(
                     context,
                     CupertinoPageRoute(
-                      builder: (context) => MainPage(),
+                      builder: (context) => const MainPage(),
                     ),
                     (route) => route.isFirst);
               }
@@ -66,7 +66,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
           Center(
             child: Expanded(
               child: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     border: Border.fromBorderSide(
                       BorderSide(
                         color: Colors.white,

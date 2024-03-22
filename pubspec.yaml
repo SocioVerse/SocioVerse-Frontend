@@ -48,6 +48,7 @@ dependencies:
   debounce_throttle: ^2.0.0
   bottom_drawer: ^0.0.5
   recase: ^4.0.0
+  lottie: ^3.1.0
   
 flutter_icons:
  image_path: "assets/icon.png"
@@ -61,3 +62,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/Country_flag/
+    - assets/lottie/

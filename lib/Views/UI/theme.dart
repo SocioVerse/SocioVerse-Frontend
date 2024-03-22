@@ -39,13 +39,13 @@ class MyTheme {
           fontSize: 14,
           height: 1.2,
           fontWeight: FontWeight.w500,
-          color: ThemeColors.onSurface,
+          color: ThemeColors.bodyText,
         ),
         bodySmall: GoogleFonts.openSans(
           fontSize: 13,
           height: 1.2,
           fontWeight: FontWeight.w500,
-          color: ThemeColors.onSurface,
+          color: ThemeColors.bodyText,
         ),
       ),
       appBarTheme: const AppBarTheme(
