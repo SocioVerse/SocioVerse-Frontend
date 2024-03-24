@@ -44,7 +44,7 @@ class FollowTile extends StatelessWidget {
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: CircleAvatar(
+        child: const CircleAvatar(
             radius: 28,
             backgroundImage: AssetImage(
               "assets/Country_flag/in.png",
@@ -100,7 +100,7 @@ class LikedTile extends StatelessWidget {
       leading: CircleAvatar(
         radius: 30,
         backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: CircleAvatar(
+        child: const CircleAvatar(
             radius: 28,
             backgroundImage: AssetImage(
               "assets/Country_flag/in.png",
@@ -131,7 +131,7 @@ class LikedTile extends StatelessWidget {
         ],
       ),
       trailing: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Image.asset(
             "assets/Country_flag/in.png",
             height: 40,
@@ -182,9 +182,10 @@ class StackOfTwo extends StatelessWidget {
 }
 
 class RequestsTile extends StatelessWidget {
-  LatestFollowRequestModel latestFollowRequestModel;
+  final LatestFollowRequestModel latestFollowRequestModel;
   final Function onTap;
-  RequestsTile({required this.latestFollowRequestModel, required this.onTap});
+  const RequestsTile(
+      {super.key, required this.latestFollowRequestModel, required this.onTap});
 
   String getText() {
     if (latestFollowRequestModel.followRequestCount == 1) {
@@ -252,7 +253,7 @@ class RequestsTile extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Text(

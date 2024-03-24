@@ -5,11 +5,13 @@ class TextFieldBuilder extends StatelessWidget {
   String hintTexxt;
   Function onChangedf;
   Widget? prefixxIcon;
+  Widget? suffixIcon;
   TextFieldBuilder({
     required this.tcontroller,
     required this.hintTexxt,
     required this.onChangedf,
     this.prefixxIcon,
+    this.suffixIcon,
   });
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class TextFieldBuilder extends StatelessWidget {
           .copyWith(fontSize: 16, color: Theme.of(context).colorScheme.surface),
       maxLines: 1,
       decoration: InputDecoration(
+        suffixIcon: suffixIcon,
         prefixIcon: prefixxIcon,
         contentPadding: EdgeInsets.all(20),
         filled: true,

@@ -1,24 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/createNewPasswordPageProvider.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
-class CreateNewPasswordPage extends StatefulWidget {
-  const CreateNewPasswordPage({super.key});
-
-  @override
-  State<CreateNewPasswordPage> createState() => _CreateNewPasswordPageState();
-}
-
-class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
-  var isChecked = false;
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+class CreateNewPasswordPage extends StatelessWidget {
+  CreateNewPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -162,18 +151,19 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Checkbox(
-                    value: isChecked,
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    checkColor: Theme.of(context).colorScheme.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value!;
+                Consumer<CreateNewPasswordPageProvider>(
+                    builder: (context, prov, child) {
+                  return Checkbox(
+                      value: prov.isChecked,
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      checkColor: Theme.of(context).colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      onChanged: (value) {
+                        prov.isChecked = value!;
                       });
-                    }),
+                }),
                 Text(
                   "Remember me",
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(

@@ -39,13 +39,6 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
   }
 
   @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,

@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
@@ -16,6 +19,7 @@ import 'package:socioverse/Services/location_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/hashtagProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/locationProfilePage.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/Services/follow_unfollow_services.dart';
@@ -183,6 +187,19 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     setState(() {
       isUserFetched = true;
     });
+  }
+
+  Future<String> getQueryUserByFace({required String faceImage}) async {
+    String? userByFace;
+    setState(() {
+      isUserFetched = false;
+    });
+    userByFace =
+        await SearchBarServices().fetchSearchedUserByFace(faceImage: faceImage);
+    setState(() {
+      isUserFetched = true;
+    });
+    return userByFace;
   }
 
   Widget searchEnabled() {
@@ -582,6 +599,42 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             Padding(
               padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
               child: TextFieldBuilder(
+                suffixIcon: _tabController.index == 0
+                    ? InkWell(
+                        onTap: () async {
+                          context.loaderOverlay.show();
+                          String? faceImage =
+                              await ImagePickerFunctionsHelper.pickImage(
+                                      context)
+                                  .then((value) async {
+                            if (value != null) {
+                              return await FirebaseHelper.uploadFile(
+                                  value.path,
+                                  value.path.split('/').last,
+                                  "SearchedFaces",
+                                  FirebaseHelper.Image);
+                            }
+                            return null;
+                          });
+                          if (faceImage == null) {
+                            return;
+                          } else {
+                            String? userByFace =
+                                await getQueryUserByFace(faceImage: faceImage);
+                            if (context.mounted) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return UserProfilePage(
+                                  owner: false,
+                                  userId: userByFace,
+                                );
+                              }));
+                            }
+                          }
+                        },
+                        child: Icon(Ionicons.image_outline,
+                            color: Theme.of(context).colorScheme.tertiary))
+                    : null,
                 tcontroller: searchText,
                 hintTexxt: "Search",
                 onChangedf: () {

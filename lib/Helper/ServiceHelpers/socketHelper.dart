@@ -14,7 +14,7 @@ class SocketHelper {
     headers = ({"Authorization": "Bearer $token"});
     headers = await ApiHelper().GetContentType(headers);
     final socket = IO.io(
-      "https://${ApiStringConstants.baseUrl}",
+      "http://${ApiStringConstants.baseUrl}",
       IO.OptionBuilder()
           .enableForceNew()
           .setTransports(['websocket']) // for Flutter or Dart VM

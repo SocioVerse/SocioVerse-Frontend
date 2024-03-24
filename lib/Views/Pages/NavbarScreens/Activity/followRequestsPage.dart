@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/activityPageProvider.dart';
+import 'package:socioverse/Controllers/followRequestPageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/followRequestModel.dart';
 import 'package:socioverse/Services/follow_request_services.dart';
@@ -13,29 +16,12 @@ class FollowRequestsPage extends StatefulWidget {
 }
 
 class _FollowRequestsPageState extends State<FollowRequestsPage> {
-  late List<FollowRequestModel> followRequestModel;
-  bool isLoading = false;
   @override
   void initState() {
-    getFollowRequest();
     super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  getFollowRequest() async {
-    setState(() {
-      isLoading = true;
-    });
-    followRequestModel =
-        await FollowRequestsServices().fetchAllFolloweRequests();
-    setState(() {
-      isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<FollowRequestPageProvider>(context, listen: false)
+          .getFollowRequest();
     });
   }
 
@@ -55,100 +41,101 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: isLoading
-          ? Center(child: SpinKit.ring)
-          : ListView.builder(
-              itemCount: followRequestModel.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: CircularNetworkImageWithSize(
-                    imageUrl: followRequestModel[index].profilePic,
-                    width: 45,
-                    height: 45,
-                  ),
-                  title: Text(
-                    followRequestModel[index].username,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20,
-                        ),
-                  ),
-                  subtitle: Text(
-                    followRequestModel[index].occupation,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 13,
-                          color: Theme.of(context).colorScheme.tertiary,
-                        ),
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(5),
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          side: BorderSide(
-                              width: 1,
-                              color: Theme.of(context).colorScheme.primary,
-                              style: BorderStyle.solid),
-                        ),
-                        onPressed: () {
-                          FollowRequestsServices().rejectFollowRequest(
-                              followRequestModel[index].id);
-                          setState(() {
-                            followRequestModel.removeAt(index);
-                            if (followRequestModel.isEmpty) {
-                              Navigator.pop(context);
-                            }
-                          });
-                        },
-                        child: Text(
-                          'Delete',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 12,
+      body:
+          Consumer<FollowRequestPageProvider>(builder: (context, prov, child) {
+        return prov.isLoading
+            ? Center(child: SpinKit.ring)
+            : ListView.builder(
+                itemCount: prov.followRequestModel.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    leading: CircularNetworkImageWithSize(
+                      imageUrl: prov.followRequestModel[index].profilePic,
+                      width: 45,
+                      height: 45,
+                    ),
+                    title: Text(
+                      prov.followRequestModel[index].username,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                          ),
+                    ),
+                    subtitle: Text(
+                      prov.followRequestModel[index].occupation,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontWeight: FontWeight.w300,
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5),
+                            backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
+                            side: BorderSide(
+                                width: 1,
                                 color: Theme.of(context).colorScheme.primary,
-                              ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 7,
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(5),
-                        ),
-                        onPressed: () {
-                          FollowRequestsServices().acceptFollowRequest(
-                              followRequestModel[index].id);
-                          setState(() {
-                            followRequestModel.removeAt(index);
+                                style: BorderStyle.solid),
+                          ),
+                          onPressed: () async {
+                            await FollowRequestsServices().rejectFollowRequest(
+                                prov.followRequestModel[index].id);
 
-                            if (followRequestModel.isEmpty) {
+                            prov.followRequestModel.removeAt(index);
+                            if (prov.followRequestModel.isEmpty) {
                               Navigator.pop(context);
                             }
-                          });
-                        },
-                        child: Text(
-                          'Accept',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
+                          },
+                          child: Text(
+                            'Delete',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5),
+                          ),
+                          onPressed: () async {
+                            await FollowRequestsServices().acceptFollowRequest(
+                                prov.followRequestModel[index].id);
+                            prov.followRequestModel.removeAt(index);
+
+                            if (prov.followRequestModel.isEmpty && mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            'Accept',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 12,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+      }),
     );
   }
 }

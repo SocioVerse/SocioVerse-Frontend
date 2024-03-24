@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/activityPageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/activityModels.dart';
 import 'package:socioverse/Services/activity_services.dart';
@@ -15,29 +17,12 @@ class ActivityPage extends StatefulWidget {
 }
 
 class _ActivityPageState extends State<ActivityPage> {
-  late LatestFollowRequestModel latestFollowRequestModel;
-  bool isLoading = false;
   @override
   void initState() {
-    getLatestFollowRequest();
     super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  getLatestFollowRequest() async {
-    setState(() {
-      isLoading = true;
-    });
-    latestFollowRequestModel =
-        await ActivityServices().fetchLatestFolloweRequests();
-    setState(() {
-      isLoading = false;
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<ActivityPageProvider>(context, listen: false)
+          .getLatestFollowRequest();
     });
   }
 
@@ -57,41 +42,44 @@ class _ActivityPageState extends State<ActivityPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: isLoading
-          ? Center(
-              child: SpinKit.ring,
-            )
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    latestFollowRequestModel.followRequestCount == 0
-                        ? const SizedBox.shrink()
-                        : RequestsTile(
-                            latestFollowRequestModel: latestFollowRequestModel,
-                            onTap: getLatestFollowRequest,
-                          ),
-                    ListView.builder(
-                      physics: NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return LikedTile(
-                          name: "Fatima",
-                          postUrl: "assets/Country_flag/in.png",
-                          imgUrl: "assets/Country_flag/in.png",
-                          dateTime: DateTime(2023, 7, 20, 12, 0),
-                        );
-                      },
-                    ),
-                  ],
+      body: Consumer<ActivityPageProvider>(builder: (context, prov, child) {
+        return prov.isLoading
+            ? Center(
+                child: SpinKit.ring,
+              )
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      prov.latestFollowRequestModel.followRequestCount == 0
+                          ? const SizedBox.shrink()
+                          : RequestsTile(
+                              latestFollowRequestModel:
+                                  prov.latestFollowRequestModel,
+                              onTap: prov.getLatestFollowRequest,
+                            ),
+                      ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: 10,
+                        itemBuilder: (context, index) {
+                          return LikedTile(
+                            name: "Fatima",
+                            postUrl: "assets/Country_flag/in.png",
+                            imgUrl: "assets/Country_flag/in.png",
+                            dateTime: DateTime(2023, 7, 20, 12, 0),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+      }),
     );
   }
 }

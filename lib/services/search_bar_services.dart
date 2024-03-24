@@ -24,6 +24,14 @@ class SearchBarServices {
     return fetchedUsers;
   }
 
+  Future<String> fetchSearchedUserByFace({
+    required String faceImage,
+  }) async {
+    _response = await _helper.get(ApiStringConstants.searchUserByFace,
+        querryParam: {'faceImage': faceImage});
+    return _response.data['label'];
+  }
+
   Future<List<HashtagsSearchModel>> getHashtags(
       {required String hashtag}) async {
     _response = await _helper.get(

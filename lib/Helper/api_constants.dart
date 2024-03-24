@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "backend-socioverse.onrender.com";
+  static const String baseUrl = "192.168.29.71:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -51,6 +51,7 @@ class ApiStringConstants {
   static const String toogleFollowReq = "users/create-follow-request";
   static const String unFollow = "users/unfollow-user";
   static const String searchUser = "users/search-user";
+  static const String searchUserByFace = "users/search-user-by-face";
   static const String searchFeedsByMetadata = "users/search-metadata";
   static const String searchLocation = "users/search-location";
   static const String searchHashtags = "users/search-hashtags";

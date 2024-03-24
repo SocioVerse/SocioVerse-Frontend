@@ -10,22 +10,11 @@ import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
 
 import '../../Widgets/buttons.dart';
 
-class SelectCountryPage extends StatefulWidget {
+class SelectCountryPage extends StatelessWidget {
   final SignupUser signupUser;
   SelectCountryPage({super.key, required this.signupUser});
 
-  @override
-  State<SelectCountryPage> createState() => _SelectCountryPageState();
-}
-
-class _SelectCountryPageState extends State<SelectCountryPage> {
   TextEditingController searchCountry = TextEditingController();
-  int selectCountry = 0;
-  @override
-  void initState() {
-    super.initState();
-    selectCountry = 0;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,14 +25,14 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
           return MyElevatedButton1(
               title: "Continue",
               onPressed: () {
-                widget.signupUser.country =
-                    prov.countryList[selectCountry].value;
+                signupUser.country =
+                    prov.countryList[prov.selectedCountryIndex].value;
 
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => FillProfilePage(
-                              signupUser: widget.signupUser,
+                              signupUser: signupUser,
                             )));
               },
               ctx: context);
@@ -127,13 +116,9 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
                           return Padding(
                             padding: const EdgeInsets.all(4.0),
                             child: ListTile(
-                              onTap: () => {
-                                setState(() {
-                                  selectCountry = index;
-                                })
-                              },
+                              onTap: () => {prov.selectedCountryIndex = index},
                               shape: RoundedRectangleBorder(
-                                side: selectCountry == index
+                                side: prov.selectedCountryIndex == index
                                     ? BorderSide(
                                         width: 2,
                                         color: Theme.of(context)
@@ -185,11 +170,9 @@ class _SelectCountryPageState extends State<SelectCountryPage> {
                                   value: index,
                                   activeColor:
                                       Theme.of(context).colorScheme.primary,
-                                  groupValue: selectCountry,
+                                  groupValue: prov.selectedCountryIndex,
                                   onChanged: (value) {
-                                    setState(() {
-                                      selectCountry = value!;
-                                    });
+                                    prov.selectedCountryIndex = value as int;
                                   }),
                             ),
                           );
