@@ -40,6 +40,7 @@ class User {
   String email;
   bool isOwner;
   bool? isLiked;
+  bool? isStoryHidden;
 
   User({
     required this.id,
@@ -50,6 +51,7 @@ class User {
     required this.email,
     required this.isOwner,
     this.isLiked,
+    this.isStoryHidden,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -61,6 +63,7 @@ class User {
         isOwner: json["isOwner"],
         email: json["email"],
         isLiked: json["isLiked"],
+        isStoryHidden: json["isStoryHidden"],
       );
 
   Map<String, dynamic> toJson() => {

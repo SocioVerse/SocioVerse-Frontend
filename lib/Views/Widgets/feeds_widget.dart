@@ -110,7 +110,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
                           child: Stack(
                             children: [
                               Container(
-                                  padding: EdgeInsets.all(3),
+                                  padding: const EdgeInsets.all(3),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
@@ -350,7 +350,7 @@ StatefulBuilder getFooter({
                                           backgroundColor: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          child: CircleAvatar(
+                                          child: const CircleAvatar(
                                               radius: 28,
                                               backgroundImage: AssetImage(
                                                 "assets/Country_flag/in.png",

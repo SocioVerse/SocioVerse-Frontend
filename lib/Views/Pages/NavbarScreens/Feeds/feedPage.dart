@@ -1,8 +1,15 @@
+import 'dart:developer';
+import 'dart:ffi';
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Controllers/feedPageProviders.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Models/feedModel.dart';
@@ -12,9 +19,11 @@ import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/main.dart';
 
 import '../../../Widgets/feeds_widget.dart';
 
@@ -26,417 +35,494 @@ class FeedsPage extends StatefulWidget {
 }
 
 class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
-  bool _showAppbar = true;
   final ScrollController _scrollController = ScrollController();
-  double _previousOffset = 0;
   List<ProfileStoryModel> profileStories = [];
-  bool isLoading = false;
   List<FeedModel> allFeeds = [];
   List<ThreadModel> allThreads = [];
-  int __value1 = 1;
   @override
   void initState() {
-    getFeedData();
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      _scrollController.addListener(() {
+        if (_scrollController.offset >= 400) {
+          Provider.of<FeedPageProvider>(context, listen: false)
+              .showBackToTopButton = true; // show the back-to-top button
+        } else {
+          Provider.of<FeedPageProvider>(context, listen: false)
+              .showBackToTopButton = false; // hide the back-to-top button
+        }
+      });
+      getFeedData();
+    });
+
     super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  getFeedData() async {
-    setState(() {
-      isLoading = true;
-    });
-    if (__value1 == 1) {
-      List<dynamic> feeds = await Future.wait([
-        StoriesServices().fetchAllStories(),
-        FeedServices().getFollowingFeeds()
-      ]);
-      profileStories = feeds[0] as List<ProfileStoryModel>;
-      allFeeds = feeds[1] as List<FeedModel>;
-    } else {
-      List<dynamic> feeds = await Future.wait([
-        StoriesServices().fetchAllStories(),
-        ThreadServices().getFollowingThreads()
-      ]);
-      profileStories = feeds[0] as List<ProfileStoryModel>;
-      allThreads = feeds[1] as List<ThreadModel>;
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Widget _buildLoadingShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Theme.of(context).colorScheme.tertiary,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.builder(
-        itemCount: 5, // Choose the number of shimmer placeholders
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5),
-            child: Column(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                  height: 80,
-                  width: 80,
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  height: 10,
-                  width: 60,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget storyScroller() {
-    return isLoading
-        ? _buildLoadingShimmer()
-        : ListView.builder(
-            itemCount: profileStories.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (context, index) {
-              return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: GestureDetector(
-                    onTap: () {
-                      if (profileStories[index].isAllSeen != null) {
-                        Navigator.push(context,
-                            CupertinoPageRoute(builder: ((context) {
-                          return StoryPage(
-                            user: profileStories[index].user,
-                          );
-                        }))).then((value) => getFeedData());
-                      }
-                    },
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 80,
-                          width: 80,
-                          child: Stack(
-                            children: [
-                              Container(
-                                  padding: EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: profileStories[index].isAllSeen ==
-                                              null
-                                          ? Colors.transparent
-                                          : profileStories[index].isAllSeen!
-                                              ? Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary
-                                              : Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  child:
-                                      CircularNetworkImageWithSizeWithoutPhotoView(
-                                    imageUrl:
-                                        profileStories[index].user.profilePic,
-                                    height: 80,
-                                    width: 80,
-                                  )),
-                              index == 0
-                                  ? Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: InkWell(
-                                        onTap: () async {
-                                          String? storyImage =
-                                              await ImagePickerFunctionsHelper
-                                                      .requestStoryPicker(
-                                                          context)
-                                                  .then((value) async {
-                                            if (value != null) {
-                                              return await FirebaseHelper
-                                                  .uploadFile(
-                                                      value.path,
-                                                      profileStories[0]
-                                                          .user
-                                                          .email,
-                                                      "${profileStories[0].user.email}/stories",
-                                                      FirebaseHelper.Image);
-                                            }
-                                            return null;
-                                          });
-                                          if (storyImage != null) {
-                                            await StoriesServices().uploadStory(
-                                                storyImage: [storyImage]);
-                                            getFeedData();
-                                          }
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                          child: Icon(
-                                            Icons.add,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .shadow,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        index != 0
-                            ? Text(
-                                profileStories[index].user.username,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              )
-                            : Text(
-                                "You",
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                      ],
-                    ),
-                  ));
-            });
-  }
-
-  Widget feedViewBuilder() {
-    return isLoading == false
-        ? allFeeds.isEmpty
-            ? const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 80,
-                  ),
-                  AllCaughtUp(),
-                ],
-              )
-            : ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(top: 10),
-                itemCount: allFeeds.length,
-                itemBuilder: (context, index) {
-                  return FeedLayout(
-                    feed: allFeeds[index],
-                  );
-                },
-              )
-        : ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: const EdgeInsets.only(top: 10),
-            itemCount: 2,
-            itemBuilder: (context, index) {
-              return ThreadShimmer();
-            },
-          );
-  }
-
-  Widget threadViewBuilder() {
-    return isLoading == false
-        ? allThreads.isEmpty
-            ? const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 80,
-                  ),
-                  AllCaughtUp(),
-                ],
-              )
-            : ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: const EdgeInsets.only(top: 10),
-                itemCount: allThreads.length,
-                itemBuilder: (context, index) {
-                  return ThreadLayout(
-                    thread: allThreads[index],
-                  );
-                },
-              )
-        : ListView.builder(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: const EdgeInsets.only(top: 10),
-            itemCount: 2,
-            itemBuilder: (context, index) {
-              return ThreadShimmer();
-            },
-          );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Consumer<FeedPageProvider>(builder: (context, prov, child) {
+            return !prov.showBackToTopButton
+                ? const SizedBox.shrink()
+                : FloatingActionButton(
+                    onPressed: () {
+                      _scrollController.animateTo(0,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut);
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    child: const Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white,
+                    ),
+                  );
+          }),
+          const SizedBox(
+            height: 10,
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: ((context) {
+                return const InboxPage();
+              }))).then((value) => getFeedData());
+            },
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            child: const Icon(
+              Icons.chat_bubble_outline,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () {
-            return getFeedData();
+          onRefresh: () async {
+            getFeedData();
           },
-          child: CustomScrollView(
+          child: SingleChildScrollView(
             controller: _scrollController,
-            slivers: <Widget>[
-              SliverAppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                expandedHeight: 70,
-                floating:
-                    true, // Set this to true to make AppBar scroll with content
-                pinned:
-                    false, // Set this to false to allow AppBar to fully collapse
-                title: Text("SocioVerse",
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 25,
-                        )),
-                actions: [
-                  // IconButton(
-                  //   onPressed: () {
-                  //     setState(() {
-                  //       _enableThread = !_enableThread;
-                  //     });
-                  //   },
-                  //   icon: Icon(Ionicons.link),
-                  // ),
-                  DropdownButton(
-                    dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                    focusColor: Theme.of(context).scaffoldBackgroundColor,
-                    underline: const SizedBox.shrink(),
-                    value: __value1,
-                    alignment: Alignment.centerRight,
-                    items: [
-                      DropdownMenuItem(
-                        value: 1,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(3.0),
-                              child: Icon(
-                                Ionicons.grid_outline,
-                                size: 15,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              "Feeds",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 2,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(3.0),
-                              child: Icon(
-                                Ionicons.text,
-                                size: 15,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              "Threads",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 18,
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        __value1 = value as int;
-                        getFeedData();
-                      });
-                    },
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(context,
-                          CupertinoPageRoute(builder: ((context) {
-                        return const InboxPage();
-                      })));
-                    },
-                    icon: const Icon(Ionicons.chatbubble_ellipses_outline),
-                  )
-                ],
-              ),
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
+            child: Consumer<FeedPageProvider>(builder: (context, prov, child) {
+              return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
                     const SizedBox(
-                      width: 10,
+                      height: 20,
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 120,
-                      child: storyScroller(),
-                    ),
-                    Divider(
-                      thickness: 1,
-                      height: 0,
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                    __value1 == 1 ? feedViewBuilder() : threadViewBuilder(),
-                    // Add more widgets as needed
-                  ],
-                ),
-              ),
-            ],
+                    tabSlider(context),
+                    prov.value == 1
+                        ? feedViewBuilder()
+                        : prov.value == 2
+                            ? threadViewBuilder()
+                            : storyScroller(),
+                  ]);
+            }),
           ),
         ),
+      ),
+    );
+  }
+
+  getFeedData() async {
+    var prov = Provider.of<FeedPageProvider>(context, listen: false);
+    prov.isLoading = true;
+    if (prov.value == 1) {
+      allFeeds = await FeedServices().getFollowingFeeds();
+    } else if (prov.value == 2) {
+      allThreads = await ThreadServices().getFollowingThreads();
+    } else {
+      profileStories = await StoriesServices().fetchAllStories();
+    }
+    prov.isLoading = false;
+  }
+
+  Widget _buildLoadingShimmer() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: 6,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 5,
+            childAspectRatio: 2 / 3,
+            mainAxisSpacing: 5,
+          ),
+          itemBuilder: (context, index) {
+            return Shimmer.fromColors(
+              baseColor: Theme.of(context).colorScheme.tertiary,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+  Widget storyScroller() {
+    return Consumer<FeedPageProvider>(builder: (context, prov, child) {
+      return prov.isLoading == false
+          ? profileStories.isEmpty
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 80,
+                    ),
+                    AllCaughtUp(),
+                  ],
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: GridView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: profileStories.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 5,
+                        childAspectRatio: 2 / 3,
+                        mainAxisSpacing: 2,
+                      ),
+                      itemBuilder: (context, index) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Theme.of(context).colorScheme.secondary,
+                            image: DecorationImage(
+                              colorFilter: ColorFilter.mode(
+                                  Colors.black.withOpacity(0.2),
+                                  BlendMode.dstATop),
+                              image: CachedNetworkImageProvider(
+                                  profileStories[index].user.profilePic),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              const Spacer(),
+                              Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 5, vertical: 10),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (profileStories[index].isAllSeen !=
+                                          null) {
+                                        Navigator.push(context,
+                                            CupertinoPageRoute(
+                                                builder: ((context) {
+                                          return StoryPage(
+                                            user: profileStories[index].user,
+                                          );
+                                        }))).then((value) => getFeedData());
+                                      }
+                                    },
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 80,
+                                          width: 80,
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                  padding:
+                                                      const EdgeInsets.all(3),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: profileStories[
+                                                                      index]
+                                                                  .isAllSeen ==
+                                                              null
+                                                          ? Colors.transparent
+                                                          : profileStories[
+                                                                      index]
+                                                                  .isAllSeen!
+                                                              ? Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .tertiary
+                                                              : Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                      width: 2,
+                                                    ),
+                                                  ),
+                                                  child:
+                                                      CircularNetworkImageWithSizeWithoutPhotoView(
+                                                    imageUrl:
+                                                        profileStories[index]
+                                                            .user
+                                                            .profilePic,
+                                                    height: 80,
+                                                    width: 80,
+                                                  )),
+                                              index == 0
+                                                  ? Positioned(
+                                                      bottom: 0,
+                                                      right: 0,
+                                                      child: InkWell(
+                                                        onTap: () async {
+                                                          String? storyImage =
+                                                              await ImagePickerFunctionsHelper
+                                                                      .requestStoryPicker(
+                                                                          context)
+                                                                  .then(
+                                                                      (value) async {
+                                                            if (value != null) {
+                                                              return await FirebaseHelper.uploadFile(
+                                                                  value.path,
+                                                                  profileStories[
+                                                                          0]
+                                                                      .user
+                                                                      .email,
+                                                                  "${profileStories[0].user.email}/stories",
+                                                                  FirebaseHelper
+                                                                      .Image);
+                                                            }
+                                                            return null;
+                                                          });
+                                                          if (storyImage !=
+                                                              null) {
+                                                            await StoriesServices()
+                                                                .uploadStory(
+                                                                    storyImage: [
+                                                                  storyImage
+                                                                ]);
+                                                            getFeedData();
+                                                          }
+                                                        },
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        5),
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .primary,
+                                                          ),
+                                                          child: Icon(
+                                                            Icons.add,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .shadow,
+                                                            size: 20,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Container(),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                      ],
+                                    ),
+                                  )),
+                            ],
+                          ),
+                        );
+                      }),
+                )
+          : _buildLoadingShimmer();
+    });
+  }
+
+  Widget feedViewBuilder() {
+    return Consumer<FeedPageProvider>(builder: (context, prov, child) {
+      return prov.isLoading == false
+          ? allFeeds.isEmpty
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 80,
+                    ),
+                    AllCaughtUp(),
+                  ],
+                )
+              : ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 10),
+                  itemCount: allFeeds.length,
+                  itemBuilder: (context, index) {
+                    return FeedLayout(
+                      feed: allFeeds[index],
+                    );
+                  },
+                )
+          : ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.only(top: 10),
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                return ThreadShimmer();
+              },
+            );
+    });
+  }
+
+  Widget threadViewBuilder() {
+    return Consumer<FeedPageProvider>(builder: (context, prov, child) {
+      return prov.isLoading == false
+          ? allThreads.isEmpty
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 80,
+                    ),
+                    AllCaughtUp(),
+                  ],
+                )
+              : ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 10),
+                  itemCount: allThreads.length,
+                  itemBuilder: (context, index) {
+                    return ThreadLayout(
+                      thread: allThreads[index],
+                    );
+                  },
+                )
+          : ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.only(top: 10),
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                return ThreadShimmer();
+              },
+            );
+    });
+  }
+
+  SizedBox tabSlider(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Consumer<FeedPageProvider>(builder: (context, prov, child) {
+            return CustomSlidingSegmentedControl<int>(
+              initialValue: 1,
+              children: {
+                1: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(3.0),
+                      child: Icon(
+                        Ionicons.grid_outline,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Feeds",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                  ],
+                ),
+                2: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(3.0),
+                      child: Icon(
+                        Ionicons.text,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Threads",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                  ],
+                ),
+                3: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(3.0),
+                      child: Icon(
+                        Ionicons.time_outline,
+                        size: 15,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(
+                      "Stories",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                  ],
+                ),
+              },
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.secondary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              thumbDecoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(6),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.3),
+                    blurRadius: 4.0,
+                    spreadRadius: 1.0,
+                    offset: const Offset(
+                      0.0,
+                      2.0,
+                    ),
+                  ),
+                ],
+              ),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInToLinear,
+              onValueChanged: (v) {
+                prov.value = v;
+                getFeedData();
+              },
+            );
+          }),
+        ],
       ),
     );
   }

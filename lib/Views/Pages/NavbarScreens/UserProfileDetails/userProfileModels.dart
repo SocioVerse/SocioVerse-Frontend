@@ -50,6 +50,7 @@ class UserProfileDetailsModelUser {
   String email;
   String? bio;
   int? state;
+  bool isStoryHidden;
 
   UserProfileDetailsModelUser({
     required this.id,
@@ -66,6 +67,7 @@ class UserProfileDetailsModelUser {
     required this.email,
     this.bio,
     this.state,
+    required this.isStoryHidden,
   });
 
   factory UserProfileDetailsModelUser.fromJson(Map<String, dynamic> json) =>
@@ -84,6 +86,7 @@ class UserProfileDetailsModelUser {
         bio: json["bio"],
         state: json["state"],
         email: json["email"],
+        isStoryHidden: json["story_hidden"],
       );
 
   Map<String, dynamic> toJson() => {

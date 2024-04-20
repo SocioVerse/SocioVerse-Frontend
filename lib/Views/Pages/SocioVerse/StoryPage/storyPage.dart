@@ -5,14 +5,18 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Models/storyModels.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageController.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageWidgets.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/Views/Widgets/Global/bottomSheets.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/widgets/story_view.dart';
 
 import '../../../Widgets/buttons.dart';
+import 'package:socioverse/Models/inboxModel.dart' as inbox;
 
 class StoryPage extends StatefulWidget {
   final User user;
@@ -33,11 +37,11 @@ class _StoryPageState extends State<StoryPage> {
           future: StoriesServices().getUserStory(userId: widget.user.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
             } else if (snapshot.hasError) {
-              return Center(
+              return const Center(
                 child: Text('Error fetching data'),
               );
             } else {
@@ -73,9 +77,6 @@ class StoryPageContent extends StatelessWidget {
   final List<StoryItem> storyItems;
   final StoryController storyController;
   final User user;
-
-  TextEditingController storyMessage = TextEditingController();
-  TextEditingController search = TextEditingController();
   StoryPageContent({
     required this.fetchedStories,
     required this.storyItems,
@@ -118,231 +119,63 @@ class StoryPageContent extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: ListTile(
-                  contentPadding: EdgeInsets.all(0),
+                  contentPadding: const EdgeInsets.all(0),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return UserProfilePage(
+                        owner: user.isOwner,
+                        userId: user.id,
+                      );
+                    }));
+                  },
                   leading: CircularNetworkImageWithSizeWithoutPhotoView(
                       imageUrl: user.profilePic, height: 60, width: 60),
                   title: Text(
                     user.username,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontWeight: FontWeight.bold,
+                        shadows: [
+                          const Shadow(
+                            color: Colors.black,
+                            offset: Offset(0, 0),
+                            blurRadius: 5,
+                          ),
+                        ],
                         color: Theme.of(context).colorScheme.onPrimary),
                   ),
                   subtitle: Text(
                     user.occupation,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  trailing: IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            ),
+                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          const Shadow(
+                            color: Colors.black,
+                            offset: Offset(0, 0),
+                            blurRadius: 5,
                           ),
-                          backgroundColor:
-                              Theme.of(context).scaffoldBackgroundColor,
-                          context: context,
-                          builder: (context) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.horizontal_rule_rounded,
-                                  size: 50,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                ListTile(
-                                  leading: const Icon(
-                                    Ionicons.warning,
-                                    color: Colors.red,
-                                  ),
-                                  title: Text(
-                                    'Report',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            fontSize: 16),
-                                  ),
-                                  onTap: () {},
-                                ),
-                                ListTile(
-                                  leading: Icon(Ionicons.copy_outline),
-                                  title: Text(
-                                    'Copy Link',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            fontSize: 16),
-                                  ),
-                                  onTap: () {},
-                                ),
-                                ListTile(
-                                  leading: Icon(Ionicons.send),
-                                  title: Text(
-                                    'Share to...',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            fontSize: 16),
-                                  ),
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(20),
-                                            topRight: Radius.circular(20),
-                                          ),
-                                        ),
-                                        backgroundColor: Theme.of(context)
-                                            .scaffoldBackgroundColor,
-                                        context: context,
-                                        builder: (context) {
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 15.0, right: 15),
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.horizontal_rule_rounded,
-                                                  size: 50,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .secondary,
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                CustomTextField(
-                                                  controller: storyMessage,
-                                                  hintText:
-                                                      "Write a message...",
-                                                  onChanged: (value) {},
-                                                ),
-                                                const SizedBox(
-                                                  height: 20,
-                                                  child: Divider(
-                                                    height: 10,
-                                                  ),
-                                                ),
-                                                CustomTextField(
-                                                    controller: search,
-                                                    hintText: "Search",
-                                                    onChanged: (value) {},
-                                                    prefixIcon: Icon(
-                                                      Ionicons.search,
-                                                      size: 20,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .surface,
-                                                    )),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Expanded(
-                                                  child: ListView.builder(
-                                                      shrinkWrap: true,
-                                                      itemCount: 10,
-                                                      itemBuilder:
-                                                          (context, index) {
-                                                        return ListTile(
-                                                          leading: CircleAvatar(
-                                                            radius: 30,
-                                                            backgroundColor:
-                                                                Theme.of(
-                                                                        context)
-                                                                    .colorScheme
-                                                                    .secondary,
-                                                            child: CircleAvatar(
-                                                                radius: 28,
-                                                                backgroundImage:
-                                                                    AssetImage(
-                                                                  "assets/Country_flag/in.png",
-                                                                )),
-                                                          ),
-                                                          title: Text(
-                                                            "Fatima",
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodyMedium!
-                                                                .copyWith(
-                                                                  fontSize: 16,
-                                                                  color: Theme.of(
-                                                                          context)
-                                                                      .colorScheme
-                                                                      .onPrimary,
-                                                                ),
-                                                          ),
-                                                          subtitle: Text(
-                                                            "Occupation",
-                                                            style: Theme.of(
-                                                                    context)
-                                                                .textTheme
-                                                                .bodySmall!
-                                                                .copyWith(
-                                                                  fontSize: 14,
-                                                                ),
-                                                          ),
-                                                          trailing:
-                                                              MyEleButtonsmall(
-                                                                  title2:
-                                                                      "Sent",
-                                                                  title: "Send",
-                                                                  onPressed:
-                                                                      () {},
-                                                                  ctx: context),
-                                                        );
-                                                      }),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        });
-                                  },
-                                ),
-                                ListTile(
-                                  leading: new Icon(Ionicons.volume_mute),
-                                  title: Text(
-                                    'Mute',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                            fontSize: 16),
-                                  ),
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            );
-                          });
-                    },
-                    icon: Icon(
-                      Ionicons.ellipsis_horizontal_circle_outline,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                        ],
+                        color: Theme.of(context).colorScheme.onPrimary),
                   ),
+                  trailing: user.isOwner == true
+                      ? const SizedBox.shrink()
+                      : IconButton(
+                          onPressed: () {
+                            storyController.pause();
+                            showOptions(context)
+                                .then((value) => storyController.play());
+                          },
+                          icon: Icon(
+                            Ionicons.ellipsis_horizontal_circle_outline,
+                            shadows: const [
+                              Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(0, 0),
+                                  blurRadius: 5)
+                            ],
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
                 ),
               ),
             ],
@@ -359,5 +192,90 @@ class StoryPageContent extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<dynamic> showOptions(BuildContext context) {
+    return showModalBottomSheet(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.horizontal_rule_rounded,
+                size: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              ListTile(
+                leading: const Icon(
+                  Ionicons.warning,
+                  color: Colors.red,
+                ),
+                title: Text(
+                  'Report',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  ReportBottomSheet(
+                          reportType: "Story",
+                          context: context,
+                          userId: user.id,
+                          storyId: fetchedStories[0].id)
+                      .showReportBottomSheet();
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.person_remove,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                title: Text(
+                  'Unfollow',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  storyController.pause();
+                  UnfollowUserAlertBox(
+                      context: context,
+                      username: user.username,
+                      userId: user.id,
+                      onReject: () {});
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Ionicons.eye_off,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                title: Text(
+                  user.isStoryHidden == false
+                      ? 'Hide My Story'
+                      : 'Unhide My Story',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      fontSize: 16),
+                ),
+                onTap: () {
+                  if (user.isStoryHidden == false) {
+                    StoriesServices().hideStory(userId: user.id);
+                  } else {
+                    StoriesServices().unhideStory(userId: user.id);
+                  }
+                },
+              ),
+            ],
+          );
+        });
   }
 }

@@ -19,6 +19,7 @@ class ApiHelper {
     if (!isPublic) headers = ({"Authorization": "Bearer $token"});
     try {
       Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path", querryParam);
+      log(uri.toString());
       final response = await http.get(
         uri,
         headers: headers,

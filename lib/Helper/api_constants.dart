@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.29.71:4000";
+  static const String baseUrl = "192.168.75.238:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -11,6 +11,7 @@ class ApiStringConstants {
   static const String fetchAllLikedThreads = "threads/liked-threads";
   static const String createComment = "threads/create-comment";
   static const String deleteThreads = "threads/delete-thread";
+  static const String fetchThreadLikes = "threads/fetch-thread-likes";
 
   //Feed APIs
   static const String createFeed = "feeds/create-new-feed";
@@ -25,6 +26,7 @@ class ApiStringConstants {
   static const String fetchcommentReplies = "feeds/fetch-comment-replies"; //
   static const String toggleFeedCommentLike =
       "feeds/toggle-feed-commment-like"; //
+  static const String fetchFeedLikes = "feeds/fetch-feed-likes";
 
   static const String getFeedById = "feeds/fetch-feed-by-id"; //
   static const String createCommentReply = "feeds/create-comment-reply"; //
@@ -72,6 +74,8 @@ class ApiStringConstants {
   static const String fetchAllStories = "users/fetch-all-stories";
   static const String fetchAllStorySeen = "users/fetch-all-stories-seens";
   static const String fetchUserFeeds = "users/fetch-user-feeds";
+  static const String hideStory = "users/hide-story";
+  static const String unhideStory = "users/unhide-story";
 
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
@@ -82,4 +86,7 @@ class ApiStringConstants {
 
   //Location APIs
   static const String fetchLocationFeed = "location/fetch-location-feeds";
+
+  //Report APIs
+  static const String createReport = "help/create-report";
 }

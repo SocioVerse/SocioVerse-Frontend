@@ -3,7 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:socioverse/Controllers/pickImagePageProvider.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/postEditPage.dart';
@@ -22,43 +24,38 @@ class PickImagePage extends StatefulWidget {
 }
 
 class _PickImagePageState extends State<PickImagePage> {
-  List<int> selectedIndex = [];
-  int imageCount = 0;
-  int? singleImageIndex;
-  bool multiSelect = false;
-  List<AssetEntity> assets = [];
-  late AssetEntity selectedAsset;
-  int currentGrid = 30;
-  bool isStatus = false;
+  int currentGrid = 0;
   bool? assetType;
   final ScrollController _scrollController = ScrollController();
   Future<void> _fetchAssets() async {
-    assets = await PhotoManager.getAssetListRange(
-      start: 0,
-      end: currentGrid,
+    List<AssetEntity> offset = await PhotoManager.getAssetListPaged(
+      pageCount: 1000,
+      page: currentGrid++,
       type: RequestType.image,
     );
-    setState(() {});
+    if (!context.mounted) return;
+    Provider.of<PickImagePageProvider>(context, listen: false).addAsset(offset);
   }
 
   @override
   void initState() {
     super.initState();
-    _initializePhotoManager();
-    _scrollController.addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<PickImagePageProvider>(context, listen: false).dispose();
+      _initializePhotoManager();
+      _scrollController.addListener(_scrollListener);
+    });
   }
 
   @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    super.dispose();
   }
 
   void _scrollListener() async {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      currentGrid += 30;
       await _fetchAssets();
     }
   }
@@ -67,11 +64,14 @@ class _PickImagePageState extends State<PickImagePage> {
     final PermissionState state = await PhotoManager.requestPermissionExtend();
     if (state.isAuth) {
       await _fetchAssets();
-      selectedAsset = assets[0];
-      singleImageIndex = 0;
-      setState(() {
-        isStatus = true;
-      });
+      if (!context.mounted) return;
+      Provider.of<PickImagePageProvider>(context, listen: false).selectedAsset =
+          Provider.of<PickImagePageProvider>(context, listen: false).assets[0];
+
+      Provider.of<PickImagePageProvider>(context, listen: false)
+          .singleImageIndex = 0;
+      Provider.of<PickImageLoadingProvider>(context, listen: false).loading =
+          false;
     }
   }
 
@@ -101,25 +101,9 @@ class _PickImagePageState extends State<PickImagePage> {
     );
   }
 
-  Widget _buildAssetWidget(File bytes) {
-    final assetType = selectedAsset.type;
-
-    if (assetType == AssetType.image) {
-      return PhotoView(
-        imageProvider: FileImage(bytes),
-      );
-    } else if (assetType == AssetType.video) {
-      return VideoPlayerWidget(
-        file: bytes,
-      );
-    } else {
-      // Handle other asset types if needed
-      return const Text('Unsupported asset type');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    var prov = Provider.of<PickImagePageProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -137,12 +121,14 @@ class _PickImagePageState extends State<PickImagePage> {
           IconButton(
               onPressed: () async {
                 List<File> files = [];
-                if (selectedIndex.isNotEmpty) {
+                if (prov.selectedIndex.isNotEmpty) {
                   // Use Future.wait to wait for all futures to complete
                   await Future.wait(
-                    List<Future>.generate(selectedIndex.length, (int i) async {
+                    List<Future>.generate(prov.selectedIndex.length,
+                        (int i) async {
                       log(i.toString());
-                      final value = await assets[selectedIndex[i]].file;
+                      final value =
+                          await prov.assets[prov.selectedIndex[i]].file;
                       if (value != null) {
                         files.add(value);
                       }
@@ -151,12 +137,11 @@ class _PickImagePageState extends State<PickImagePage> {
 
                   print(files.length.toString());
                 } else {
-                  File? value = await selectedAsset.file;
+                  File? value = await prov.selectedAsset.file;
                   log(value!.path);
-                  if (value != null) {
-                    files.add(value);
-                  }
+                  files.add(value);
                 }
+                if (!context.mounted) return;
                 ImagePickerFunctionsHelper.cropMultipleImages(
                         context, files, false)
                     .then((value) {
@@ -178,90 +163,53 @@ class _PickImagePageState extends State<PickImagePage> {
               )),
         ],
       ),
-      body: isStatus == false
-          ? Center(
-              child: SpinKit.ring,
-            )
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Column(
-                children: [
-                  FutureBuilder<File?>(
-                    future: selectedAsset.file,
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File?> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child: SizedBox(
-                                width: MyApp.width!,
-                                height: MyApp.width! - 20,
-                                child: const Center(
-                                    child: CircularProgressIndicator())));
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (!snapshot.hasData) {
-                        return const Text('No data available');
-                      }
+      body:
+          Consumer<PickImageLoadingProvider>(builder: (context, pprov, child) {
+        return pprov.loading == true
+            ? Center(
+                child: SpinKit.ring,
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: [
+                    // FutureBuilder<File?>(
+                    //   future: selectedAsset.file,
+                    //   builder:
+                    //       (BuildContext context, AsyncSnapshot<File?> snapshot) {
+                    //     if (snapshot.connectionState == ConnectionState.waiting) {
+                    //       return Center(
+                    //           child: SizedBox(
+                    //               width: MyApp.width!,
+                    //               height: MyApp.width! - 20,
+                    //               child: const Center(
+                    //                   child: CircularProgressIndicator())));
+                    //     } else if (snapshot.hasError) {
+                    //       return Text('Error: ${snapshot.error}');
+                    //     } else if (!snapshot.hasData) {
+                    //       return const Text('No data available');
+                    //     }
 
-                      final bytes = snapshot.data!;
-                      log(bytes.path);
+                    //     final bytes = snapshot.data!;
+                    //     log(bytes.path);
 
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(
-                          width: MyApp.width!,
-                          height: MyApp.width! - 20,
-                          child: _buildAssetWidget(bytes),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        DropdownButton(
-                          items: [
-                            DropdownMenuItem(
-                              value: "Gallery",
-                              child: Text(
-                                "Gallery",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 17,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary),
-                              ),
-                            ),
-                          ],
-                          value: "Gallery",
-                          underline: Container(),
-                          icon: Icon(
-                            Icons.arrow_drop_down,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          onChanged: (value) {},
-                        ),
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Ionicons.camera,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ))
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: StatefulBuilder(builder: (context, innerState) {
-                      return GridView.builder(
+                    //     return ClipRRect(
+                    //       borderRadius: BorderRadius.circular(10),
+                    //       child: SizedBox(
+                    //         width: MyApp.width!,
+                    //         height: MyApp.width! - 20,
+                    //         child: _buildAssetWidget(bytes),
+                    //       ),
+                    //     );
+                    //   },
+                    // ),
+                    // const SizedBox(
+                    //   height: 20,
+                    // ),
+                    // selectorWidget(context),
+
+                    Expanded(
+                      child: GridView.builder(
                           controller: _scrollController,
                           shrinkWrap: true,
                           gridDelegate:
@@ -270,17 +218,14 @@ class _PickImagePageState extends State<PickImagePage> {
                             crossAxisSpacing: 5,
                             mainAxisSpacing: 5,
                           ),
-                          itemCount: assets.length,
+                          itemCount: prov.assets.length,
                           itemBuilder: (context, index) {
-                            return FutureBuilder<Uint8List>(
-                              future: assets[index]
-                                  .thumbnailData
-                                  .then((value) => value!),
-                              builder: (_, snapshot) {
-                                final bytes = snapshot.data;
-                                if (bytes == null) {
-                                  return Positioned.fill(
-                                    child: ClipRRect(
+                            return FutureBuilder<Uint8List?>(
+                                future: prov.assets[index].thumbnailData,
+                                builder: (_, snapshot) {
+                                  final bytes = snapshot.data;
+                                  if (bytes == null) {
+                                    return ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child: Shimmer.fromColors(
                                           baseColor: Theme.of(context)
@@ -290,166 +235,187 @@ class _PickImagePageState extends State<PickImagePage> {
                                           child: Container(
                                             color: Colors.grey,
                                           ),
-                                        )),
-                                  );
-                                }
-                                return GestureDetector(
-                                  onTap: () {
-                                    if (multiSelect == true) {
-                                      if (selectedIndex.contains(index)) {
-                                        selectedIndex.remove(index);
-                                        imageCount = selectedIndex.length;
-                                        if (imageCount == 0) {
-                                          multiSelect = false;
-                                        }
-                                      } else {
-                                        selectedIndex.add(index);
-                                        imageCount = selectedIndex.length;
-                                      }
-                                      if (imageCount > 0) {
-                                        selectedAsset =
-                                            assets[selectedIndex[0]];
-                                      }
-                                      setState(() {});
-                                    } else {
-                                      if (singleImageIndex == null) {
-                                        singleImageIndex = index;
-                                      } else {
-                                        singleImageIndex = index;
-                                      }
-                                      selectedAsset = assets[index];
-                                      setState(() {});
-                                    }
-                                  },
-                                  onLongPress: () {
-                                    if (multiSelect == true) {
-                                      if (selectedIndex.contains(index)) {
-                                        selectedIndex.remove(index);
-                                        imageCount = selectedIndex.length;
-                                        if (imageCount == 0) {
-                                          setState(() {
-                                            multiSelect = false;
-                                          });
-                                        }
-                                      } else {
-                                        selectedIndex.add(index);
-                                        imageCount = selectedIndex.length;
-                                      }
+                                        ));
+                                  }
+                                  return Consumer<PickImagePageProvider>(
+                                    builder: (context, prov, child) {
+                                      return GestureDetector(
+                                        onTap: () {
+                                          if (prov.multiSelect == true) {
+                                            if (prov.selectedIndex
+                                                .contains(index)) {
+                                              prov.selectedIndex.remove(index);
+                                              if (prov.selectedIndex.isEmpty) {
+                                                prov.multiSelect = false;
+                                              }
+                                            } else {
+                                              prov.selectedIndex.add(index);
+                                            }
+                                            if (prov.selectedIndex.isNotEmpty) {
+                                              prov.selectedAsset = prov.assets[
+                                                  prov.selectedIndex[0]];
+                                            }
+                                          } else {
+                                            prov.singleImageIndex = index;
+                                            prov.selectedAsset =
+                                                prov.assets[index];
+                                          }
+                                        },
+                                        onLongPress: () {
+                                          if (prov.multiSelect == true) {
+                                            if (prov.selectedIndex
+                                                .contains(index)) {
+                                              prov.selectedAsset = prov.assets[
+                                                  prov.selectedIndex[0]];
+                                              prov.selectedIndex.remove(index);
+                                              if (prov.selectedIndex.isEmpty) {
+                                                prov.multiSelect = false;
+                                              }
+                                            } else {
+                                              prov.selectedIndex.add(index);
+                                            }
+                                          } else {
+                                            prov.multiSelect = true;
+                                            prov.selectedIndex.add(index);
+                                            prov.selectedAsset = prov
+                                                .assets[prov.selectedIndex[0]];
+                                          }
+                                        },
+                                        child: Stack(
+                                          children: [
+                                            // Wrap the image in a Positioned.fill to fill the space
+                                            Positioned.fill(
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                child: Image.memory(bytes,
+                                                    fit: BoxFit.cover),
+                                              ),
+                                            ),
 
-                                      selectedAsset = assets[selectedIndex[0]];
-                                      setState(() {});
-                                    } else {
-                                      setState(() {
-                                        multiSelect = true;
-                                        selectedIndex.add(index);
-                                        selectedAsset =
-                                            assets[selectedIndex[0]];
-                                        imageCount = selectedIndex.length;
-                                      });
-                                    }
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      // Wrap the image in a Positioned.fill to fill the space
-                                      Positioned.fill(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Image.memory(bytes,
-                                              fit: BoxFit.cover),
+                                            Positioned(
+                                              top: 5,
+                                              right: 5,
+                                              child: prov.multiSelect == true
+                                                  ? prov.selectedIndex
+                                                          .contains(index)
+                                                      ? countPickedImages(prov
+                                                              .selectedIndex
+                                                              .indexOf(index) +
+                                                          1)
+                                                      : Container()
+                                                  : prov.singleImageIndex ==
+                                                          index
+                                                      ? selectedIcon()
+                                                      : Container(),
+                                            ),
+                                          ],
                                         ),
-                                      ),
-                                      // Display a Play icon if the asset is a video
-                                      if (assets[index].type == AssetType.video)
-                                        const Center(
-                                          child: Icon(
-                                            Ionicons.play,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Align(
-                                            alignment: Alignment.topRight,
-                                            child: multiSelect == true
-                                                ? selectedIndex.contains(index)
-                                                    ? countPickedImages(
-                                                        selectedIndex.indexOf(
-                                                                index) +
-                                                            1)
-                                                    : Container()
-                                                : singleImageIndex == index
-                                                    ? selectedIcon()
-                                                    : Container()),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          });
-                    }),
-                  ),
-                ],
+                                      );
+                                    },
+                                  );
+                                });
+                          }),
+                    ),
+                  ],
+                ),
+              );
+      }),
+    );
+  }
+
+  Padding selectorWidget(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          DropdownButton(
+            items: [
+              DropdownMenuItem(
+                value: "Gallery",
+                child: Text(
+                  "Gallery",
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
               ),
+            ],
+            value: "Gallery",
+            underline: Container(),
+            icon: Icon(
+              Icons.arrow_drop_down,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
+            onChanged: (value) {},
+          ),
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Ionicons.camera,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ))
+        ],
+      ),
     );
   }
 }
 
-class VideoPlayerWidget extends StatefulWidget {
-  const VideoPlayerWidget({super.key, required this.file});
-  final File file;
-  @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
-}
+// class VideoPlayerWidget extends StatefulWidget {
+//   const VideoPlayerWidget({super.key, required this.file});
+//   final File file;
+//   @override
+//   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+// }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  bool _isControllerInitialized = false;
+// class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+//   late VideoPlayerController _controller;
+//   bool _isControllerInitialized = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeController();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _initializeController();
+//   }
 
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+//   @override
+//   void setState(fn) {
+//     if (mounted) {
+//       super.setState(fn);
+//     }
+//   }
 
-  Future<void> _initializeController() async {
-    File? videoFile = await widget.file;
-    log(videoFile.path);
-    if (videoFile != null) {
-      _controller = VideoPlayerController.file(videoFile)
-        ..play()
-        // Play the video again when it ends
-        ..setLooping(true)
-        // initialize the controller and notify UI when done
-        ..initialize().then((_) => setState(() {
-              _isControllerInitialized = true;
-            }));
-    }
-  }
+//   Future<void> _initializeController() async {
+//     File? videoFile = await widget.file;
+//     log(videoFile.path);
+//     if (videoFile != null) {
+//       _controller = VideoPlayerController.file(videoFile)
+//         ..play()
+//         // Play the video again when it ends
+//         ..setLooping(true)
+//         // initialize the controller and notify UI when done
+//         ..initialize().then((_) => setState(() {
+//               _isControllerInitialized = true;
+//             }));
+//     }
+//   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     _controller.dispose();
+//     super.dispose();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return _isControllerInitialized
-        ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            // Use the VideoPlayer widget to display the video.
-            child: VideoPlayer(_controller),
-          )
-        : const CircularProgressIndicator();
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return _isControllerInitialized
+//         ? AspectRatio(
+//             aspectRatio: _controller.value.aspectRatio,
+//             // Use the VideoPlayer widget to display the video.
+//             child: VideoPlayer(_controller),
+//           )
+//         : const CircularProgressIndicator();
+//   }
+// }

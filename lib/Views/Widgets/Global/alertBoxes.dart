@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Models/inboxModel.dart';
+import 'package:socioverse/Services/follow_unfollow_services.dart';
 
 class AlertBoxes {
   static void acceptRejectAlertBox({
@@ -121,6 +123,33 @@ class AlertBoxes {
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+class UnfollowUserAlertBox {
+  BuildContext context;
+  String userId;
+  String username;
+  Function onReject;
+  UnfollowUserAlertBox(
+      {required this.userId,
+      required this.username,
+      required this.context,
+      required this.onReject}) {
+    AlertBoxes.acceptRejectAlertBox(
+      context: context,
+      title: 'Unfollow User',
+      onAccept: () {
+        FollowUnfollowServices().unFollow(userId: userId);
+      },
+      onReject: onReject,
+      content: Text(
+        'Are you sure you want to unfollow @$username?',
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
       ),
     );
   }

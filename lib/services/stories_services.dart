@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
@@ -84,5 +86,39 @@ class StoriesServices {
       querryParam: {'story_id': storyId},
     );
     return StorySeensModel.fromJson(_response.data);
+  }
+
+  Future<void> hideStory({required String userId}) async {
+    _response = await _helper.post(
+      ApiStringConstants.hideStory,
+      isPublic: false,
+      querryParam: {'hideFrom': userId},
+    );
+    Fluttertoast.showToast(
+      msg: "Story Hidden",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      fontSize: 16.0,
+    );
+  }
+
+  Future<void> unhideStory({required String userId}) async {
+    _response = await _helper.post(
+      ApiStringConstants.unhideStory,
+      isPublic: false,
+      querryParam: {'unhideFrom': userId},
+    );
+    Fluttertoast.showToast(
+      msg: "Story Unhidden",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      fontSize: 16.0,
+    );
   }
 }

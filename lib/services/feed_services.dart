@@ -70,6 +70,20 @@ class FeedServices {
     return fetchedUsers;
   }
 
+  Future<List<User>> fetchFeedLikes({
+    required String feedId,
+  }) async {
+    _response = await _helper.get(ApiStringConstants.fetchFeedLikes,
+        querryParam: {'feedId': feedId});
+    List<User> fetchedUsers = [];
+    if (_response.success == true) {
+      for (var user in _response.data) {
+        fetchedUsers.add(User.fromJson(user));
+      }
+    }
+    return fetchedUsers;
+  }
+
   Future<FeedComment> createComment(
       {required String content, required String feedId}) async {
     _response = await _helper.post(

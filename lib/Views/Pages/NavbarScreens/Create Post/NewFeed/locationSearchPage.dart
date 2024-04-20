@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/locationSearchPageProvider.dart';
+import 'package:socioverse/Controllers/postEditingProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/locationModel.dart';
 import 'package:socioverse/Services/location_services.dart';
@@ -53,8 +54,11 @@ class LocationSearchPage extends StatelessWidget {
                             itemBuilder: (context, index) {
                               return ListTile(
                                 onTap: () {
-                                  Navigator.pop(
-                                      context, prov.searchedLocation[index]);
+                                  Provider.of<PostEditProvider>(context,
+                                              listen: false)
+                                          .selectedLocation =
+                                      prov.searchedLocation[index];
+                                  Navigator.pop(context);
                                 },
                                 leading: CircleAvatar(
                                   radius: 40,

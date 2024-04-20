@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:math';
 
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -45,13 +46,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
   List<HashtagsSearchModel> searchedHashtags = [];
   late TabController _tabController;
   TextEditingController searchText = TextEditingController();
-  List<String> sections = [
-    "Trending",
-    "Discover",
-    "Posts",
-    "Tags",
-    "Places",
-  ];
+
   @override
   void initState() {
     super.initState();
@@ -65,58 +60,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     }
   }
 
-  int selectedChip = 0;
+  int selectedChip = 1;
   Widget allSearchFeeds() {
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                ),
-                scrollDirection: Axis.horizontal,
-                itemCount: sections.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: ChoiceChip(
-                      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
-                      label: Text(
-                        sections[index],
-                        style: GoogleFonts.openSans(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          color: selectedChip == index
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.primary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      selectedColor: Theme.of(context).colorScheme.primary,
-                      selected: selectedChip == index ? true : false,
-                      onSelected: (value) {
-                        setState(() {
-                          selectedChip = index;
-                        });
-                      },
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.primary,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            tabSlider(context),
             const SizedBox(
               height: 20,
             ),
@@ -203,324 +153,370 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
   }
 
   Widget searchEnabled() {
-    return DefaultTabController(
-      length: 4,
-      child: Expanded(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                height: 55,
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        const Spacer(),
-                        Divider(
-                          color: Theme.of(context).colorScheme.tertiary,
-                          thickness: 1,
-                        ),
-                      ],
+    List<Widget> _searchWidgets = [
+      Expanded(
+        child: searchText.text.isNotEmpty && isUserFetched == false
+            ? Center(
+                child: SpinKit.ring,
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: searchedUser.length,
+                itemBuilder: (context, index) {
+                  return Column(children: [
+                    personListTile(
+                        user: searchedUser[index],
+                        ttl1: searchedUser[index].state == 0
+                            ? "Follow"
+                            : searchedUser[index].state == 2
+                                ? "Following"
+                                : "Requested",
+                        isPressed:
+                            searchedUser[index].state == 0 ? false : true,
+                        ttl2: searchedUser[index].state == 0
+                            ? "Requested"
+                            : "Follow"),
+                    const SizedBox(
+                      height: 10,
                     ),
-                    TabBar(
-                      labelColor: Theme.of(context).colorScheme.primary,
-                      unselectedLabelColor:
-                          Theme.of(context).colorScheme.onPrimary,
-                      indicatorColor: Theme.of(context).colorScheme.primary,
-                      automaticIndicatorColorAdjustment: true,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      indicatorWeight: 3,
-                      dividerColor: Theme.of(context).colorScheme.onPrimary,
-                      onTap: (value) {
-                        if (value == 0) {
-                          _tabController.animateTo(0);
-                          getQueryUser();
-                        } else if (value == 1) {
-                          _tabController.animateTo(1);
-                          // getQueryUser();
-                        } else if (value == 2) {
-                          _tabController.animateTo(2);
-                          getQueryHashtag();
-                        } else if (value == 3) {
-                          _tabController.animateTo(3);
-                          getQueryLocation();
-                        }
-                      },
-                      tabs: [
-                        const Tab(
-                          child: Icon(
-                            Ionicons.person,
-                            size: 20,
+                  ]);
+                },
+              ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: FutureBuilder(
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: SpinKit.ring,
+              );
+            }
+            List<FeedThumbnail> feedThumbnail =
+                snapshot.data as List<FeedThumbnail>;
+            return GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+                itemCount: feedThumbnail.length,
+                itemBuilder: (context, index) {
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: RoundedNetworkImageWithLoading(
+                          imageUrl: feedThumbnail[index].images[0],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 5,
+                        left: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: RoundedNetworkImageWithLoading(
+                              imageUrl: feedThumbnail[index].userId.profilePic,
+                              borderRadius: 5,
+                            ),
                           ),
                         ),
-                        const Tab(
-                          child: Icon(
-                            Ionicons.grid_outline,
-                            size: 20,
+                      ),
+                    ],
+                  );
+                });
+          },
+          future: SearchBarServices()
+              .getFeedsMetadata(metadata: searchText.text.trim()),
+        ),
+      ),
+      Expanded(
+        child: isSearchingHashtag
+            ? Center(
+                child: SpinKit.ring,
+              )
+            : searchedHashtags.isEmpty
+                ? const Center(
+                    child: Text("No Hashtags Found"),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: searchedHashtags.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return HashtagProfilePage(
+                              id: searchedHashtags[index].id,
+                              hashTag: searchedHashtags[index].hashtag,
+                              postsCount: searchedHashtags[index].postCount,
+                            );
+                          }));
+                        },
+                        leading: CircleAvatar(
+                            radius: 30,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            child: Icon(
+                              Icons.tag,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            )),
+                        title: Text(
+                          searchedHashtags[index].hashtag,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                fontSize: 16,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            searchedHashtags[index].postCount < 100
+                                ? searchedHashtags[index].postCount <= 1
+                                    ? "${searchedHashtags[index].postCount} Post"
+                                    : "${searchedHashtags[index].postCount} Posts"
+                                : "${CalculatingFunction.numberToMkConverter(searchedHashtags[index].postCount.toDouble())} Posts",
+                            style:
+                                Theme.of(context).textTheme.bodySmall!.copyWith(
+                                      fontSize: 14,
+                                    ),
                           ),
                         ),
-                        const Tab(
-                          child: Icon(
-                            Icons.tag,
-                            size: 20,
+                      );
+                    },
+                  ),
+      ),
+      Expanded(
+        child: isSearchingLocation
+            ? Center(
+                child: SpinKit.ring,
+              )
+            : searchedLocation.isEmpty
+                ? const Center(
+                    child: Text("No Location Found"),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: searchedLocation.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) {
+                            return LocationProfilePage(
+                              locationSearchModel: searchedLocation[index],
+                            );
+                          }));
+                        },
+                        leading: CircleAvatar(
+                          radius: 40,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          child: const Center(
+                            child: Icon(
+                              Ionicons.location,
+                              size: 40,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                        Tab(
-                          child: Icon(
-                            Ionicons.location,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                            size: 20,
-                          ),
-                        )
-                      ],
+                        title: Text(searchedLocation[index].name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 16,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                )),
+                        subtitle: Text(
+                          searchedLocation[index].postCount! < 100
+                              ? searchedLocation[index].postCount! <= 1
+                                  ? "${searchedLocation[index].postCount} Post"
+                                  : "${searchedLocation[index].postCount} Posts"
+                              : "${CalculatingFunction.numberToMkConverter(searchedLocation[index].postCount!.toDouble())} Posts",
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(fontSize: 16),
+                        ),
+                      );
+                    },
+                  ),
+      ),
+    ];
+
+    return Expanded(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 50,
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              CustomSlidingSegmentedControl<int>(
+                initialValue: 1,
+                padding: 35,
+                children: const {
+                  1: Icon(
+                    Ionicons.person,
+                    size: 20,
+                  ),
+                  2: Icon(
+                    Ionicons.grid_outline,
+                    size: 20,
+                  ),
+                  3: Icon(
+                    Icons.tag,
+                    size: 20,
+                  ),
+                  4: Icon(
+                    Ionicons.location,
+                    size: 20,
+                  ),
+                },
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                thumbDecoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.3),
+                      blurRadius: 4.0,
+                      spreadRadius: 1.0,
+                      offset: const Offset(
+                        0.0,
+                        2.0,
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  Expanded(
-                    child: searchText.text.isNotEmpty && isUserFetched == false
-                        ? Center(
-                            child: SpinKit.ring,
-                          )
-                        : ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: searchedUser.length,
-                            itemBuilder: (context, index) {
-                              return Column(children: [
-                                personListTile(
-                                    user: searchedUser[index],
-                                    ttl1: searchedUser[index].state == 0
-                                        ? "Follow"
-                                        : searchedUser[index].state == 2
-                                            ? "Following"
-                                            : "Requested",
-                                    isPressed: searchedUser[index].state == 0
-                                        ? false
-                                        : true,
-                                    ttl2: searchedUser[index].state == 0
-                                        ? "Requested"
-                                        : "Follow"),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                              ]);
-                            },
-                          ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: FutureBuilder(
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: SpinKit.ring,
-                          );
-                        }
-                        List<FeedThumbnail> feedThumbnail =
-                            snapshot.data as List<FeedThumbnail>;
-                        return GridView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              crossAxisSpacing: 5,
-                              mainAxisSpacing: 5,
-                            ),
-                            itemCount: feedThumbnail.length,
-                            itemBuilder: (context, index) {
-                              return Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: RoundedNetworkImageWithLoading(
-                                      imageUrl: feedThumbnail[index].images[0],
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 5,
-                                    left: 5,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            spreadRadius: 1,
-                                            blurRadius: 2,
-                                            offset: const Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      child: SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: RoundedNetworkImageWithLoading(
-                                          imageUrl: feedThumbnail[index]
-                                              .userId
-                                              .profilePic,
-                                          borderRadius: 5,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            });
-                      },
-                      future: SearchBarServices()
-                          .getFeedsMetadata(metadata: searchText.text.trim()),
-                    ),
-                  ),
-                  Expanded(
-                    child: isSearchingHashtag
-                        ? Center(
-                            child: SpinKit.ring,
-                          )
-                        : searchedHashtags.isEmpty
-                            ? const Center(
-                                child: Text("No Hashtags Found"),
-                              )
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchedHashtags.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    onTap: () {
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) {
-                                        return HashtagProfilePage(
-                                          id: searchedHashtags[index].id,
-                                          hashTag:
-                                              searchedHashtags[index].hashtag,
-                                          postsCount:
-                                              searchedHashtags[index].postCount,
-                                        );
-                                      }));
-                                    },
-                                    leading: CircleAvatar(
-                                        radius: 30,
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        child: Icon(
-                                          Icons.tag,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        )),
-                                    title: Text(
-                                      searchedHashtags[index].hashtag,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            fontSize: 16,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
-                                    ),
-                                    subtitle: Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: Text(
-                                        searchedHashtags[index].postCount < 100
-                                            ? searchedHashtags[index]
-                                                        .postCount <=
-                                                    1
-                                                ? "${searchedHashtags[index].postCount} Post"
-                                                : "${searchedHashtags[index].postCount} Posts"
-                                            : "${CalculatingFunction.numberToMkConverter(searchedHashtags[index].postCount.toDouble())} Posts",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(
-                                              fontSize: 14,
-                                            ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                  ),
-                  Expanded(
-                    child: isSearchingLocation
-                        ? Center(
-                            child: SpinKit.ring,
-                          )
-                        : searchedLocation.isEmpty
-                            ? const Center(
-                                child: Text("No Location Found"),
-                              )
-                            : ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: searchedLocation.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    onTap: () {
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: (context) {
-                                        return LocationProfilePage(
-                                          locationSearchModel:
-                                              searchedLocation[index],
-                                        );
-                                      }));
-                                    },
-                                    leading: CircleAvatar(
-                                      radius: 40,
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.primary,
-                                      child: const Center(
-                                        child: Icon(
-                                          Ionicons.location,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    title: Text(searchedLocation[index].name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .copyWith(
-                                              fontSize: 16,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onPrimary,
-                                            )),
-                                    subtitle: Text(
-                                      searchedLocation[index].postCount! < 100
-                                          ? searchedLocation[index]
-                                                      .postCount! <=
-                                                  1
-                                              ? "${searchedLocation[index].postCount} Post"
-                                              : "${searchedLocation[index].postCount} Posts"
-                                          : "${CalculatingFunction.numberToMkConverter(searchedLocation[index].postCount!.toDouble())} Posts",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(fontSize: 16),
-                                    ),
-                                  );
-                                },
-                              ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInToLinear,
+                onValueChanged: (value) {
+                  if (value == 1) {
+                    getQueryUser();
+                  } else if (value == 3) {
+                    getQueryHashtag();
+                  } else if (value == 4) {
+                    getQueryLocation();
+                  }
+                  setState(() {
+                    selectedChip = value;
+                  });
+                },
+              )
+            ]),
+          ),
+          _searchWidgets[selectedChip - 1],
+        ],
       ),
+    );
+  }
+
+  SizedBox tabSlider(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        Text("Trending 🔥",
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                )),
+        CustomSlidingSegmentedControl<int>(
+          initialValue: 1,
+          children: {
+            1: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(3.0),
+                  child: Icon(
+                    Ionicons.grid_outline,
+                    size: 15,
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Feeds",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
+              ],
+            ),
+            2: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(3.0),
+                  child: Icon(
+                    Ionicons.text,
+                    size: 15,
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  "Threads",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
+              ],
+            ),
+          },
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          thumbDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(6),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.3),
+                blurRadius: 4.0,
+                spreadRadius: 1.0,
+                offset: const Offset(
+                  0.0,
+                  2.0,
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInToLinear,
+          onValueChanged: (v) {},
+        )
+      ]),
     );
   }
 

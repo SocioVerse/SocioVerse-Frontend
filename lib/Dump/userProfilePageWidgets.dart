@@ -543,7 +543,7 @@
 //                   color: Theme.of(context).colorScheme.onPrimary,
 //                 ),
 //                 title: Text(
-//                   'Block',
+//                   'Unfollow',
 //                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
 //                       color: Theme.of(context).colorScheme.onPrimary,
 //                       fontSize: 16),

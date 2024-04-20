@@ -17,6 +17,7 @@ import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.da
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/Views/Widgets/Global/bottomSheets.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
@@ -245,33 +246,139 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
+                onTap: () {
+                  ReportBottomSheet(
+                    reportType: "Thread",
+                    context: context,
+                    userId: widget.thread.user.id,
+                    threadId: widget.thread.id,
+                  ).showReportBottomSheet();
+                  ;
+                },
               ),
               ListTile(
                 leading: Icon(
-                  Ionicons.remove_circle,
+                  Ionicons.person_remove,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
                 title: Text(
-                  'Block',
+                  'Unfollow',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Ionicons.shield_outline,
-                    color: Theme.of(context).colorScheme.onPrimary),
-                title: Text(
-                  'Restrict',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
+                onTap: () {
+                  UnfollowUserAlertBox(
+                      context: context,
+                      username: widget.thread.user.username,
+                      userId: widget.thread.user.id,
+                      onReject: () {});
+                },
               ),
             ],
+          );
+        });
+  }
+
+  void showUsersBottomSheet(
+      BuildContext context, String threadId, Future<List<User>> future) {
+    showModalBottomSheet(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        context: context,
+        builder: (context) {
+          return SizedBox(
+            height: 300,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(
+                  Icons.horizontal_rule_rounded,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  color: Theme.of(context).colorScheme.secondary,
+                  thickness: 2,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                FutureBuilder<List<User>>(
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: SpinKit.ring,
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Error: ${snapshot.error}",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.hasData) {
+                      List<User> mentions = snapshot.data!;
+                      return Expanded(
+                        child: ListView.builder(
+                            itemCount: mentions.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (context) => UserProfilePage(
+                                              owner: mentions[index].isOwner,
+                                              userId: mentions[index].id,
+                                            ))),
+                                leading: CircularNetworkImageWithSize(
+                                  imageUrl: mentions[index].profilePic,
+                                  height: 40,
+                                  width: 40,
+                                ),
+                                title: Text(
+                                  mentions[index].username,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontSize: 16,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                ),
+                                subtitle: Text(
+                                  mentions[index].occupation,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                ),
+                              );
+                            }),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                  future: future,
+                ),
+              ],
+            ),
           );
         });
   }
@@ -698,23 +805,51 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                                   )
                                 : Container(), // Provide a default empty container for other cases
                   ),
-            TextButton(
-              onPressed: () {
-                if (widget.isReply == false) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ThreadCommentPage(
-                                threadModel: widget.thread,
-                              ))).then((value) => setState(() {}));
-                }
-              },
-              child: Text(
-                "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.tertiary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              child: Row(
+                children: [
+                  widget.isReply == true
+                      ? const SizedBox.shrink()
+                      : InkWell(
+                          onTap: () {
+                            if (widget.isReply == false) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ThreadCommentPage(
+                                            threadModel: widget.thread,
+                                          ))).then((value) => setState(() {}));
+                            }
+                          },
+                          child: Text(
+                            "${widget.thread.commentCount} ${widget.thread.commentCount > 1 ? "replies" : "reply"} • ",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                          ),
+                        ),
+                  InkWell(
+                    onTap: () {
+                      showUsersBottomSheet(
+                          context,
+                          widget.thread.id,
+                          ThreadServices()
+                              .fetchThreadLikes(threadId: widget.thread.id));
+                    },
+                    child: Text(
+                      "${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                     ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -1069,31 +1204,33 @@ class _FeedLayoutState extends State<FeedLayout> {
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
+                onTap: () {
+                  ReportBottomSheet(
+                          reportType: "Feed",
+                          context: context,
+                          userId: widget.feed.user.id,
+                          feedId: widget.feed.id)
+                      .showReportBottomSheet();
+                },
               ),
               ListTile(
                 leading: Icon(
-                  Ionicons.remove_circle,
+                  Ionicons.person_remove,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
                 title: Text(
-                  'Block',
+                  'Unfollow',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontSize: 16),
                 ),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: Icon(Ionicons.shield_outline,
-                    color: Theme.of(context).colorScheme.onPrimary),
-                title: Text(
-                  'Restrict',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {},
+                onTap: () {
+                  UnfollowUserAlertBox(
+                      context: context,
+                      username: widget.feed.user.username,
+                      userId: widget.feed.user.id,
+                      onReject: () {});
+                },
               ),
             ],
           );
@@ -1286,7 +1423,8 @@ class _FeedLayoutState extends State<FeedLayout> {
     );
   }
 
-  void showMentionsBottomSheet(BuildContext context, String feedId) {
+  void showUsersBottomSheet(
+      BuildContext context, String feedId, Future<List<User>> future) {
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -1299,92 +1437,90 @@ class _FeedLayoutState extends State<FeedLayout> {
         builder: (context) {
           return SizedBox(
             height: 300,
-            child: Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Icon(
-                    Icons.horizontal_rule_rounded,
-                    size: 50,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Divider(
-                    color: Theme.of(context).colorScheme.secondary,
-                    thickness: 2,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  FutureBuilder<List<User>>(
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: SpinKit.ring,
-                        );
-                      }
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text(
-                            "Error: ${snapshot.error}",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        );
-                      }
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Icon(
+                  Icons.horizontal_rule_rounded,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  color: Theme.of(context).colorScheme.secondary,
+                  thickness: 2,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                FutureBuilder<List<User>>(
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: SpinKit.ring,
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          "Error: ${snapshot.error}",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      );
+                    }
 
-                      if (snapshot.hasData) {
-                        List<User> mentions = snapshot.data!;
-                        return Expanded(
-                          child: ListView.builder(
-                              itemCount: mentions.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  onTap: () => Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) => UserProfilePage(
-                                                owner: mentions[index].isOwner,
-                                                userId: mentions[index].id,
-                                              ))),
-                                  leading: CircularNetworkImageWithSize(
-                                    imageUrl: mentions[index].profilePic,
-                                    height: 40,
-                                    width: 40,
-                                  ),
-                                  title: Text(
-                                    mentions[index].username,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 16,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                  ),
-                                  subtitle: Text(
-                                    "Occupation",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
-                                          fontSize: 14,
-                                        ),
-                                  ),
-                                );
-                              }),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                    future: FeedServices().fetchFeedMentions(feedId: feedId),
-                  ),
-                ],
-              ),
+                    if (snapshot.hasData) {
+                      List<User> mentions = snapshot.data!;
+                      return Expanded(
+                        child: ListView.builder(
+                            itemCount: mentions.length,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                onTap: () => Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (context) => UserProfilePage(
+                                              owner: mentions[index].isOwner,
+                                              userId: mentions[index].id,
+                                            ))),
+                                leading: CircularNetworkImageWithSize(
+                                  imageUrl: mentions[index].profilePic,
+                                  height: 40,
+                                  width: 40,
+                                ),
+                                title: Text(
+                                  mentions[index].username,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontSize: 16,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
+                                      ),
+                                ),
+                                subtitle: Text(
+                                  mentions[index].occupation,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                ),
+                              );
+                            }),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                  future: future,
+                ),
+              ],
             ),
           );
         });
@@ -1545,8 +1681,11 @@ class _FeedLayoutState extends State<FeedLayout> {
                               bottom: 10,
                               child: InkWell(
                                 onTap: () {
-                                  showMentionsBottomSheet(
-                                      context, widget.feed.id);
+                                  showUsersBottomSheet(
+                                      context,
+                                      widget.feed.id,
+                                      FeedServices().fetchFeedMentions(
+                                          feedId: widget.feed.id));
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
@@ -1724,21 +1863,50 @@ class _FeedLayoutState extends State<FeedLayout> {
                                   )
                                 : Container(), // Provide a default empty container for other cases
                   ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CommentPage(
-                              feed: widget.feed,
-                            ))).then((value) => setState(() {}));
-              },
-              child: Text(
-                "${widget.feed.commentCount} ${widget.feed.commentCount > 1 ? "replies" : "reply"} • ${widget.feed.likeCount} ${widget.feed.likeCount > 1 ? "likes" : "like"}",
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.tertiary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              child: Row(
+                children: [
+                  widget.isOnCommentPage == true
+                      ? const SizedBox.shrink()
+                      : InkWell(
+                          onTap: () {
+                            if (widget.isOnCommentPage) return;
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => CommentPage(
+                                          feed: widget.feed,
+                                        ))).then((value) => setState(() {}));
+                          },
+                          child: Text(
+                            "${widget.feed.commentCount} ${widget.feed.commentCount > 1 ? "replies" : "reply"} • ",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(
+                                  fontSize: 14,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                ),
+                          ),
+                        ),
+                  InkWell(
+                    onTap: () {
+                      showUsersBottomSheet(
+                          context,
+                          widget.feed.id,
+                          FeedServices()
+                              .fetchFeedLikes(feedId: widget.feed.id));
+                    },
+                    child: Text(
+                      "${widget.feed.likeCount} ${widget.feed.likeCount > 1 ? "likes" : "like"}",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                     ),
+                  ),
+                ],
               ),
             ),
           ],

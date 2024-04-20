@@ -105,4 +105,18 @@ class ThreadServices {
     }
     return fetchedThreads;
   }
+
+  Future<List<User>> fetchThreadLikes({
+    required String threadId,
+  }) async {
+    _response = await _helper.get(ApiStringConstants.fetchThreadLikes,
+        querryParam: {'threadId': threadId});
+    List<User> fetchedUsers = [];
+    if (_response.success == true) {
+      for (var user in _response.data) {
+        fetchedUsers.add(User.fromJson(user));
+      }
+    }
+    return fetchedUsers;
+  }
 }

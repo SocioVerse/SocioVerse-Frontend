@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:autoscale_tabbarview/autoscale_tabbarview.dart';
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -24,11 +25,12 @@ class SavedPage extends StatefulWidget {
 class _SavedPageState extends State<SavedPage> {
   bool isSavedThreadLoading = false;
   bool isSavedPostLoading = false;
+  int selectedTab = 1;
   List<ThreadModel> savedThreads = [];
   List<FeedThumbnail> savedFeeds = [];
   @override
   void initState() {
-    getSavedThreads();
+    getSavedFeeds();
     super.initState();
   }
 
@@ -61,150 +63,185 @@ class _SavedPageState extends State<SavedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: true,
-          title: Text(
-            "Saved",
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 25,
-                ),
-          ),
-          bottom: TabBar(
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onPrimary,
-            indicatorColor: Theme.of(context).colorScheme.primary,
-            automaticIndicatorColorAdjustment: true,
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicatorWeight: 3,
-            dividerColor: Theme.of(context).colorScheme.onPrimary,
-            onTap: (value) {
-              log(value.toString());
-              if (value == 0) {
-                getSavedThreads();
-              } else {
-                getSavedFeeds();
-              }
-            },
-            tabs: const [
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Ionicons.text,
-                      size: 20,
-                    ),
-                    SizedBox(width: 5), // Add spacing between icon and text
-                    Text("Threads"),
-                  ],
-                ),
+    List<Widget> _tabs = [
+      isSavedPostLoading ? Center(child: SpinKit.ring) : savedPostBuilder(),
+      isSavedThreadLoading
+          ? Center(child: SpinKit.ring)
+          : ThreadViewBuilder(
+              allThreads: savedThreads,
+            )
+    ];
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: true,
+        title: Text(
+          "Saved",
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 25,
               ),
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Ionicons.grid_outline,
-                      size: 20,
-                    ),
-                    SizedBox(width: 5), // Add spacing between icon and text
-                    Text("Feeds"),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          toolbarHeight: 70,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          elevation: 0,
         ),
-        body: TabBarView(
-          children: [
-            isSavedThreadLoading
-                ? Expanded(
-                    child: Center(child: SpinKit.ring),
-                  )
-                : ThreadViewBuilder(
-                    allThreads: savedThreads,
-                    shrinkWrap: true,
-                  ),
-            isSavedPostLoading
-                ? LayoutBuilder(builder: (context, constrant) {
-                    return SizedBox(
-                      height: constrant.maxHeight,
-                      width: constrant.maxWidth,
-                      child: Center(child: SpinKit.ring),
-                    );
-                  })
-                : Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: GridView.builder(
-                        shrinkWrap: true,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
+        toolbarHeight: 70,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 50,
+            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              CustomSlidingSegmentedControl<int>(
+                initialValue: 1,
+                padding: 35,
+                children: {
+                  1: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Icon(
+                          Ionicons.grid_outline,
+                          size: 15,
                         ),
-                        itemCount: savedFeeds.length,
-                        itemBuilder: (context, index) {
-                          return Stack(
-                            children: [
-                              Positioned.fill(
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => CommentPage(
-                                          feedId: savedFeeds[index].id,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: RoundedNetworkImageWithLoading(
-                                    gestureEnabled: false,
-                                    imageUrl: savedFeeds[index].images[0],
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 5,
-                                left: 5,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 1,
-                                        blurRadius: 2,
-                                        offset: const Offset(0, 1),
-                                      ),
-                                    ],
-                                  ),
-                                  child: SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: RoundedNetworkImageWithLoading(
-                                      imageUrl:
-                                          savedFeeds[index].userId.profilePic,
-                                      borderRadius: 5,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "Feeds",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                      ),
+                    ],
                   ),
-          ],
-        ),
+                  2: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(3.0),
+                        child: Icon(
+                          Ionicons.text,
+                          size: 15,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        "Threads",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                      ),
+                    ],
+                  ),
+                },
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                thumbDecoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.3),
+                      blurRadius: 4.0,
+                      spreadRadius: 1.0,
+                      offset: const Offset(
+                        0.0,
+                        2.0,
+                      ),
+                    ),
+                  ],
+                ),
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInToLinear,
+                onValueChanged: (v) {
+                  if (v == 1) {
+                    getSavedFeeds();
+                  } else {
+                    getSavedThreads();
+                  }
+                  setState(() {
+                    selectedTab = v;
+                  });
+                },
+              )
+            ]),
+          ),
+          Expanded(child: _tabs[selectedTab - 1]),
+        ],
       ),
     );
+  }
+
+  Widget savedPostBuilder() {
+    return savedFeeds.isEmpty
+        ? NoPostYet()
+        : Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 5,
+                  mainAxisSpacing: 5,
+                ),
+                itemCount: savedFeeds.length,
+                itemBuilder: (context, index) {
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CommentPage(
+                                  feedId: savedFeeds[index].id,
+                                ),
+                              ),
+                            );
+                          },
+                          child: RoundedNetworkImageWithLoading(
+                            gestureEnabled: false,
+                            imageUrl: savedFeeds[index].images[0],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 5,
+                        left: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: RoundedNetworkImageWithLoading(
+                              imageUrl: savedFeeds[index].userId.profilePic,
+                              borderRadius: 5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+          );
   }
 }

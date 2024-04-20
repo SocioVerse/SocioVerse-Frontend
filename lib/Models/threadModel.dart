@@ -1,5 +1,28 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+class ThreadData {
+  int line;
+  String id;
+  late bool isSelected;
+  late TextEditingController textEditingController;
+  double verticalDividerLength;
+  List<String> images;
+  bool isUploading = false;
+
+  ThreadData(
+      {required this.line,
+      this.id = '',
+      required this.isSelected,
+      required this.textEditingController,
+      required this.verticalDividerLength,
+      required this.images}) {
+    id = const Uuid().v4();
+  }
+}
+
 class ThreadModel {
   String id;
   String content;

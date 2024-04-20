@@ -11,7 +11,7 @@ Widget MyElevatedButton1(
     width: double.infinity,
     child: ElevatedButton(
       style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(vertical: 15),
+        padding: const EdgeInsets.symmetric(vertical: 15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -72,7 +72,7 @@ class _CustomOutlineButtonState extends State<CustomOutlineButton> {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          padding: EdgeInsets.all(2),
+          padding: const EdgeInsets.all(2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
             side: BorderSide(
@@ -89,7 +89,7 @@ class _CustomOutlineButtonState extends State<CustomOutlineButton> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              riconButton ?? SizedBox(),
+              riconButton ?? const SizedBox(),
               Text("${rtitle}",
                   style: GoogleFonts.openSans(
                       fontSize: widget.fontSize ?? 15,
@@ -187,8 +187,8 @@ class _MyEleButtonsmallState extends State<MyEleButtonsmall> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              riconButton ?? SizedBox(),
-              Text("${rtitle}",
+              riconButton ?? const SizedBox(),
+              Text("$rtitle",
                   style: GoogleFonts.openSans(
                       fontSize: widget.fontSize ?? 15,
                       fontWeight: FontWeight.w600,

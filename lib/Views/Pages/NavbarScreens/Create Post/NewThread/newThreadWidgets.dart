@@ -12,22 +12,6 @@ import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/new
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Services/thread_services.dart';
 
-class ThreadData {
-  int line;
-  late bool isSelected;
-  late TextEditingController textEditingController;
-  double verticalDividerLength;
-  List<String> images;
-  bool isUploading = false;
-
-  ThreadData(
-      {required this.line,
-      required this.isSelected,
-      required this.textEditingController,
-      required this.verticalDividerLength,
-      required this.images});
-}
-
 class CreateNewThreadAlertBox extends StatelessWidget {
   final List<ThreadData> threads;
   const CreateNewThreadAlertBox({super.key, required this.threads});
@@ -132,7 +116,8 @@ class CreateNewThreadAlertBox extends StatelessWidget {
                       Navigator.pop(context);
                       Navigator.pushAndRemoveUntil(
                         context,
-                        CupertinoPageRoute(builder: (context) => const MainPage()),
+                        CupertinoPageRoute(
+                            builder: (context) => const MainPage()),
                         (route) => route.isFirst,
                       );
                     });

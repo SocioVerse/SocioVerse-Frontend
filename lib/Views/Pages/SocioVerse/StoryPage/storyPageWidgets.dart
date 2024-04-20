@@ -7,6 +7,7 @@ import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
+import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:story_view/controller/story_controller.dart';
@@ -27,6 +28,9 @@ class StoryPageControllers extends StatefulWidget {
 class _StoryPageControllersState extends State<StoryPageControllers> {
   StorySeensModel? storySeensModel;
   bool isBottomSheetLoading = true;
+
+  TextEditingController search = TextEditingController();
+  TextEditingController storyMessage = TextEditingController();
   Future<void> toggleLike() async {
     await StoriesServices().toogleStoryLike(storyId: widget.readStoryModel.id);
     setState(() {
@@ -324,6 +328,108 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                 child: IconButton(
                   onPressed: () {
                     // Add your logic here for the paper plane IconButton
+                    widget.storyController.pause();
+                    showModalBottomSheet(
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).scaffoldBackgroundColor,
+                        context: context,
+                        builder: (context) {
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(left: 15.0, right: 15),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.horizontal_rule_rounded,
+                                  size: 50,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                CustomTextField(
+                                  controller: storyMessage,
+                                  hintText: "Write a message...",
+                                  onChanged: (value) {},
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                  child: Divider(
+                                    height: 10,
+                                  ),
+                                ),
+                                CustomTextField(
+                                    controller: search,
+                                    hintText: "Search",
+                                    onChanged: (value) {},
+                                    prefixIcon: Icon(
+                                      Ionicons.search,
+                                      size: 20,
+                                      color:
+                                          Theme.of(context).colorScheme.surface,
+                                    )),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: 10,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          leading: CircleAvatar(
+                                            radius: 30,
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            child: const CircleAvatar(
+                                                radius: 28,
+                                                backgroundImage: AssetImage(
+                                                  "assets/Country_flag/in.png",
+                                                )),
+                                          ),
+                                          title: Text(
+                                            "Fatima",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                          ),
+                                          subtitle: Text(
+                                            "Occupation",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: 14,
+                                                ),
+                                          ),
+                                          trailing: MyEleButtonsmall(
+                                              title2: "Sent",
+                                              title: "Send",
+                                              onPressed: () {},
+                                              ctx: context),
+                                        );
+                                      }),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).then((value) => widget.storyController.play());
                   },
                   icon: Icon(
                     Ionicons.paper_plane_outline,
