@@ -865,6 +865,96 @@ class _ThreadLayoutState extends State<ThreadLayout> {
   }
 }
 
+class FeedShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ListTile(
+          onTap: () {}, // Placeholder onTap
+          contentPadding: const EdgeInsets.only(
+            right: 10,
+            top: 10,
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: ClipOval(
+                child: Shimmer.fromColors(
+                  baseColor: Theme.of(context).colorScheme.tertiary,
+                  highlightColor: Colors.grey[100]!,
+                  child:
+                      Container(color: Theme.of(context).colorScheme.tertiary),
+                ),
+              ),
+            ),
+          ),
+          title: Shimmer.fromColors(
+            baseColor: Theme.of(context).colorScheme.tertiary,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 20,
+              width: 150,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          subtitle: Shimmer.fromColors(
+            baseColor: Theme.of(context).colorScheme.tertiary,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              height: 15,
+              width: 100,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 70, right: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 300,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Shimmer.fromColors(
+                baseColor: Theme.of(context).colorScheme.tertiary,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  height: 20,
+                  width: 170,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        const Divider(
+          height: 0,
+          thickness: 0.2,
+          color: Colors.grey,
+        ),
+      ],
+    );
+  }
+}
+
 class ThreadShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -1977,7 +2067,7 @@ class _FeedViewBuilderState extends State<FeedViewBuilder> {
             padding: const EdgeInsets.only(top: 10),
             itemCount: 2,
             itemBuilder: (context, index) {
-              return ThreadShimmer();
+              return FeedShimmer();
             },
           );
   }

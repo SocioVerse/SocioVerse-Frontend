@@ -9,6 +9,7 @@ import 'package:socioverse/Controllers/feedPageProviders.dart';
 import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Controllers/followRequestPageProvider.dart';
 import 'package:socioverse/Controllers/hashtagPostEditProvider.dart';
+import 'package:socioverse/Controllers/inboxPageProvider.dart';
 import 'package:socioverse/Controllers/locationSearchPageProvider.dart';
 import 'package:socioverse/Controllers/newThreadPageProvider.dart';
 import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
@@ -87,6 +88,12 @@ class Providers {
     ),
     ChangeNotifierProvider<NavigatorPageProvider>(
       create: (_) => NavigatorPageProvider(),
+    ),
+    ChangeNotifierProvider<ShowBackToTopProvider>(
+      create: (_) => ShowBackToTopProvider(),
+    ),
+    ChangeNotifierProvider<InboxPageProvider>(
+      create: (_) => InboxPageProvider(),
     ),
   ];
 }

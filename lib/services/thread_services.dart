@@ -119,4 +119,15 @@ class ThreadServices {
     }
     return fetchedUsers;
   }
+
+  Future<List<ThreadModel>> getTrendingThreads() async {
+    List<ThreadModel> fetchedThreads = [];
+    _response = await _helper.get(ApiStringConstants.fetchTrendingThreads);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedThreads.add(ThreadModel.fromJson(thread));
+      }
+    }
+    return fetchedThreads;
+  }
 }

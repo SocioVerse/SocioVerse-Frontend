@@ -13,6 +13,7 @@ import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
 import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
 import 'package:socioverse/Controllers/welcomePageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/welcome.dart';
@@ -32,6 +33,7 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await SocketHelper.initSocketIO();
   await FaceCamera.initialize();
   // on background notification tapped
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -99,7 +101,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'SocioVerse',
           theme: MyTheme.theme(),
-          home: GetInitPage(),
+          home: const GetInitPage(),
         ),
       ),
     );

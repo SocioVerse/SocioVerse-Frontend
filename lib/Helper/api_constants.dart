@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.75.238:4000";
+  static const String baseUrl = "192.168.29.70:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -12,6 +12,7 @@ class ApiStringConstants {
   static const String createComment = "threads/create-comment";
   static const String deleteThreads = "threads/delete-thread";
   static const String fetchThreadLikes = "threads/fetch-thread-likes";
+  static const String fetchTrendingThreads = "threads/fetch-trending-threads";
 
   //Feed APIs
   static const String createFeed = "feeds/create-new-feed";
@@ -27,14 +28,13 @@ class ApiStringConstants {
   static const String toggleFeedCommentLike =
       "feeds/toggle-feed-commment-like"; //
   static const String fetchFeedLikes = "feeds/fetch-feed-likes";
-
+  static const String fetchTrendingFeeds = "feeds/fetch-trending-feeds";
   static const String getFeedById = "feeds/fetch-feed-by-id"; //
   static const String createCommentReply = "feeds/create-comment-reply"; //
   static const String deleteFeeds = "feeds/delete-feed"; //
   static const String deleteFeedComment = "feeds/delete-feed-commment"; //
   static const String searchFeedsLocation = "feeds/search-location";
   static const String searchFeedsHashtags = "feeds/search-hashtags";
-
   //Stories APIs
   static const String createStory = "stories/create-story";
   static const String readStory = "stories/read-story";

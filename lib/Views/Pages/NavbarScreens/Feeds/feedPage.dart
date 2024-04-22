@@ -44,10 +44,10 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       _scrollController.addListener(() {
         if (_scrollController.offset >= 400) {
-          Provider.of<FeedPageProvider>(context, listen: false)
+          Provider.of<ShowBackToTopProvider>(context, listen: false)
               .showBackToTopButton = true; // show the back-to-top button
         } else {
-          Provider.of<FeedPageProvider>(context, listen: false)
+          Provider.of<ShowBackToTopProvider>(context, listen: false)
               .showBackToTopButton = false; // hide the back-to-top button
         }
       });
@@ -63,7 +63,7 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Consumer<FeedPageProvider>(builder: (context, prov, child) {
+          Consumer<ShowBackToTopProvider>(builder: (context, prov, child) {
             return !prov.showBackToTopButton
                 ? const SizedBox.shrink()
                 : FloatingActionButton(
@@ -373,7 +373,7 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
               padding: const EdgeInsets.only(top: 10),
               itemCount: 2,
               itemBuilder: (context, index) {
-                return ThreadShimmer();
+                return FeedShimmer();
               },
             );
     });

@@ -9,12 +9,13 @@ import 'package:provider/provider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
-import 'package:socioverse/Helper/ServiceHelpers/socketHelper.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Sockets/messageSockets.dart';
 import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Services/chatting_services.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/roomInfoPage.dart';
@@ -37,11 +38,13 @@ class _ChatPageState extends State<ChatPage> {
   bool isLoading = false;
   late RoomModel roomModel;
   late String userId;
-  late IO.Socket socketHelper;
   @override
   void initState() {
     super.initState();
-    getRoomInfo();
+    getRoomInfo().then(
+        (value) => WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+              _scrollToBottomAndEmitSeenMessages();
+            }));
   }
 
   @override
@@ -53,13 +56,12 @@ class _ChatPageState extends State<ChatPage> {
 
   void dispose() {
     scrollChat.dispose();
-    socketHelper.dispose();
+    SocketHelper.socketHelper.dispose();
     super.dispose();
   }
 
   Future<void> getRoomInfo() async {
     _setLoading(true);
-    socketHelper = await SocketHelper().initSocketIO();
     userId = await getStringFromCache(SharedPreferenceString.userId);
     log(userId);
     roomModel = await ChattingServices().getChatroomInfoByUser(
@@ -70,8 +72,6 @@ class _ChatPageState extends State<ChatPage> {
     _setupSocketListeners(userId, roomModel.room.id);
     if (!context.mounted) return;
     _updateChatProviderWithMessages(roomModel.messages);
-
-    _scrollToBottomAndEmitSeenMessages();
 
     _setLoading(false);
   }
@@ -87,38 +87,33 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _scrollToBottomAndEmitSeenMessages() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (scrollChat.hasClients) {
-        scrollChat.jumpTo(
-          scrollChat.position.maxScrollExtent,
-        );
-        socketHelper.emit('message-seen', {
-          'roomId': roomModel.room.id,
-        });
-      }
-    });
+    if (scrollChat.hasClients) {
+      scrollChat.jumpTo(
+        scrollChat.position.maxScrollExtent,
+      );
+      MessagesSocket(context).emitMessageSeen(roomModel.room.id);
+    }
   }
 
   void _setupSocketListeners(String userId, String roomId) {
-    socketHelper.emit('join', {
-      'roomId': roomId,
-    });
-    socketHelper.on('unsend-message', (data) {
+    MessagesSocket(context).emitJoinChat(roomId);
+    SocketHelper.socketHelper.on('unsend-message', (data) {
       log(data.toString());
-      _handleUnsendMessage(data);
+      MessagesSocket(context).handleUnsendMessage(data);
     });
-    socketHelper.on('typing', (data) {
+    SocketHelper.socketHelper.on('typing', (data) {
       log(data.toString());
-      _handleMessageTyping(data);
+      MessagesSocket(context).handleMessageTyping(data);
     });
 
-    socketHelper.on('message-seen', (data) {
-      _handleMessageSeen(data, userId);
+    SocketHelper.socketHelper.on('message-seen', (data) {
+      MessagesSocket(context).handleMessageSeen(data, userId);
     });
 
-    socketHelper.on('message', (data) {
+    SocketHelper.socketHelper.on('message', (data) {
       log(data.toString());
-      _handleNewMessage(data, userId, roomId);
+      MessagesSocket(context)
+          .handleNewMessage(data, userId, roomId, scrollChat);
     });
   }
 
@@ -130,42 +125,6 @@ class _ChatPageState extends State<ChatPage> {
     } else {
       return textMessage(message);
     }
-  }
-
-  void _handleUnsendMessage(dynamic data) {
-    log(data.toString());
-    Provider.of<ChatProvider>(context, listen: false)
-        .removeMessage(data['messageId']);
-  }
-
-  void _handleMessageTyping(dynamic data) {
-    log(data.toString());
-    Provider.of<ChatProvider>(context, listen: false).setTyping(data);
-  }
-
-  void _handleMessageSeen(dynamic data, String userId) {
-    log(data.toString());
-    List<Message> messages =
-        List<Message>.from(data.map((x) => Message.fromJson(x, userId)));
-    Provider.of<ChatProvider>(context, listen: false).updateMessages(messages);
-  }
-
-  void _handleNewMessage(dynamic data, String userId, String roomId) {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (scrollChat.hasClients) {
-        scrollChat.jumpTo(
-          scrollChat.position.maxScrollExtent,
-        );
-        socketHelper.emit('message-seen', {
-          'roomId': roomId,
-        });
-      }
-    });
-    Message message = Message.fromJson(data, userId);
-    Provider.of<ChatProvider>(context, listen: false).addNewMessage(
-      message,
-      roomId,
-    );
   }
 
   Widget postMessage(Message message) {
@@ -571,10 +530,11 @@ class _ChatPageState extends State<ChatPage> {
                                       content: const Text(
                                           "Are you sure you want to unsend this message?"),
                                       onAccept: () async {
-                                        socketHelper.emit('unsend-message', {
-                                          'messageId': message.id,
-                                          'roomId': roomModel.room.id,
-                                        });
+                                        MessagesSocket(context)
+                                            .emitUnsendMessage(
+                                          message.id,
+                                          roomModel.room.id,
+                                        );
                                       },
                                       onReject: () {},
                                     );
@@ -588,7 +548,6 @@ class _ChatPageState extends State<ChatPage> {
                       ))),
               ChatInputWidget(
                 roomId: roomModel.room.id,
-                socketHelper: socketHelper,
               ),
             ]),
     );
@@ -597,9 +556,7 @@ class _ChatPageState extends State<ChatPage> {
 
 class ChatInputWidget extends StatefulWidget {
   final String roomId;
-  final IO.Socket socketHelper;
-  const ChatInputWidget(
-      {super.key, required this.roomId, required this.socketHelper});
+  const ChatInputWidget({super.key, required this.roomId});
 
   @override
   _ChatInputWidgetState createState() => _ChatInputWidgetState();
@@ -611,15 +568,9 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
   void initState() {
     message.addListener(() {
       if (message.text.trim() != "") {
-        widget.socketHelper.emit('typing', {
-          'isTyping': true,
-          'roomId': widget.roomId,
-        });
+        MessagesSocket(context).emitMessageTyping(widget.roomId, true);
       } else {
-        widget.socketHelper.emit('typing', {
-          'isTyping': false,
-          'roomId': widget.roomId,
-        });
+        MessagesSocket(context).emitMessageTyping(widget.roomId, false);
       }
     });
     super.initState();
@@ -634,12 +585,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
 
   void _sendMessage() {
     if (message.text.trim() != "") {
-      widget.socketHelper.emit('message', {
-        'message': message.text,
-        'image': null,
-        'thread': null,
-        'roomId': widget.roomId,
-      });
+      MessagesSocket(context).emitMessage(widget.roomId, message.text);
       message.clear();
     }
   }
@@ -663,12 +609,11 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                 for (int i = 0; i < images.length; i++) {
                   String url = await FirebaseHelper.uploadFile(images[i].path,
                       const Uuid().v4(), "chat_images", FirebaseHelper.Image);
-                  widget.socketHelper.emit('message', {
-                    'message': null,
-                    'image': url,
-                    'thread': null,
-                    'roomId': widget.roomId,
-                  });
+                  if (!mounted) return;
+                  MessagesSocket(context).emitMessageImage(
+                    widget.roomId,
+                    url,
+                  );
                 }
               }
             },

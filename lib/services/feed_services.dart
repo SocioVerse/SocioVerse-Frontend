@@ -193,4 +193,15 @@ class FeedServices {
     }
     return fetchedFeeds;
   }
+
+  Future<List<FeedModel>> getTrendingFeeds() async {
+    List<FeedModel> fetchedFeeds = [];
+    _response = await _helper.get(ApiStringConstants.fetchTrendingFeeds);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedFeeds.add(FeedModel.fromJson(thread));
+      }
+    }
+    return fetchedFeeds;
+  }
 }

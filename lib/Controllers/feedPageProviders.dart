@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
+class ShowBackToTopProvider with ChangeNotifier {
+  bool _showBackToTopButton = false;
+  bool get showBackToTopButton => _showBackToTopButton;
+
+  set showBackToTopButton(bool val) {
+    _showBackToTopButton = val;
+    notifyListeners();
+  }
+}
+
 class FeedPageProvider with ChangeNotifier {
   bool _isLoading = false;
-  bool _showBackToTopButton = false;
   int _value = 1;
   bool get isLoading => _isLoading;
   int get value => _value;
-  bool get showBackToTopButton => _showBackToTopButton;
 
   set isLoading(bool val) {
     _isLoading = val;
@@ -15,11 +23,6 @@ class FeedPageProvider with ChangeNotifier {
 
   set value(int val) {
     _value = val;
-    notifyListeners();
-  }
-
-  set showBackToTopButton(bool val) {
-    _showBackToTopButton = val;
     notifyListeners();
   }
 }

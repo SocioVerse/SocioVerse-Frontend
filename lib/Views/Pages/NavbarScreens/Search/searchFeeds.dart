@@ -13,10 +13,14 @@ import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/feed_services.dart';
+import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Models/hashtagModels.dart';
 import 'package:socioverse/Models/locationModel.dart';
 import 'package:socioverse/Services/location_services.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/hashtagProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/locationProfilePage.dart';
@@ -46,7 +50,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
   List<HashtagsSearchModel> searchedHashtags = [];
   late TabController _tabController;
   TextEditingController searchText = TextEditingController();
-
+  int _value = 1;
   @override
   void initState() {
     super.initState();
@@ -70,32 +74,99 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             const SizedBox(
               height: 20,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: 100,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        image: const DecorationImage(
-                          image: AssetImage(
-                            "assets/Country_flag/in.png",
+            _value == 1
+                ? FutureBuilder(
+                    future: FeedServices().getTrendingFeeds(),
+                    builder: ((context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(top: 10),
+                          itemCount: 2,
+                          itemBuilder: (context, index) {
+                            return FeedShimmer();
+                          },
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Error: ${snapshot.error}",
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    );
-                  }),
-            ),
+                        );
+                      }
+                      List<FeedModel> allFeeds =
+                          snapshot.data as List<FeedModel>;
+                      return allFeeds.isEmpty
+                          ? const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 80,
+                                ),
+                                AllCaughtUp(),
+                              ],
+                            )
+                          : ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: const EdgeInsets.only(top: 10),
+                              itemCount: allFeeds.length,
+                              itemBuilder: (context, index) {
+                                return FeedLayout(
+                                  feed: allFeeds[index],
+                                );
+                              },
+                            );
+                    }))
+                : FutureBuilder(
+                    future: ThreadServices().getTrendingThreads(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.only(top: 10),
+                          itemCount: 2,
+                          itemBuilder: (context, index) {
+                            return ThreadShimmer();
+                          },
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Error: ${snapshot.error}",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        );
+                      }
+                      List<ThreadModel> allThreads =
+                          snapshot.data as List<ThreadModel>;
+                      return allThreads.isEmpty
+                          ? const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 80,
+                                ),
+                                AllCaughtUp(),
+                              ],
+                            )
+                          : ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: const EdgeInsets.only(top: 10),
+                              itemCount: allThreads.length,
+                              itemBuilder: (context, index) {
+                                return ThreadLayout(
+                                  thread: allThreads[index],
+                                );
+                              },
+                            );
+                    }),
           ],
         ),
       ),
@@ -514,7 +585,11 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
           ),
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInToLinear,
-          onValueChanged: (v) {},
+          onValueChanged: (v) {
+            setState(() {
+              _value = v;
+            });
+          },
         )
       ]),
     );
