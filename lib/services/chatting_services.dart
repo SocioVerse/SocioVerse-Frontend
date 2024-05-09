@@ -17,4 +17,13 @@ class ChattingServices {
     log(ownerUserId);
     return RoomModel.fromJson(response.data, ownerUserId);
   }
+
+  Future<Room> createRoom(String userId) async {
+    Map<String, String> querryParam = {"userId": userId};
+    ApiResponse response = await _helper.post(
+      ApiStringConstants.createRoom,
+      querryParam: querryParam,
+    );
+    return Room.fromJson(response.data);
+  }
 }

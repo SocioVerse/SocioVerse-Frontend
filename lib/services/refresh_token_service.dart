@@ -3,6 +3,7 @@ import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Helper/api_constants.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 
 class RefreshToken {
   final ApiHelper _helper = ApiHelper();
@@ -17,6 +18,8 @@ class RefreshToken {
         SharedPreferenceString.refreshToken, response.data["refresh_token"]);
     setStringIntoCache(
         SharedPreferenceString.accessToken, response.data["access_token"]);
+    SocketHelper.socketHelper.dispose();
+    await SocketHelper.initSocketIO();
     return response.data["access_token"];
   }
 

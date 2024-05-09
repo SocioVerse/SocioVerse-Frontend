@@ -19,6 +19,7 @@ import 'package:socioverse/Controllers/postEditingProvider.dart';
 import 'package:socioverse/Controllers/tagPeoplePageProvider.dart';
 import 'package:socioverse/Controllers/userProfileWidgetProvider.dart';
 import 'package:socioverse/Controllers/welcomePageProvider.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageController.dart';
 
 class Providers {
@@ -92,8 +93,14 @@ class Providers {
     ChangeNotifierProvider<ShowBackToTopProvider>(
       create: (_) => ShowBackToTopProvider(),
     ),
+    ChangeNotifierProvider<InboxPageLoadingProvider>(
+      create: (_) => InboxPageLoadingProvider(),
+    ),
     ChangeNotifierProvider<InboxPageProvider>(
       create: (_) => InboxPageProvider(),
+    ),
+    ChangeNotifierProvider<ChatProvider>(
+      create: (_) => ChatProvider(),
     ),
   ];
 }

@@ -52,7 +52,7 @@ class AuthServices {
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
-      String at = await getStringFromCache(SharedPreferenceString.accessToken);
+      String at = await getStringFromCache(SharedPreferenceString.userId);
       log(at);
     }
 

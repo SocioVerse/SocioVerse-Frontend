@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -8,6 +10,7 @@ import 'package:socioverse/Controllers/inboxPageProvider.dart';
 import 'package:socioverse/Controllers/multiProviderList.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/searchedUser.dart';
+import 'package:socioverse/Sockets/messageSockets.dart';
 import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
@@ -31,9 +34,6 @@ class InboxPage extends StatefulWidget {
 class _InboxPageState extends State<InboxPage> {
   TextEditingController search = TextEditingController();
 
-  List<InboxModel> inboxModel = [];
-  List<InboxModel> requestModel = [];
-
   @override
   void initState() {
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
@@ -44,28 +44,7 @@ class _InboxPageState extends State<InboxPage> {
   }
 
   void getInbox() async {
-    search.addListener(() {
-      if (search.text.isEmpty) {
-        getInbox();
-        return;
-      }
-      getQueryUser();
-    });
-
-    _setInboxListners();
-    Provider.of<InboxPageProvider>(context, listen: false).isLoading = true;
-    inboxModel = await InboxServices().fetchInbox();
-    requestModel =
-        inboxModel.where((element) => element.isRequestMessage).toList();
-    inboxModel.removeWhere((element) => element.isRequestMessage);
-    if (!mounted) return;
-    Provider.of<InboxPageProvider>(context, listen: false).isLoading = false;
-  }
-
-  void _setInboxListners() {
-    SocketHelper.socketHelper.on('inbox-update', (data) {
-      getInbox();
-    });
+    Provider.of<InboxPageProvider>(context, listen: false).init(context);
   }
 
   List<SearchedUser> searchedUser = [];
@@ -81,9 +60,7 @@ class _InboxPageState extends State<InboxPage> {
             owner: false,
             userId: user.id,
           );
-        })).then((value) {
-          getQueryUser();
-        });
+        }));
       },
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -127,19 +104,20 @@ class _InboxPageState extends State<InboxPage> {
                 profilePic: user.profilePic,
               )),
             );
-          }))).then((value) => getInbox());
+          })));
         },
       ),
     );
   }
 
   Future<void> getQueryUser() async {
-    Provider.of<InboxPageProvider>(context, listen: false).isUserFetched =
-        false;
+    Provider.of<InboxPageLoadingProvider>(context, listen: false)
+        .isUserFetched = false;
     searchedUser = await SearchBarServices()
         .fetchSearchedUser(searchQuery: search.text.trim());
     if (!mounted) return;
-    Provider.of<InboxPageProvider>(context, listen: false).isUserFetched = true;
+    Provider.of<InboxPageLoadingProvider>(context, listen: false)
+        .isUserFetched = true;
   }
 
   Widget buildShimmeringInbox(BuildContext context) {
@@ -257,221 +235,256 @@ class _InboxPageState extends State<InboxPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: Consumer<InboxPageProvider>(builder: (context, prov, child) {
-        return prov.isLoading
-            ? buildShimmeringInbox(context)
-            : SingleChildScrollView(
-                child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFieldBuilder(
-                        tcontroller: search,
-                        hintTexxt: "Search",
-                        onChangedf: () {
-                          if (search.text.isEmpty) {
-                            getInbox();
-                            return;
-                          }
-                        },
-                        prefixxIcon: Icon(
-                          Ionicons.search,
-                          size: 20,
-                          color: Theme.of(context).colorScheme.surface,
-                        )),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    search.text.trim().isEmpty
-                        ? Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    "Messages",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: 20,
-                                        ),
-                                  ),
-                                  const Spacer(),
-                                  TextButton(
-                                    onPressed: () {
-                                      if (requestModel.isEmpty) {
-                                        return;
-                                      }
-                                      Navigator.push(context,
-                                          CupertinoPageRoute(
-                                              builder: ((context) {
-                                        return RequestInboxPage(
-                                          inboxModel: requestModel,
-                                        );
-                                      }))).then((value) => getInbox());
-                                    },
-                                    child: Text(
-                                      "Requests (${requestModel.length})",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge!
-                                          .copyWith(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 15,
-                                              color: Colors.blueAccent),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: inboxModel.length,
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    onTap: () {
-                                      Navigator.push(context,
-                                          CupertinoPageRoute(
-                                              builder: ((context) {
-                                        return ChangeNotifierProvider(
-                                          create: (context) => ChatProvider(),
-                                          child: ChatPage(
-                                            user: inboxModel[index].user,
-                                          ),
-                                        );
-                                      }))).then((value) => getInbox());
-                                    },
-                                    leading: CircularNetworkImageWithSize(
-                                      imageUrl:
-                                          inboxModel[index].user.profilePic,
-                                      height: 45,
-                                      width: 45,
-                                    ),
-                                    title: Text(
-                                      inboxModel[index].user.name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            fontSize: 16,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
-                                    ),
-                                    subtitle: Text(
-                                      inboxModel[index].lastMessage.message ??
-                                          'Send an attachment',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall!
-                                          .copyWith(
-                                            fontSize: 14,
-                                            fontWeight: inboxModel[index]
-                                                        .unreadMessages >
-                                                    0
-                                                ? FontWeight.bold
-                                                : FontWeight.w300,
-                                          ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    trailing: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // if (search.text.isNotEmpty) {
+          //   search.clear();
+          //   return;
+          // }
+          getInbox();
+        },
+        child:
+            Consumer<InboxPageLoadingProvider>(builder: (context, prov, child) {
+          return prov.isLoading
+              ? buildShimmeringInbox(context)
+              : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFieldBuilder(
+                            tcontroller: search,
+                            hintTexxt: "Search",
+                            onChangedf: () {
+                              if (search.text.isEmpty) {
+                                getInbox();
+                                return;
+                              }
+                              getQueryUser();
+                            },
+                            prefixxIcon: Icon(
+                              Ionicons.search,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.surface,
+                            )),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        search.text.trim().isEmpty
+                            ? Consumer<InboxPageProvider>(
+                                builder: (context, prov, child) {
+                                return Column(
+                                  children: [
+                                    Row(
                                       children: [
-                                        const SizedBox(
-                                          height: 7,
-                                        ),
-                                        inboxModel[index].unreadMessages == 0
-                                            ? const SizedBox()
-                                            : CircleAvatar(
-                                                radius: 10,
-                                                backgroundColor:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .primary,
-                                                child: Text(
-                                                  inboxModel[index]
-                                                      .unreadMessages
-                                                      .toString(),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall!
-                                                      .copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 15,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimary,
-                                                      ),
-                                                ),
-                                              ),
-                                        const SizedBox(
-                                          height: 10,
-                                        ),
                                         Text(
-                                          CalculatingFunction.getTimeDiff(
-                                              inboxModel[index]
-                                                  .lastMessage
-                                                  .updatedAt),
+                                          "Messages",
                                           style: Theme.of(context)
                                               .textTheme
-                                              .bodySmall!
+                                              .bodyLarge!
                                               .copyWith(
-                                                fontSize: 10,
+                                                fontWeight: FontWeight.w300,
+                                                fontSize: 20,
                                               ),
+                                        ),
+                                        const Spacer(),
+                                        TextButton(
+                                          onPressed: () {
+                                            if (prov.requestModel.isEmpty) {
+                                              return;
+                                            }
+                                            Navigator.push(context,
+                                                CupertinoPageRoute(
+                                                    builder: ((context) {
+                                              return const RequestInboxPage();
+                                            })));
+                                          },
+                                          child: Text(
+                                            "Requests (${prov.requestModel.length})",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge!
+                                                .copyWith(
+                                                    fontWeight: FontWeight.w300,
+                                                    fontSize: 15,
+                                                    color: Colors.blueAccent),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  );
-                                },
-                              )
-                            ],
-                          )
-                        : Consumer<InboxPageProvider>(
-                            builder: (context, prov, child) {
-                            return prov.isUserFetched
-                                ? ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: searchedUser.length,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemBuilder: (context, index) {
-                                      return Column(children: [
-                                        personListTile(
-                                            user: searchedUser[index],
-                                            ttl1: searchedUser[index].state == 0
-                                                ? "Follow"
-                                                : searchedUser[index].state == 2
-                                                    ? "Following"
-                                                    : "Requested",
-                                            isPressed:
-                                                searchedUser[index].state == 0
-                                                    ? false
-                                                    : true,
-                                            ttl2: searchedUser[index].state == 0
-                                                ? "Requested"
-                                                : "Follow"),
-                                        SizedBox(
-                                          height: 10,
-                                        ),
-                                      ]);
-                                    },
-                                  )
-                                : Center(
-                                    child: SpinKit.ring,
-                                  );
-                          }),
-                  ],
-                ),
-              ));
-      }),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    ListView.builder(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: prov.inboxModel.length,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        if (prov.inboxModel[index]
+                                                .lastMessage ==
+                                            null)
+                                          return const SizedBox.shrink();
+                                        return ListTile(
+                                          onTap: () {
+                                            Navigator.push(context,
+                                                CupertinoPageRoute(
+                                                    builder: ((context) {
+                                              return ChangeNotifierProvider(
+                                                create: (context) =>
+                                                    ChatProvider(),
+                                                child: ChatPage(
+                                                  user: prov
+                                                      .inboxModel[index].user,
+                                                ),
+                                              );
+                                            })));
+                                          },
+                                          leading: CircularNetworkImageWithSize(
+                                            imageUrl: prov.inboxModel[index]
+                                                .user.profilePic,
+                                            height: 45,
+                                            width: 45,
+                                          ),
+                                          title: Text(
+                                            prov.inboxModel[index].user.name,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium!
+                                                .copyWith(
+                                                  fontSize: 16,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                          ),
+                                          subtitle: Text(
+                                            prov.inboxModel[index].lastMessage!
+                                                    .message ??
+                                                'Send an attachment',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: 14,
+                                                  fontWeight: prov
+                                                              .inboxModel[index]
+                                                              .unreadMessages >
+                                                          0
+                                                      ? FontWeight.bold
+                                                      : FontWeight.w300,
+                                                ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                          trailing: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const SizedBox(
+                                                height: 7,
+                                              ),
+                                              prov.inboxModel[index]
+                                                          .unreadMessages ==
+                                                      0
+                                                  ? const SizedBox()
+                                                  : CircleAvatar(
+                                                      radius: 10,
+                                                      backgroundColor:
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .primary,
+                                                      child: Text(
+                                                        prov.inboxModel[index]
+                                                            .unreadMessages
+                                                            .toString(),
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodySmall!
+                                                            .copyWith(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 15,
+                                                              color: Theme.of(
+                                                                      context)
+                                                                  .colorScheme
+                                                                  .onPrimary,
+                                                            ),
+                                                      ),
+                                                    ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                CalculatingFunction.getTimeDiff(
+                                                    prov
+                                                        .inboxModel[index]
+                                                        .lastMessage!
+                                                        .updatedAt),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall!
+                                                    .copyWith(
+                                                      fontSize: 10,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  ],
+                                );
+                              })
+                            : Consumer<InboxPageLoadingProvider>(
+                                builder: (context, prov, child) {
+                                return prov.isUserFetched
+                                    ? ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount: searchedUser.length,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemBuilder: (context, index) {
+                                          return Column(children: [
+                                            personListTile(
+                                                user: searchedUser[index],
+                                                ttl1:
+                                                    searchedUser[index].state ==
+                                                            0
+                                                        ? "Follow"
+                                                        : searchedUser[index]
+                                                                    .state ==
+                                                                2
+                                                            ? "Following"
+                                                            : "Requested",
+                                                isPressed:
+                                                    searchedUser[index].state ==
+                                                            0
+                                                        ? false
+                                                        : true,
+                                                ttl2:
+                                                    searchedUser[index].state ==
+                                                            0
+                                                        ? "Requested"
+                                                        : "Follow"),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                          ]);
+                                        },
+                                      )
+                                    : Center(
+                                        child: SpinKit.ring,
+                                      );
+                              }),
+                      ],
+                    ),
+                  ));
+        }),
+      ),
     );
   }
 }

@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.29.70:4000";
+  static const String baseUrl = "192.168.29.71:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -79,6 +79,7 @@ class ApiStringConstants {
 
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
+  static const String createRoom = "users/create-room";
   static const String fetchInbox = "users/all-recent-chats";
 
   //Hashtags APIs

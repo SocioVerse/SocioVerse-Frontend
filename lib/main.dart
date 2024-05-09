@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:face_camera/face_camera.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,9 +14,12 @@ import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
 import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
 import 'package:socioverse/Controllers/welcomePageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
+import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/welcome.dart';
 import 'package:socioverse/Views/UI/theme.dart';
 import 'package:socioverse/push_notifications.dart';
@@ -33,8 +37,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await SocketHelper.initSocketIO();
   await FaceCamera.initialize();
+
   // on background notification tapped
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (message.notification != null) {
@@ -101,7 +105,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'SocioVerse',
           theme: MyTheme.theme(),
-          home: const GetInitPage(),
+          home: GetInitPage(),
         ),
       ),
     );

@@ -9,6 +9,7 @@ import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Services/user_profile_services.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followerPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followingPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/likedPage.dart';
@@ -632,6 +633,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                     title: "Log Out",
                     content: const Text(" Are you sure you want to log out?"),
                     onAccept: () async {
+                      SocketHelper.socketHelper.dispose();
                       FirebaseMessaging.instance.getToken().then((value) async {
                         await AuthServices()
                             .userLogout(fcmToken: value)

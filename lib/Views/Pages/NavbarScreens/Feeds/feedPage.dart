@@ -12,12 +12,17 @@ import 'package:shimmer/shimmer.dart';
 import 'package:socioverse/Controllers/feedPageProviders.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
+import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Services/thread_services.dart';
+import 'package:socioverse/Sockets/messageSockets.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxPage.dart';
@@ -89,9 +94,36 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
               }))).then((value) => getFeedData());
             },
             backgroundColor: Theme.of(context).colorScheme.secondary,
-            child: const Icon(
-              Icons.chat_bubble_outline,
-              color: Colors.white,
+            child: Stack(
+              children: [
+                const Positioned.fill(
+                  child: Icon(
+                    Icons.chat_bubble_outline,
+                    color: Colors.white,
+                  ),
+                ),
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
+                    ),
+                    child: Consumer<FeedPageProvider>(
+                        builder: (context, prov, child) {
+                      return Text(
+                        prov.messageCount.toString(),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -125,9 +157,30 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     );
   }
 
+  Future<void> socketInit() async {
+    log('Here');
+    await SocketHelper.initSocketIO();
+
+    if (SocketHelper.socketHelper.active) {
+      SocketHelper.socketHelper.dispose();
+    }
+    await SocketHelper.initSocketIO();
+    String userId = await getStringFromCache(SharedPreferenceString.userId);
+    print(userId);
+    SocketHelper.socketHelper.emit('join-chat', {
+      'roomId': userId,
+    });
+    SocketHelper.socketHelper.emit('send-home-page', {
+      'sentTo': userId,
+    });
+    MessagesSocket(context).setFeedPageListeners();
+  }
+
   getFeedData() async {
     var prov = Provider.of<FeedPageProvider>(context, listen: false);
     prov.isLoading = true;
+    socketInit();
+
     if (prov.value == 1) {
       allFeeds = await FeedServices().getFollowingFeeds();
     } else if (prov.value == 2) {

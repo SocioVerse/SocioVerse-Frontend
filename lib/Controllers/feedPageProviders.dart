@@ -13,8 +13,10 @@ class ShowBackToTopProvider with ChangeNotifier {
 class FeedPageProvider with ChangeNotifier {
   bool _isLoading = false;
   int _value = 1;
+  int _messageCount = 0;
   bool get isLoading => _isLoading;
   int get value => _value;
+  int get messageCount => _messageCount;
 
   set isLoading(bool val) {
     _isLoading = val;
@@ -23,6 +25,11 @@ class FeedPageProvider with ChangeNotifier {
 
   set value(int val) {
     _value = val;
+    notifyListeners();
+  }
+
+  set messageCount(int val) {
+    _messageCount = val;
     notifyListeners();
   }
 }

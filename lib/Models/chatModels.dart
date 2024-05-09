@@ -7,7 +7,7 @@ import 'dart:convert';
 String roomModelToJson(RoomModel data) => json.encode(data.toJson());
 
 class RoomModel {
-  Room room;
+  Room? room;
   List<Message> messages;
 
   RoomModel({
@@ -17,13 +17,13 @@ class RoomModel {
 
   factory RoomModel.fromJson(Map<String, dynamic> json, String? userId) =>
       RoomModel(
-        room: Room.fromJson(json["room"]),
+        room: json["room"] == null ? null: Room.fromJson(json["room"]),
         messages: List<Message>.from(
             json["messages"].map((x) => Message.fromJson(x, userId))),
       );
 
   Map<String, dynamic> toJson() => {
-        "room": room.toJson(),
+        "room": room!.toJson(),
         "messages": List<dynamic>.from(messages.map((x) => x.toJson())),
       };
 }
