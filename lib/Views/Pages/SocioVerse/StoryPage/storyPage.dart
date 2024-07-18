@@ -20,7 +20,7 @@ import 'package:socioverse/Models/inboxModel.dart' as inbox;
 
 class StoryPage extends StatefulWidget {
   final User user;
-  StoryPage({required this.user});
+  const StoryPage({required this.user});
 
   @override
   State<StoryPage> createState() => _StoryPageState();

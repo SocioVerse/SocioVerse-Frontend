@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Helper/Debounce/debounce.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/feed_services.dart';
@@ -50,7 +52,6 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
           children: [
             IconButton(
               onPressed: () {
-                onLike();
                 setState(() {
                   isLiked = !isLiked;
                   liked = isLiked;
@@ -61,6 +62,7 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                     widget.thread.likeCount--;
                   }
                 });
+                onLike();
               },
               icon: Icon(
                 isLiked ? Ionicons.heart : Ionicons.heart_outline,
@@ -97,6 +99,8 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
       },
     );
   }
+
+  final _debounceLike = Debouncer(milliseconds: 1000);
 
   @override
   Widget build(BuildContext context) {
@@ -181,9 +185,11 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
               getThreadFooter(
                 isPost: false,
                 onLike: () async {
-                  await ThreadServices()
-                      .toogleLikeThreads(threadId: widget.thread.commentId);
                   setState(() {});
+                  _debounceLike.run(() async {
+                    await ThreadServices()
+                        .toggleLikeThreads(threadId: widget.thread.commentId);
+                  });
                 },
                 onComment: () {
                   // Navigator.push(
@@ -306,15 +312,8 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                   onTap: () async {
                     await Clipboard.setData(
                         ClipboardData(text: feedComment.content));
-                    Fluttertoast.showToast(
-                      msg: "Comment Copied Successfully",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.black,
-                      fontSize: 16.0,
-                    );
+                    FlutterToast.flutterWhiteToast(
+                        "Comment Copied Successfully");
                     if (context.mounted) Navigator.pop(context);
                   },
                 ),
@@ -424,8 +423,6 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                       children: [
                         InkWell(
                           onTap: () async {
-                            await FeedServices().toggleFeedCommentLike(
-                                commentId: widget.feedComment.id);
                             widget.feedComment.isLiked =
                                 !widget.feedComment.isLiked;
                             if (widget.feedComment.isLiked) {
@@ -434,6 +431,8 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                               widget.feedComment.likeCount--;
                             }
                             setState(() {});
+                            await FeedServices().toggleFeedCommentLike(
+                                commentId: widget.feedComment.id);
                           },
                           child: widget.feedComment.isLiked
                               ? const Icon(

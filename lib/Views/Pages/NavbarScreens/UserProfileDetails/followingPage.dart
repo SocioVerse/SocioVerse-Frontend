@@ -101,7 +101,7 @@ class _FollowingPageState extends State<FollowingPage> {
                     }
                   });
                 } else {
-                  await FollowUnfollowServices().toogleFollow(
+                  await FollowUnfollowServices().toggleFollow(
                     userId: followersModel.user.id,
                   );
                 }

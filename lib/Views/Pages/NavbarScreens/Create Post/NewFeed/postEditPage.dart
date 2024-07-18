@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/multiProviderList.dart';
 import 'package:socioverse/Controllers/postEditingProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
@@ -20,6 +21,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/user_services.dart';
+import 'package:socioverse/main.dart';
 import 'package:uuid/uuid.dart';
 
 class PostEditPage extends StatefulWidget {
@@ -74,18 +76,22 @@ class _PostEditPageState extends State<PostEditPage> {
                   if (emailProvider.userEmail == null) {
                     return;
                   }
-                  context.loaderOverlay.show();
+                  context.loaderOverlay.show(
+                    progress: 'Doing progress #0',
+                  );
+
+                  log("starting upload");
                   List<String> images = [];
                   //use for loop
-                  for (var i = 0; i < widget.images.length; i++) {
-                    log(widget.images[i].path.toString());
+                  await Future.forEach(widget.images, (File image) async {
+                    log(image.path.toString());
                     String url = await FirebaseHelper.uploadFile(
-                        widget.images[i].path,
+                        image.path,
                         "${const Uuid().v4()}.jpg",
                         "${emailProvider.userEmail}/feeds",
                         FirebaseHelper.Image);
                     images.add(url);
-                  }
+                  });
                   await FeedServices().createFeed(
                       postData: FeedData(
                           caption: captionController.text,
@@ -102,13 +108,12 @@ class _PostEditPageState extends State<PostEditPage> {
                               .map((e) => e.hashtag)
                               .toList()));
                   if (context.mounted) {
+                    log("upload done");
                     context.loaderOverlay.hide();
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const MainPage(
-                                  index: 0,
-                                )),
+                            builder: (context) => const MainPage()),
                         (route) => false);
                   }
                 },

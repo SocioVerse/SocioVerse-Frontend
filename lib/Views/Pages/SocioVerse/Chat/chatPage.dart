@@ -12,20 +12,26 @@ import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Sockets/messageSockets.dart';
 import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Services/chatting_services.dart';
 import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/roomInfoPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uuid/uuid.dart';
+import 'package:socioverse/Models/storyModels.dart' as StroyModel;
 
 class ChatPage extends StatefulWidget {
   final User user;
@@ -111,12 +117,12 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   _initializeListeners() {
+    addMessageInboxListner();
     _setupSocketListeners(userId, roomModel.room!.id);
     _updateChatProviderWithMessages(roomModel.messages);
   }
 
   addMessageInboxListner() {
-    if (roomModel.room == null) return;
     message.addListener(() {
       if (message.text.trim() != "") {
         MessagesSocket(context).emitMessageTyping(roomModel.room!.roomId, true);
@@ -198,7 +204,7 @@ class _ChatPageState extends State<ChatPage> {
         contentPadding: const EdgeInsets.all(20),
         fillColor: Theme.of(context).colorScheme.secondary,
         hintText: "Type message...",
-        hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
+        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16,
             ),
         border: OutlineInputBorder(
@@ -224,10 +230,9 @@ class _ChatPageState extends State<ChatPage> {
   void _scrollToBottomAndEmitSeenMessages() {
     if (scrollChat.hasClients) {
       scrollChat.animateTo(
-        // NEW
-        scrollChat.position.maxScrollExtent, // NEW
-        duration: const Duration(milliseconds: 500), // NEW
-        curve: Curves.ease, // NEW
+        scrollChat.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
       );
       if (Provider.of<ChatProvider>(context, listen: false)
               .messages
@@ -281,8 +286,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget getMessageWidget(Message message) {
-    if (message.thread != null) {
-      return postMessage(message);
+    if (message.feed != null) {
+      return post(message, "Feed");
+    } else if (message.profile != null) {
+      return post(message, "Profile");
+    } else if (message.thread != null) {
+      return post(message, "Thread");
+    } else if (message.story != null) {
+      return post(message, "Story");
     } else if (message.image != null) {
       return photoMessage(message);
     } else {
@@ -353,6 +364,117 @@ class _ChatPageState extends State<ChatPage> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget post(Message message, String type) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: message.sender.isOwner
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () async {
+            if (type == "Feed") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CommentPage(
+                            feedId: message.feed,
+                          )));
+            } else if (type == "Profile") {
+              String userId =
+                  await getStringFromCache(SharedPreferenceString.userId);
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserProfilePage(
+                            owner: userId == message.profile,
+                            userId: userId == message.profile
+                                ? null
+                                : message.profile,
+                          )));
+            } else if (type == "Thread") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ThreadCommentPage(
+                            threadId: message.thread,
+                          )));
+            } else if (type == "Story") {
+              print("story");
+              StroyModel.User? user = await StoriesServices()
+                  .getUserByStoryId(storyId: message.story!);
+              if (user == null) return;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => StoryPage(
+                            user: user,
+                          )));
+            }
+          },
+          child: Container(
+            constraints: BoxConstraints(maxWidth: MyApp.width! / 1.5),
+            margin: const EdgeInsets.symmetric(
+              vertical: 2,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Flexible(
+                  child: Text(
+                    "Tap to View $type",
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  CalculatingFunction.getTime(message.createdAt),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 8,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withAlpha(150),
+                      ),
+                )
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 8,
+        ),
+        message.sender.isOwner
+            ? Align(
+                alignment: Alignment.bottomCenter,
+                child: Icon(
+                  message.isSeenByAll
+                      ? Ionicons.checkmark_circle
+                      : Ionicons.checkmark_circle_outline,
+                  size: 15,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            : const SizedBox.shrink()
       ],
     );
   }

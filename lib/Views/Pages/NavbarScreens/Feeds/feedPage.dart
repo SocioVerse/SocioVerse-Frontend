@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:ffi';
 
+import 'package:after_layout/after_layout.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
@@ -39,26 +40,37 @@ class FeedsPage extends StatefulWidget {
   State<FeedsPage> createState() => _FeedsPageState();
 }
 
-class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
+class _FeedsPageState extends State<FeedsPage>
+    with TickerProviderStateMixin, AfterLayoutMixin<FeedsPage> {
   final ScrollController _scrollController = ScrollController();
   List<ProfileStoryModel> profileStories = [];
   List<FeedModel> allFeeds = [];
   List<ThreadModel> allThreads = [];
+  FeedPageProvider? feedPageProvider;
+
+  @override
+  afterFirstLayout(BuildContext context) {
+    feedPageProvider = Provider.of<FeedPageProvider>(context, listen: false);
+    feedPageProvider!.value = 1;
+    _scrollController.addListener(() {
+      if (_scrollController.offset >= 400) {
+        Provider.of<ShowBackToTopProvider>(context, listen: false)
+            .showBackToTopButton = true; // show the back-to-top button
+      } else {
+        Provider.of<ShowBackToTopProvider>(context, listen: false)
+            .showBackToTopButton = false; // hide the back-to-top button
+      }
+    });
+    getFeedData();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      _scrollController.addListener(() {
-        if (_scrollController.offset >= 400) {
-          Provider.of<ShowBackToTopProvider>(context, listen: false)
-              .showBackToTopButton = true; // show the back-to-top button
-        } else {
-          Provider.of<ShowBackToTopProvider>(context, listen: false)
-              .showBackToTopButton = false; // hide the back-to-top button
-        }
-      });
-      getFeedData();
-    });
-
     super.initState();
   }
 
@@ -170,10 +182,13 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
     SocketHelper.socketHelper.emit('join-chat', {
       'roomId': userId,
     });
+    SocketHelper.socketHelper.on('feed-page-count', (data) {
+      log(data.toString());
+      feedPageProvider!.messageCount = data['cnt'];
+    });
     SocketHelper.socketHelper.emit('send-home-page', {
       'sentTo': userId,
     });
-    MessagesSocket(context).setFeedPageListeners();
   }
 
   getFeedData() async {
@@ -197,7 +212,7 @@ class _FeedsPageState extends State<FeedsPage> with TickerProviderStateMixin {
       child: GridView.builder(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
-          itemCount: 6,
+          itemCount: 20,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 5,

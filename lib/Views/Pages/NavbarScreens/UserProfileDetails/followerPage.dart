@@ -93,16 +93,16 @@ class _FollowersPageState extends State<FollowersPage> {
               ispressed: isPressed,
               onPressed: () async {
                 if (followersModel.state == 2) {
-                  await FollowUnfollowServices().unFollow(
-                    userId: followersModel.user.id,
-                  );
                   setState(() {
                     if (followersModel.state == 2) {
                       followersModel.state = 0;
                     }
                   });
+                  await FollowUnfollowServices().unFollow(
+                    userId: followersModel.user.id,
+                  );
                 } else {
-                  await FollowUnfollowServices().toogleFollow(
+                  await FollowUnfollowServices().toggleFollow(
                     userId: followersModel.user.id,
                   );
                 }

@@ -3,13 +3,16 @@ import 'package:custom_sliding_segmented_control/custom_sliding_segmented_contro
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Services/user_profile_services.dart';
 import 'package:socioverse/Sockets/socketMain.dart';
+import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followerPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followingPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/likedPage.dart';
@@ -25,6 +28,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/bottomSheets.dart';
+import 'package:socioverse/Views/Widgets/Global/dataStructure.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
 import 'package:flutter/cupertino.dart';
@@ -108,12 +112,13 @@ class _UserProfilePageState extends State<UserProfilePage>
     });
     userProfileDetailsModel = await UserProfileDetailsServices()
         .fetchUserProfileDetails(widget.userId);
+    _value = 1;
     setState(() {
       isLoading = false;
     });
   }
 
-  Widget toogleFollowButton(
+  Widget toggleFollowButton(
       {required String ttl1,
       required String ttl2,
       required UserProfileDetailsModel userProfileDetailsModel,
@@ -133,7 +138,7 @@ class _UserProfilePageState extends State<UserProfilePage>
               }
             });
           } else {
-            await FollowUnfollowServices().toogleFollow(
+            await FollowUnfollowServices().toggleFollow(
               userId: userProfileDetailsModel.user.id,
             );
           }
@@ -292,105 +297,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                       fontSize: 16),
                 ),
                 onTap: () {
-                  showModalBottomSheet(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 15.0, right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.horizontal_rule_rounded,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              textFieldBuilder(
-                                tcontroller: TextEditingController(),
-                                hintTexxt: "Write a message...",
-                                onChangedf: () {},
-                              ),
-                              const SizedBox(
-                                height: 20,
-                                child: Divider(
-                                  height: 10,
-                                ),
-                              ),
-                              textFieldBuilder(
-                                  tcontroller: TextEditingController(),
-                                  hintTexxt: "Search",
-                                  onChangedf: () {},
-                                  prefixxIcon: Icon(
-                                    Ionicons.search,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  )),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: 10,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        leading: CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          child: const CircleAvatar(
-                                              radius: 28,
-                                              backgroundImage: AssetImage(
-                                                "assets/Country_flag/in.png",
-                                              )),
-                                        ),
-                                        title: Text(
-                                          "Fatima",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                fontSize: 16,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              ),
-                                        ),
-                                        subtitle: Text(
-                                          "Occupation",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 14,
-                                              ),
-                                        ),
-                                        trailing: MyEleButtonsmall(
-                                            title2: "Sent",
-                                            title: "Send",
-                                            onPressed: () {},
-                                            ctx: context),
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
+                  ShareList(context: context, type: ShareType.profile)
+                      .showShareBottomSheet(userProfileDetailsModel!.user.id);
                 },
               ),
               ListTile(
@@ -515,105 +423,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                       fontSize: 16),
                 ),
                 onTap: () {
-                  showModalBottomSheet(
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
-                        ),
-                      ),
-                      backgroundColor:
-                          Theme.of(context).scaffoldBackgroundColor,
-                      context: context,
-                      builder: (context) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 15.0, right: 15),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.horizontal_rule_rounded,
-                                size: 50,
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              textFieldBuilder(
-                                tcontroller: TextEditingController(),
-                                hintTexxt: "Write a message...",
-                                onChangedf: () {},
-                              ),
-                              const SizedBox(
-                                height: 20,
-                                child: Divider(
-                                  height: 10,
-                                ),
-                              ),
-                              textFieldBuilder(
-                                  tcontroller: TextEditingController(),
-                                  hintTexxt: "Search",
-                                  onChangedf: () {},
-                                  prefixxIcon: Icon(
-                                    Ionicons.search,
-                                    size: 20,
-                                    color:
-                                        Theme.of(context).colorScheme.surface,
-                                  )),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: 10,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        leading: CircleAvatar(
-                                          radius: 30,
-                                          backgroundColor: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          child: const CircleAvatar(
-                                              radius: 28,
-                                              backgroundImage: AssetImage(
-                                                "assets/Country_flag/in.png",
-                                              )),
-                                        ),
-                                        title: Text(
-                                          "Fatima",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyMedium!
-                                              .copyWith(
-                                                fontSize: 16,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary,
-                                              ),
-                                        ),
-                                        subtitle: Text(
-                                          "Occupation",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 14,
-                                              ),
-                                        ),
-                                        trailing: MyEleButtonsmall(
-                                            title2: "Sent",
-                                            title: "Send",
-                                            onPressed: () {},
-                                            ctx: context),
-                                      );
-                                    }),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
+                  ShareList(context: context, type: ShareType.profile)
+                      .showShareBottomSheet(userProfileDetailsModel!.user.id);
                 },
               ),
               ListTile(
@@ -633,18 +444,19 @@ class _UserProfilePageState extends State<UserProfilePage>
                     title: "Log Out",
                     content: const Text(" Are you sure you want to log out?"),
                     onAccept: () async {
+                      context.loaderOverlay.show();
                       SocketHelper.socketHelper.dispose();
-                      FirebaseMessaging.instance.getToken().then((value) async {
-                        await AuthServices()
-                            .userLogout(fcmToken: value)
-                            .then((value) {
-                          Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MyApp()),
-                              (route) => false);
-                        });
+                      await FirebaseMessaging.instance
+                          .getToken()
+                          .then((value) async {
+                        await AuthServices().userLogout(fcmToken: value);
                       });
+                      context.loaderOverlay.hide();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const GetInitPage()),
+                          (route) => false);
                     },
                     onReject: () {},
                   );
@@ -957,7 +769,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Expanded(
-                      child: toogleFollowButton(
+                      child: toggleFollowButton(
                           userProfileDetailsModel: userProfileDetailsModel!,
                           ttl1: userProfileDetailsModel!.user.state == 0
                               ? "Follow"

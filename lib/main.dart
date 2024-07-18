@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:face_camera/face_camera.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/countryListPageProvider.dart';
 import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
@@ -71,7 +73,7 @@ void main() async {
     print("Launched from terminated state");
     Future.delayed(const Duration(seconds: 1), () {});
   }
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: Providers.providers, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -82,31 +84,33 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    return MultiProvider(
-      providers: Providers.providers,
-      child: GlobalLoaderOverlay(
-        overlayColor: Colors.transparent,
-        useDefaultLoading: false,
-        overlayWidgetBuilder: (_) {
-          //ignored progress for the moment
-          return Stack(
-            children: [
-              const Opacity(
-                opacity: 0.8,
-                child: ModalBarrier(dismissible: false, color: Colors.black),
+    return GlobalLoaderOverlay(
+      overlayColor: Colors.transparent,
+      useDefaultLoading: false,
+      overlayWidgetBuilder: (_) {
+        //ignored progress for the moment
+        return Stack(
+          children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+              child: SizedBox.expand(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                ),
               ),
-              Center(
-                child: SpinKit.ring,
-              ),
-            ],
-          );
-        },
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'SocioVerse',
-          theme: MyTheme.theme(),
-          home: GetInitPage(),
-        ),
+            ),
+            Center(
+              child: SpinKit.ring,
+            ),
+          ],
+        );
+      },
+      child: MaterialApp(
+        navigatorKey: NavigationService.navigationKey,
+        debugShowCheckedModeBanner: false,
+        title: 'SocioVerse',
+        theme: MyTheme.theme(),
+        home: GetInitPage(),
       ),
     );
   }

@@ -2,10 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Helper/Debounce/debounce.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/Views/Widgets/Global/bottomSheets.dart';
+import 'package:socioverse/Views/Widgets/Global/dataStructure.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/main.dart';
@@ -28,13 +31,20 @@ class StoryPageControllers extends StatefulWidget {
 class _StoryPageControllersState extends State<StoryPageControllers> {
   StorySeensModel? storySeensModel;
   bool isBottomSheetLoading = true;
-
+  final Debouncer _debounceLike = Debouncer(milliseconds: 1000);
+  late bool isLiked;
   TextEditingController search = TextEditingController();
   TextEditingController storyMessage = TextEditingController();
   Future<void> toggleLike() async {
-    await StoriesServices().toogleStoryLike(storyId: widget.readStoryModel.id);
     setState(() {
-      widget.readStoryModel.isLiked = !widget.readStoryModel.isLiked;
+      isLiked = !isLiked;
+    });
+    _debounceLike.run(() async {
+      if (isLiked != widget.readStoryModel.isLiked) {
+        widget.readStoryModel.isLiked = isLiked;
+        await StoriesServices()
+            .toggleStoryLike(storyId: widget.readStoryModel.id);
+      }
     });
   }
 
@@ -273,6 +283,12 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
   }
 
   @override
+  void initState() {
+    isLiked = widget.readStoryModel.isLiked;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 70,
@@ -329,107 +345,9 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                   onPressed: () {
                     // Add your logic here for the paper plane IconButton
                     widget.storyController.pause();
-                    showModalBottomSheet(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.only(left: 15.0, right: 15),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.horizontal_rule_rounded,
-                                  size: 50,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                CustomTextField(
-                                  controller: storyMessage,
-                                  hintText: "Write a message...",
-                                  onChanged: (value) {},
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                  child: Divider(
-                                    height: 10,
-                                  ),
-                                ),
-                                CustomTextField(
-                                    controller: search,
-                                    hintText: "Search",
-                                    onChanged: (value) {},
-                                    prefixIcon: Icon(
-                                      Ionicons.search,
-                                      size: 20,
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                    )),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Expanded(
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: 10,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            radius: 30,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            child: const CircleAvatar(
-                                                radius: 28,
-                                                backgroundImage: AssetImage(
-                                                  "assets/Country_flag/in.png",
-                                                )),
-                                          ),
-                                          title: Text(
-                                            "Fatima",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary,
-                                                ),
-                                          ),
-                                          subtitle: Text(
-                                            "Occupation",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall!
-                                                .copyWith(
-                                                  fontSize: 14,
-                                                ),
-                                          ),
-                                          trailing: MyEleButtonsmall(
-                                              title2: "Sent",
-                                              title: "Send",
-                                              onPressed: () {},
-                                              ctx: context),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).then((value) => widget.storyController.play());
+                    ShareList(context: context, type: ShareType.story)
+                        .showShareBottomSheet(widget.readStoryModel.id)
+                        .then((value) => widget.storyController.play());
                   },
                   icon: Icon(
                     Ionicons.paper_plane_outline,
@@ -477,10 +395,8 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                 child: IconButton(
                   onPressed: toggleLike, // Toggle the like button
                   icon: Icon(
-                    widget.readStoryModel.isLiked
-                        ? Ionicons.heart
-                        : Ionicons.heart_outline,
-                    color: widget.readStoryModel.isLiked
+                    isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                    color: isLiked
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
                     size: 30,
@@ -526,7 +442,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       controller: widget.controller,
       onChanged: widget.onChanged,
       cursorOpacityAnimates: true,
-      style: Theme.of(context).textTheme.bodyText1!.copyWith(
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
             fontSize: 16,
             color: Theme.of(context).colorScheme.surface,
           ),
@@ -537,7 +453,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         filled: true,
         fillColor: Theme.of(context).colorScheme.secondary,
         hintText: widget.hintText,
-        hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
+        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
               fontSize: 16,
             ),
         border: OutlineInputBorder(

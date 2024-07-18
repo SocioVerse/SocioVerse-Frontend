@@ -72,7 +72,6 @@ class AlertBoxes {
                           ),
                           onPressed: () {
                             onAccept();
-                            Navigator.pop(context);
                           },
                           child: Text(
                             acceptTitle ?? 'Yes',

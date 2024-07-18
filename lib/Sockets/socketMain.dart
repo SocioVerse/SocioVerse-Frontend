@@ -11,6 +11,7 @@ class SocketHelper {
   static initSocketIO() async {
     log("initSocketIO");
     String token = await getStringFromCache(SharedPreferenceString.accessToken);
+    String userId = await getStringFromCache(SharedPreferenceString.userId);
     log(token);
     Map<String, String>? headers;
     headers = ({"Authorization": "Bearer $token"});
@@ -21,6 +22,9 @@ class SocketHelper {
           .enableForceNew()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .setAuth(headers)
+          .setQuery({
+            "userId": userId,
+          })
           .build(),
     );
     socket.connect();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:socioverse/Utils/CountryList.dart';
 
 import 'package:flutter/material.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityChoicePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/createPostPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Search/searchFeeds.dart';
@@ -14,7 +15,7 @@ class NavigatorPageProvider with ChangeNotifier {
     const FeedsPage(),
     const SearchFeedsPage(),
     const CreatePostPage(),
-    const ActivityPage(),
+    Activitychoicepage(),
     UserProfilePage(
       owner: true,
       userId: null,

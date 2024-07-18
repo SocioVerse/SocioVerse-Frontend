@@ -4,8 +4,9 @@ class ApiStringConstants {
 
   //Threads APIs
   static const String createThread = "threads/create-new-thread";
-  static const String toogleLikeThread = "threads/toggle-thread-like";
-  static const String toogleSaveThread = "threads/toggle-thread-save";
+  static const String getThreadById = "threads/read-thread";
+  static const String toggleLikeThread = "threads/toggle-thread-like";
+  static const String toggleSaveThread = "threads/toggle-thread-save";
   static const String fetchAllThreadComments = "threads/read-comment-replies";
   static const String fetchAllSavedThreads = "threads/saved-threads";
   static const String fetchAllLikedThreads = "threads/liked-threads";
@@ -16,8 +17,8 @@ class ApiStringConstants {
 
   //Feed APIs
   static const String createFeed = "feeds/create-new-feed";
-  static const String toogleLikeFeed = "feeds/toggle-feed-like";
-  static const String toogleSaveFeed = "feeds/toggle-feed-save";
+  static const String toggleLikeFeed = "feeds/toggle-feed-like";
+  static const String toggleSaveFeed = "feeds/toggle-feed-save";
   static const String fetchAllFeedComments = "feeds/read-comment-replies";
   static const String fetchAllSavedFeeds = "feeds/saved-feeds";
   static const String fetchAllLikedFeeds = "feeds/liked-feeds";
@@ -35,12 +36,14 @@ class ApiStringConstants {
   static const String deleteFeedComment = "feeds/delete-feed-commment"; //
   static const String searchFeedsLocation = "feeds/search-location";
   static const String searchFeedsHashtags = "feeds/search-hashtags";
+
   //Stories APIs
   static const String createStory = "stories/create-story";
   static const String readStory = "stories/read-story";
-  static const String toogleStoryLike = "stories/toogle-story-like";
+  static const String toggleStoryLike = "stories/toggle-story-like";
   static const String storySeen = "stories/story-seen";
   static const String deleteStory = "stories/delete-story";
+  static const String getUserByStoryId = "stories/get-user-by-storyId";
 
   //Users APIs
   static const String isEmailExists = "users/verify-email-exists";
@@ -50,7 +53,7 @@ class ApiStringConstants {
   static const String fetchUser = "users/fetch-user-details";
   static const String getFollowingThread = "users/fetch-following-threads";
   static const String getFollowingFeed = "users/fetch-following-feeds";
-  static const String toogleFollowReq = "users/create-follow-request";
+  static const String toggleFollowReq = "users/create-follow-request";
   static const String unFollow = "users/unfollow-user";
   static const String searchUser = "users/search-user";
   static const String searchUserByFace = "users/search-user-by-face";
@@ -69,14 +72,16 @@ class ApiStringConstants {
   static const String fetchFollowers = "users/fetch-followers";
   static const String fetchFollowing = "users/fetch-following";
   static const String addBio = "users/add-bio";
-  static const String toogleRepostThread = "users/toogle-repost-thread";
+  static const String toggleRepostThread = "users/toggle-repost-thread";
   static const String fetchRepostThreads = "users/fetch-reposted-thread";
   static const String fetchAllStories = "users/fetch-all-stories";
   static const String fetchAllStorySeen = "users/fetch-all-stories-seens";
   static const String fetchUserFeeds = "users/fetch-user-feeds";
   static const String hideStory = "users/hide-story";
   static const String unhideStory = "users/unhide-story";
-
+  static const String getShareList = "users/get-recent-rooms-info";
+  static const String fetchRoomId = "users/get-room-id";
+  static const String getActivity = "users/get-activity";
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
   static const String createRoom = "users/create-room";
@@ -90,4 +95,12 @@ class ApiStringConstants {
 
   //Report APIs
   static const String createReport = "help/create-report";
+
+  // activity APIs
+  static const String fetchFeedActivity = "activity/feeds";
+  static const String fetchThreadActivity = "activity/threads";
+  static const String fetchStoryLikesActivity = "activity/story-likes";
+  static const String fetchMentionsActivity = "activity/mentions";
+  static const String fetchThreadCommentsActivity = "activity/threads-comments";
+  static const String fetchFeedCommentsActivity = "activity/feeds-comments";
 }

@@ -1,18 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
 import 'package:socioverse/Helper/api_constants.dart';
+import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Sockets/socketMain.dart';
+import 'package:socioverse/main.dart';
 
 class RefreshToken {
   final ApiHelper _helper = ApiHelper();
-  Future<String> updateToken() async {
+  Future<String?> updateToken() async {
     String token =
         await getStringFromCache(SharedPreferenceString.refreshToken);
     print("here 5");
     ApiResponse response = await _helper.post(ApiStringConstants.refreshToken,
         querryParam: {"refresh_token": token}, isPublic: true);
+    if (response.success == false) {
+      setStringIntoCache(SharedPreferenceString.accessToken, null);
+      setBooleanIntoCache(SharedPreferenceString.isLoggedIn, false);
+      setStringIntoCache(SharedPreferenceString.refreshToken, null);
+      setStringIntoCache(SharedPreferenceString.userId, null);
+      FlutterToast.flutterWhiteToast("Session Expired");
+      NavigationService.navigationKey.currentState!.pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) => GetInitPage(),
+          ),
+          (route) => false);
+      return null;
+    }
     print("here 3");
     setStringIntoCache(
         SharedPreferenceString.refreshToken, response.data["refresh_token"]);

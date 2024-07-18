@@ -6,6 +6,8 @@ import 'package:socioverse/Services/activity_services.dart';
 
 class ActivityPageProvider with ChangeNotifier {
   bool _isLoading = true;
+  int _index = 0;
+
   late LatestFollowRequestModel _latestFollowRequestModel;
   bool get isLoading => _isLoading;
   LatestFollowRequestModel get latestFollowRequestModel =>
@@ -16,6 +18,12 @@ class ActivityPageProvider with ChangeNotifier {
     _latestFollowRequestModel =
         await ActivityServices().fetchLatestFolloweRequests();
     isLoading = false;
+  }
+
+  int get index => _index;
+  set index(int i) {
+    _index = i;
+    notifyListeners();
   }
 
   set isLoading(bool value) {

@@ -8,6 +8,7 @@ import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Services/inbox_services.dart';
 import 'package:socioverse/Sockets/messageSockets.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 
 class InboxPageLoadingProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -39,6 +40,30 @@ class InboxPageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void initInboxListners(BuildContext context) {
+    for (var i in inboxModel) {
+      SocketHelper.socketHelper.emit('join-chat', {
+        'roomId': i.roomId,
+      });
+    }
+    SocketHelper.socketHelper.on('inbox-add', ((data) {
+      log("${data}Here");
+      InboxModel inboxModel = InboxModel.fromJson(data);
+      MessagesSocket(context).emitJoinChat(inboxModel.roomId);
+      addInbox(
+        inboxModel,
+        isRequestMessage: inboxModel.isRequestMessage,
+      );
+    }));
+    SocketHelper.socketHelper.on('inbox', ((data) {
+      log("${data}Here");
+      updateInbox(context, data);
+    }));
+    SocketHelper.socketHelper.on('delete-room', (data) {
+      deleteInbox(data['roomId']);
+    });
+  }
+
   void init(BuildContext context, {bool setInboxListners = true}) async {
     Provider.of<InboxPageLoadingProvider>(context, listen: false).isLoading =
         true;
@@ -51,7 +76,7 @@ class InboxPageProvider extends ChangeNotifier {
     Provider.of<InboxPageLoadingProvider>(context, listen: false).isLoading =
         false;
     if (setInboxListners) {
-      MessagesSocket(context).setInboxListners();
+      initInboxListners(context);
     }
   }
 

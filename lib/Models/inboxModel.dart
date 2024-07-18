@@ -39,7 +39,9 @@ class InboxModel {
         roomId: json["roomId"],
         createdAt: DateTime.parse(json["createdAt"]).toLocal(),
         updatedAt: DateTime.parse(json["updatedAt"]),
-        lastMessage:json["lastMessage"] == null? null: LastMessage.fromJson(json["lastMessage"]),
+        lastMessage: json["lastMessage"] == null
+            ? null
+            : LastMessage.fromJson(json["lastMessage"]),
         user: User.fromJson(json["user"]),
         unreadMessages: json["unreadMessages"],
         isRequestMessage: json["isRequestMessage"] ?? false,

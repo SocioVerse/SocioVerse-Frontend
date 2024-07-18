@@ -13,6 +13,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
@@ -365,15 +366,8 @@ class _FillProfilePageState extends State<FillProfilePage> {
                         title: "Continue",
                         onPressed: () async {
                           if (prov.faceImageLoading == true) {
-                            Fluttertoast.showToast(
-                              msg: "Wait for face images to upload",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              fontSize: 16.0,
-                            );
+                            FlutterToast.flutterWhiteToast(
+                                "Wait for face images to upload");
                             return;
                           }
                           if (fullName.text.isEmpty ||
@@ -382,15 +376,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               occupation.text.isEmpty ||
                               prov.dob.text.isEmpty ||
                               currentImage == null) {
-                            Fluttertoast.showToast(
-                              msg: "Fill all details",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              fontSize: 16.0,
-                            );
+                            FlutterToast.flutterWhiteToast("Fill all details");
                             return;
                           } else {
                             context.loaderOverlay.show();
@@ -433,15 +419,8 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                       builder: (context) => const MainPage()),
                                   (route) => false);
                             } else {
-                              Fluttertoast.showToast(
-                                msg: response!.message.toString(),
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.white,
-                                textColor: Colors.black,
-                                fontSize: 16.0,
-                              );
+                              FlutterToast.flutterWhiteToast(
+                                  response!.message.toString());
                             }
                           }
                         },

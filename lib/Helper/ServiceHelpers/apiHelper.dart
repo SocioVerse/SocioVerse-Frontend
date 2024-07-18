@@ -26,8 +26,8 @@ class ApiHelper {
       );
 
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
-
+        String? updatedToken = await RefreshToken().updateToken();
+        if (updatedToken == null) return null;
         final response = await http.get(
           uri,
           headers: {
@@ -89,7 +89,7 @@ class ApiHelper {
           await http.post(uri, body: jsonEncode(querryParam), headers: headers);
       if (response.statusCode == 401) {
         headers = null;
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken().updateToken();
 
         var response = await http.post(
           uri,
@@ -241,7 +241,7 @@ class ApiHelper {
       var response =
           await http.put(uri, headers: _headers, body: jsonEncode(querryParam));
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken().updateToken();
 
         var response = await http.put(
           uri,
@@ -277,7 +277,7 @@ class ApiHelper {
       );
 
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken().updateToken();
 
         final response = await http.delete(
           uri,

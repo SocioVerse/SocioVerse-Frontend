@@ -644,16 +644,16 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
           ispressed: isPressed,
           onPressed: () async {
             if (user.state == 2) {
-              await FollowUnfollowServices().unFollow(
-                userId: user.id,
-              );
               setState(() {
                 if (user.state == 2) {
                   user.state = 0;
                 }
               });
+              await FollowUnfollowServices().unFollow(
+                userId: user.id,
+              );
             }
-            await FollowUnfollowServices().toogleFollow(
+            await FollowUnfollowServices().toggleFollow(
               userId: user.id,
             );
           },

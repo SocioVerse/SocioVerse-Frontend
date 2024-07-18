@@ -15,40 +15,8 @@ class MessagesSocket {
   BuildContext context;
 
   MessagesSocket(this.context);
-  void setInboxListners() {
-    for (var i
-        in Provider.of<InboxPageProvider>(context, listen: false).inboxModel) {
-      SocketHelper.socketHelper.emit('join-chat', {
-        'roomId': i.roomId,
-      });
-    }
-    SocketHelper.socketHelper.on('inbox-add', ((data) {
-      log("${data}Here");
-      InboxModel inboxModel = InboxModel.fromJson(data);
-      MessagesSocket(context).emitJoinChat(inboxModel.roomId);
-      Provider.of<InboxPageProvider>(context, listen: false).addInbox(
-        inboxModel,
-        isRequestMessage: inboxModel.isRequestMessage,
-      );
-    }));
-    SocketHelper.socketHelper.on('inbox', ((data) {
-      log("${data}Here");
-      Provider.of<InboxPageProvider>(context, listen: false)
-          .updateInbox(context, data);
-    }));
-    SocketHelper.socketHelper.on('delete-room', (data) {
-      Provider.of<InboxPageProvider>(context, listen: false)
-          .deleteInbox(data['roomId']);
-    });
-  }
 
-  void setFeedPageListeners() {
-    SocketHelper.socketHelper.on('feed-page-count', (data) {
-      log(data.toString());
-      Provider.of<FeedPageProvider>(context, listen: false).messageCount =
-          data['cnt'];
-    });
-  }
+  void setFeedPageListeners(BuildContext ctx) {}
 
   //emit
   void emitMessageSeen(String roomId) {
@@ -96,6 +64,57 @@ class MessagesSocket {
       'message': message,
       'image': null,
       'thread': null,
+      'feed': null,
+      'story': null,
+      'profile': null,
+      'roomId': roomId,
+    });
+  }
+
+  void emitMessageFeed(String roomId, String feed) {
+    SocketHelper.socketHelper.emit('message', {
+      'message': null,
+      'image': null,
+      'thread': null,
+      'feed': feed,
+      'story': null,
+      'profile': null,
+      'roomId': roomId,
+    });
+  }
+
+  void emitMessageStory(String roomId, String story) {
+    SocketHelper.socketHelper.emit('message', {
+      'message': null,
+      'image': null,
+      'thread': null,
+      'feed': null,
+      'story': story,
+      'profile': null,
+      'roomId': roomId,
+    });
+  }
+
+  void emitMessageProfile(String roomId, String profile) {
+    SocketHelper.socketHelper.emit('message', {
+      'message': null,
+      'image': null,
+      'thread': null,
+      'feed': null,
+      'story': null,
+      'profile': profile,
+      'roomId': roomId,
+    });
+  }
+
+  void emitMessageThread(String roomId, String thread) {
+    SocketHelper.socketHelper.emit('message', {
+      'message': null,
+      'image': null,
+      'thread': thread,
+      'feed': null,
+      'story': null,
+      'profile': null,
       'roomId': roomId,
     });
   }
@@ -120,7 +139,7 @@ class MessagesSocket {
   }
 
   void handleMessageSeen(dynamic data, String userId) {
-    log(data.toString());
+    log(data.toString() + 'seen');
     List<Message> messages =
         List<Message>.from(data.map((x) => Message.fromJson(x, userId)));
     Provider.of<ChatProvider>(context, listen: false).updateMessages(messages);

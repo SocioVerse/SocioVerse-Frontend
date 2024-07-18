@@ -7,6 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
@@ -171,15 +172,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                   onPressed: () async {
                     if (userNameOrEmailController.text.trim().isEmpty ||
                         passwordController.text.trim().isEmpty) {
-                      Fluttertoast.showToast(
-                        msg: "Fill all details",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.white,
-                        textColor: Colors.black,
-                        fontSize: 16.0,
-                      );
+                      FlutterToast.flutterWhiteToast("Fill all details");
                       return;
                     } else {
                       context.loaderOverlay.show();
@@ -200,15 +193,8 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                                 builder: (context) => const MainPage()),
                             (route) => false);
                       } else {
-                        Fluttertoast.showToast(
-                          msg: response.message.toString(),
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.white,
-                          textColor: Colors.black,
-                          fontSize: 16.0,
-                        );
+                        FlutterToast.flutterWhiteToast(
+                            response.message.toString());
                       }
                     }
                   },

@@ -1,7 +1,9 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -61,8 +63,18 @@ class _PickImagePageState extends State<PickImagePage> {
   }
 
   Future<void> _initializePhotoManager() async {
-    final PermissionState state = await PhotoManager.requestPermissionExtend();
-    if (state.isAuth) {
+    bool permissionStatus, isPermanentlyDenied;
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+
+    if (deviceInfo.version.sdkInt > 32) {
+      permissionStatus = await Permission.photos.request().isGranted;
+      isPermanentlyDenied = await Permission.photos.isPermanentlyDenied;
+    } else {
+      permissionStatus = await Permission.storage.request().isGranted;
+      isPermanentlyDenied = await Permission.storage.isPermanentlyDenied;
+    }
+
+    if (permissionStatus) {
       await _fetchAssets();
       if (!context.mounted) return;
       Provider.of<PickImagePageProvider>(context, listen: false).selectedAsset =
@@ -72,6 +84,8 @@ class _PickImagePageState extends State<PickImagePage> {
           .singleImageIndex = 0;
       Provider.of<PickImageLoadingProvider>(context, listen: false).loading =
           false;
+    } else if (isPermanentlyDenied) {
+      openAppSettings();
     }
   }
 

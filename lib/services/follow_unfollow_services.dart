@@ -6,10 +6,10 @@ class FollowUnfollowServices {
   ApiHelper _helper = ApiHelper();
   ApiResponse _response = ApiResponse();
 
-  Future<void> toogleFollow({
+  Future<void> toggleFollow({
     required String userId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleFollowReq,
+    _response = await _helper.post(ApiStringConstants.toggleFollowReq,
         querryParam: {'targetUserId': userId});
   }
 

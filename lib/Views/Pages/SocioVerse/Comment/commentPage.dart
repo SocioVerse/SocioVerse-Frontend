@@ -44,6 +44,12 @@ class _CommentPageState extends State<CommentPage> {
     });
     if (widget.feedId != null) {
       feed = await FeedServices().getFeed(feedId: widget.feedId!);
+      if (feed == null) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          return;
+        }
+      }
     } else {
       feed = widget.feed;
     }

@@ -10,6 +10,7 @@ import 'package:http/http.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Services/user_profile_settings_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
@@ -223,15 +224,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                             username.text.isEmpty ||
                             occupation.text.isEmpty ||
                             currentImage == null) {
-                          Fluttertoast.showToast(
-                            msg: "Fill all details",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0,
-                          );
+                          FlutterToast.flutterWhiteToast("Fill all details");
                           return;
                         } else {
                           context.loaderOverlay.show();
@@ -260,15 +253,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                       builder: (context) => MainPage()),
                                   (route) => false);
                             } else {
-                              Fluttertoast.showToast(
-                                msg: response.message.toString(),
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.white,
-                                textColor: Colors.black,
-                                fontSize: 16.0,
-                              );
+                              FlutterToast.flutterWhiteToast(
+                                  response.message.toString());
                             }
                           });
                         }

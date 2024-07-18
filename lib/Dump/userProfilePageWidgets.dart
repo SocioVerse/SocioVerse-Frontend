@@ -386,7 +386,7 @@
 //     });
 //   }
 
-//   Widget toogleFollowButton(
+//   Widget toggleFollowButton(
 //       {required String ttl1,
 //       required String ttl2,
 //       required UserProfileDetailsModel userProfileDetailsModel,
@@ -406,7 +406,7 @@
 //               }
 //             });
 //           } else {
-//             await FollowUnfollowServices().toogleFollow(
+//             await FollowUnfollowServices().toggleFollow(
 //               userId: userProfileDetailsModel.user.id,
 //             );
 //           }
@@ -1455,7 +1455,7 @@
 //                                       MainAxisAlignment.spaceAround,
 //                                   children: [
 //                                     Expanded(
-//                                       child: toogleFollowButton(
+//                                       child: toggleFollowButton(
 //                                           userProfileDetailsModel:
 //                                               userProfileDetailsModel!,
 //                                           ttl1: userProfileDetailsModel!

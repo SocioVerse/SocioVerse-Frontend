@@ -1,5 +1,8 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
@@ -16,7 +19,7 @@ class ThreadServices {
         isPublic: false,
         querryParam: createThreadModel.toJson(),
       );
-      log(_response.data);
+      log(_response.data.toString());
       return _response;
     } catch (e) {
       print(e);
@@ -35,18 +38,18 @@ class ThreadServices {
     return fetchedThreads;
   }
 
-  Future<bool> toogleLikeThreads({
+  Future<bool> toggleLikeThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleLikeThread,
+    _response = await _helper.post(ApiStringConstants.toggleLikeThread,
         querryParam: {'threadId': threadId});
     return _response.success;
   }
 
-  Future<String> toogleSaveThreads({
+  Future<String> toggleSaveThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleSaveThread,
+    _response = await _helper.post(ApiStringConstants.toggleSaveThread,
         querryParam: {'threadId': threadId});
     return _response.data;
   }
@@ -76,10 +79,10 @@ class ThreadServices {
     }
   }
 
-  Future<String> toogleRepostThreads({
+  Future<String> toggleRepostThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleRepostThread,
+    _response = await _helper.post(ApiStringConstants.toggleRepostThread,
         querryParam: {'threadId': threadId});
     return _response.data;
   }
@@ -104,6 +107,16 @@ class ThreadServices {
       }
     }
     return fetchedThreads;
+  }
+
+  Future<ThreadModel?> getThreadById({required String threadId}) async {
+    _response = await _helper.get(ApiStringConstants.getThreadById,
+        querryParam: {'threadId': threadId});
+    if (_response.success == false) {
+      FlutterToast.flutterWhiteToast(_response.message);
+      return null;
+    }
+    return ThreadModel.fromJson(_response.data);
   }
 
   Future<List<User>> fetchThreadLikes({

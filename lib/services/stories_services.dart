@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
@@ -36,10 +37,23 @@ class StoriesServices {
     return fetchedStories;
   }
 
+  Future<User?> getUserByStoryId({required String storyId}) async {
+    _response = await _helper.get(
+      ApiStringConstants.getUserByStoryId,
+      querryParam: {'story_id': storyId},
+    );
+    if (_response.success == false) {
+      FlutterToast.flutterWhiteToast(_response.message);
+      return null;
+    }
+    return User.fromJson(_response.data);
+  }
+
   Future<List<ReadStoryModel>> getUserStory({required String userId}) async {
     List<ReadStoryModel> fetchedStories = [];
     _response = await _helper
         .get(ApiStringConstants.readStory, querryParam: {'user_id': userId});
+
     if (_response.success == true) {
       for (var story in _response.data) {
         fetchedStories.add(ReadStoryModel.fromJson(story));
@@ -56,9 +70,9 @@ class StoriesServices {
     );
   }
 
-  Future<void> toogleStoryLike({required String storyId}) async {
+  Future<void> toggleStoryLike({required String storyId}) async {
     _response = await _helper.post(
-      ApiStringConstants.toogleStoryLike,
+      ApiStringConstants.toggleStoryLike,
       isPublic: false,
       querryParam: {'story_id': storyId},
     );
@@ -94,15 +108,7 @@ class StoriesServices {
       isPublic: false,
       querryParam: {'hideFrom': userId},
     );
-    Fluttertoast.showToast(
-      msg: "Story Hidden",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.white,
-      textColor: Colors.black,
-      fontSize: 16.0,
-    );
+    FlutterToast.flutterWhiteToast("Story Hidden");
   }
 
   Future<void> unhideStory({required String userId}) async {
@@ -111,14 +117,6 @@ class StoriesServices {
       isPublic: false,
       querryParam: {'unhideFrom': userId},
     );
-    Fluttertoast.showToast(
-      msg: "Story Unhidden",
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.white,
-      textColor: Colors.black,
-      fontSize: 16.0,
-    );
+    FlutterToast.flutterWhiteToast("Story Unhidden");
   }
 }

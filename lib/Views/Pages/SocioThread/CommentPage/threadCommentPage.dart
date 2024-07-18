@@ -3,28 +3,30 @@ import 'dart:developer';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/thread_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
-import 'package:socioverse/Views/Pages/SocioThread/CommentPage/commentPageWidget.dart';
 import 'package:socioverse/Models/threadCommentsModel.dart';
 import 'package:socioverse/Services/thread_comments_services.dart';
-import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Widgets/comments_widgets.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
 
 class ThreadCommentPage extends StatefulWidget {
-  ThreadModel threadModel;
-  ThreadCommentPage({required this.threadModel});
+  final String? threadId;
+  ThreadModel? threadModel;
+  ThreadCommentPage({super.key, this.threadModel, this.threadId});
 
   @override
   State<ThreadCommentPage> createState() => _ThreadCommentPageState();
 }
 
 class _ThreadCommentPageState extends State<ThreadCommentPage> {
-  List<ThreadModel> threadReplies = [];
+  List<ThreadModel>? threadReplies = [];
   bool isLoading = true;
+  late ThreadModel threadModel;
   @override
   void initState() {
     getThreadComments();
@@ -42,8 +44,23 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
     setState(() {
       isLoading = true;
     });
-    threadReplies =
-        await ThreadCommentServices().fetchThreadReplies(widget.threadModel.id);
+    if (widget.threadModel == null) {
+      List<dynamic> fetched = await Future.wait([
+        ThreadServices().getThreadById(threadId: widget.threadId!),
+        ThreadCommentServices().fetchThreadReplies(widget.threadId!)
+      ]);
+      if (fetched[0] == null) {
+        Navigator.pop(context);
+        return;
+      }
+      threadModel = fetched[0] as ThreadModel;
+      threadReplies = fetched[1] as List<ThreadModel>;
+      log(widget.threadModel.toString());
+    } else {
+      threadModel = widget.threadModel!;
+      threadReplies = await ThreadCommentServices()
+          .fetchThreadReplies(widget.threadModel!.id);
+    }
     setState(() {
       isLoading = false;
     });
@@ -54,12 +71,14 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddCommentPage(
-                        thread: widget.threadModel,
-                      ))).then((value) => getThreadComments());
+          isLoading == true
+              ? null
+              : Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddCommentPage(
+                            thread: threadModel!,
+                          ))).then((value) => getThreadComments());
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
@@ -82,36 +101,32 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ThreadLayout(
-                isComment: true,
-                isReply: true,
-                thread: widget.threadModel,
-                onComment: getThreadComments,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              isLoading == true
-                  ? Center(child: SpinKit.ring)
-                  : CommentBuilder(
-                      threadReplies: threadReplies,
+      body: isLoading == true
+          ? Center(child: SpinKit.ring)
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    ThreadLayout(
+                      isComment: true,
+                      isReply: true,
+                      thread: threadModel!,
+                      onComment: getThreadComments,
                     ),
-              const SizedBox(
-                height: 20,
-              )
-            ],
-          ),
-        ),
-      ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    CommentBuilder(
+                      threadReplies: threadReplies!,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    )
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
-
-// const Align(alignment: Alignment.bottomCenter, child: CommentFeild(
-            
-          // )),

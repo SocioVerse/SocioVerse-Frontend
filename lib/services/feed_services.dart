@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
@@ -9,6 +10,7 @@ import 'package:socioverse/Models/commentModel.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/newFeedModels.dart';
+import 'package:socioverse/Models/inboxModel.dart' as inbox;
 
 class FeedServices {
   ApiHelper _helper = ApiHelper();
@@ -33,25 +35,28 @@ class FeedServices {
     return fetchedFeeds;
   }
 
-  Future<FeedModel> getFeed({required String feedId}) async {
+  Future<FeedModel?> getFeed({required String feedId}) async {
     _response = await _helper
         .get(ApiStringConstants.getFeedById, querryParam: {'feedId': feedId});
-
+    if (_response.success == false) {
+      FlutterToast.flutterWhiteToast(_response.message);
+      return null;
+    }
     return FeedModel.fromJson(_response.data);
   }
 
-  Future<bool> toogleLikeFeeds({
+  Future<bool> toggleLikeFeeds({
     required String feedId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleLikeFeed,
+    _response = await _helper.post(ApiStringConstants.toggleLikeFeed,
         querryParam: {'feedId': feedId});
     return _response.success;
   }
 
-  Future<String> toogleSaveFeeds({
+  Future<String> toggleSaveFeeds({
     required String feedId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleSaveFeed,
+    _response = await _helper.post(ApiStringConstants.toggleSaveFeed,
         querryParam: {'feedId': feedId});
     return _response.data;
   }
@@ -113,15 +118,7 @@ class FeedServices {
       queryParam: {'feedId': feedId},
     );
     if (_response.success == true) {
-      Fluttertoast.showToast(
-        msg: "Feed Deleted Successfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 16.0,
-      );
+      FlutterToast.flutterWhiteToast("Feed Deleted Successfully");
     }
   }
 
@@ -131,15 +128,7 @@ class FeedServices {
       queryParam: {'commentId': commentId},
     );
     if (_response.success == true) {
-      Fluttertoast.showToast(
-        msg: "Comment Deleted Successfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 16.0,
-      );
+      FlutterToast.flutterWhiteToast("Comment Deleted Successfully");
     }
   }
 

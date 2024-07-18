@@ -8,6 +8,8 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:socioverse/Helper/Debounce/debounce.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
@@ -16,8 +18,10 @@ import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProf
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/bottomSheets.dart';
+import 'package:socioverse/Views/Widgets/Global/dataStructure.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 import 'package:socioverse/Views/Widgets/feeds_widget.dart';
@@ -146,12 +150,16 @@ class ThreadLayout extends StatefulWidget {
 
 class _ThreadLayoutState extends State<ThreadLayout> {
   int replies = 0;
+  late bool isLiked;
+  late bool savedPost;
   @override
   void initState() {
     if (widget.thread.commentUsers.length == 0) {
     } else {
       replies = widget.thread.commentUsers.length;
     }
+    isLiked = widget.thread.isLiked;
+    savedPost = widget.thread.isSaved;
     super.initState();
   }
 
@@ -161,6 +169,9 @@ class _ThreadLayoutState extends State<ThreadLayout> {
       super.setState(fn);
     }
   }
+
+  final Debouncer _debounceSave = Debouncer(milliseconds: 1000);
+  final Debouncer _debounceLike = Debouncer(milliseconds: 1000);
 
   void isOwner({required BuildContext context}) {
     showModalBottomSheet(
@@ -199,13 +210,15 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     content: const Text(
                         "Are you sure you want to delete this thread?"),
                     onAccept: () async {
+                      context.loaderOverlay.show();
                       await ThreadServices()
-                          .deleteThread(threadId: widget.thread.id)
-                          .then((value) => Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const MyApp()),
-                              (route) => false));
+                          .deleteThread(threadId: widget.thread.id);
+                      context.loaderOverlay.hide();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const MainPage()),
+                          (route) => false);
                     },
                     onReject: () {},
                   );
@@ -390,10 +403,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
     required Function onSave,
     required Function onRepost,
   }) {
-    TextEditingController postMessage = TextEditingController();
-    TextEditingController search = TextEditingController();
-    bool savedPost = widget.thread.isSaved;
-    bool isLiked = widget.thread.isLiked;
     return StatefulBuilder(
       builder: (context, setState) {
         return Row(
@@ -403,16 +412,14 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               children: [
                 InkWell(
                   onTap: () {
+                    isLiked = !isLiked;
+                    if (isLiked) {
+                      widget.thread.likeCount++;
+                    } else {
+                      widget.thread.likeCount--;
+                    }
+                    setState(() {});
                     onLike();
-                    setState(() {
-                      isLiked = !isLiked;
-                      widget.thread.isLiked = isLiked;
-                      if (isLiked) {
-                        widget.thread.likeCount++;
-                      } else {
-                        widget.thread.likeCount--;
-                      }
-                    });
                   },
                   child: Icon(
                     isLiked ? Ionicons.heart : Ionicons.heart_outline,
@@ -455,107 +462,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                 ),
                 InkWell(
                   onTap: () {
-                    showModalBottomSheet(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.only(left: 15.0, right: 15),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.horizontal_rule_rounded,
-                                  size: 50,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFieldBuilder(
-                                  tcontroller: postMessage,
-                                  hintTexxt: "Write a message...",
-                                  onChangedf: () {},
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                  child: Divider(
-                                    height: 10,
-                                  ),
-                                ),
-                                TextFieldBuilder(
-                                    tcontroller: search,
-                                    hintTexxt: "Search",
-                                    onChangedf: () {},
-                                    prefixxIcon: Icon(
-                                      Ionicons.search,
-                                      size: 20,
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                    )),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Expanded(
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: 10,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            radius: 30,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            child: const CircleAvatar(
-                                                radius: 28,
-                                                backgroundImage: AssetImage(
-                                                  "assets/Country_flag/in.png",
-                                                )),
-                                          ),
-                                          title: Text(
-                                            "Fatima",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary,
-                                                ),
-                                          ),
-                                          subtitle: Text(
-                                            "Occupation",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall!
-                                                .copyWith(
-                                                  fontSize: 14,
-                                                ),
-                                          ),
-                                          trailing: MyEleButtonsmall(
-                                              title2: "Sent",
-                                              title: "Send",
-                                              onPressed: () {},
-                                              ctx: context),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                          );
-                        });
+                    ShareList(type: ShareType.thread, context: context)
+                        .showShareBottomSheet(widget.thread.id);
                   },
                   child: Icon(
                     Ionicons.paper_plane_outline,
@@ -569,7 +477,6 @@ class _ThreadLayoutState extends State<ThreadLayout> {
               onPressed: () {
                 setState(() {
                   savedPost = !savedPost;
-                  widget.thread.isSaved = savedPost;
                 });
                 onSave();
               },
@@ -720,10 +627,16 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                     child: getThreadFooter(
                         isPost: false,
                         onLike: () async {
-                          await ThreadServices()
-                              .toogleLikeThreads(threadId: widget.thread.id);
-
                           setState(() {});
+
+                          _debounceLike.run(() async {
+                            if (isLiked != widget.thread.isLiked) {
+                              widget.thread.isLiked = !widget.thread.isLiked;
+                              await ThreadServices().toggleLikeThreads(
+                                threadId: widget.thread.id,
+                              );
+                            }
+                          });
                         },
                         onComment: () {
                           if (widget.isComment == false) {
@@ -740,30 +653,21 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                           }
                         },
                         onSave: () async {
-                          await ThreadServices()
-                              .toogleSaveThreads(threadId: widget.thread.id)
-                              .then((value) => Fluttertoast.showToast(
-                                    msg: value,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.white,
-                                    textColor: Colors.black,
-                                    fontSize: 16.0,
-                                  ));
+                          _debounceSave.run(() async {
+                            if (savedPost != widget.thread.isSaved) {
+                              widget.thread.isSaved = !widget.thread.isSaved;
+                              await ThreadServices()
+                                  .toggleSaveThreads(threadId: widget.thread.id)
+                                  .then((value) =>
+                                      FlutterToast.flutterWhiteToast(value));
+                            }
+                          });
                         },
                         onRepost: () async {
                           await ThreadServices()
-                              .toogleRepostThreads(threadId: widget.thread.id)
-                              .then((value) => Fluttertoast.showToast(
-                                    msg: value,
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.BOTTOM,
-                                    timeInSecForIosWeb: 1,
-                                    backgroundColor: Colors.white,
-                                    textColor: Colors.black,
-                                    fontSize: 16.0,
-                                  ));
+                              .toggleRepostThreads(threadId: widget.thread.id)
+                              .then((value) =>
+                                  FlutterToast.flutterWhiteToast(value));
                           setState(() {
                             widget.thread.isReposted =
                                 !widget.thread.isReposted;
@@ -1189,6 +1093,8 @@ class FeedLayout extends StatefulWidget {
 class _FeedLayoutState extends State<FeedLayout> {
   bool _havereplies = true;
   int replies = 0;
+  late bool isLiked;
+  late bool savedPost;
   @override
   void initState() {
     if (widget.feed.commentUsers.length == 0) {
@@ -1196,6 +1102,8 @@ class _FeedLayoutState extends State<FeedLayout> {
     } else {
       replies = widget.feed.commentUsers.length;
     }
+    isLiked = widget.feed.isLiked;
+    savedPost = widget.feed.isSaved;
     super.initState();
   }
 
@@ -1244,16 +1152,13 @@ class _FeedLayoutState extends State<FeedLayout> {
                         "Are you sure you want to delete this feed?"),
                     onAccept: () async {
                       context.loaderOverlay.show();
-                      await FeedServices()
-                          .deleteFeed(feedId: widget.feed.id)
-                          .then((value) {
-                        context.loaderOverlay.hide();
-                        return Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const MyApp()),
-                            (route) => false);
-                      });
+                      await FeedServices().deleteFeed(feedId: widget.feed.id);
+                      context.loaderOverlay.hide();
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const MainPage()),
+                          (route) => false);
                     },
                     onReject: () {},
                   );
@@ -1335,8 +1240,6 @@ class _FeedLayoutState extends State<FeedLayout> {
   }) {
     TextEditingController postMessage = TextEditingController();
     TextEditingController search = TextEditingController();
-    bool savedPost = widget.feed.isSaved;
-    bool isLiked = widget.feed.isLiked;
     return StatefulBuilder(
       builder: (context, setState) {
         return Row(
@@ -1346,16 +1249,15 @@ class _FeedLayoutState extends State<FeedLayout> {
               children: [
                 InkWell(
                   onTap: () {
+                    isLiked = !isLiked;
+                    if (isLiked) {
+                      widget.feed.likeCount++;
+                    } else {
+                      widget.feed.likeCount--;
+                    }
+                    setState(() {});
+
                     onLike();
-                    setState(() {
-                      isLiked = !isLiked;
-                      widget.feed.isLiked = isLiked;
-                      if (isLiked) {
-                        widget.feed.likeCount++;
-                      } else {
-                        widget.feed.likeCount--;
-                      }
-                    });
                   },
                   child: Icon(
                     isLiked ? Ionicons.heart : Ionicons.heart_outline,
@@ -1383,107 +1285,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                 ),
                 InkWell(
                   onTap: () {
-                    showModalBottomSheet(
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20),
-                          ),
-                        ),
-                        backgroundColor:
-                            Theme.of(context).scaffoldBackgroundColor,
-                        context: context,
-                        builder: (context) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.only(left: 15.0, right: 15),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.horizontal_rule_rounded,
-                                  size: 50,
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                TextFieldBuilder(
-                                  tcontroller: postMessage,
-                                  hintTexxt: "Write a message...",
-                                  onChangedf: () {},
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                  child: Divider(
-                                    height: 10,
-                                  ),
-                                ),
-                                TextFieldBuilder(
-                                    tcontroller: search,
-                                    hintTexxt: "Search",
-                                    onChangedf: () {},
-                                    prefixxIcon: Icon(
-                                      Ionicons.search,
-                                      size: 20,
-                                      color:
-                                          Theme.of(context).colorScheme.surface,
-                                    )),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Expanded(
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: 10,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          leading: CircleAvatar(
-                                            radius: 30,
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                            child: const CircleAvatar(
-                                                radius: 28,
-                                                backgroundImage: AssetImage(
-                                                  "assets/Country_flag/in.png",
-                                                )),
-                                          ),
-                                          title: Text(
-                                            "Fatima",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                  fontSize: 16,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary,
-                                                ),
-                                          ),
-                                          subtitle: Text(
-                                            "Occupation",
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodySmall!
-                                                .copyWith(
-                                                  fontSize: 14,
-                                                ),
-                                          ),
-                                          trailing: MyEleButtonsmall(
-                                              title2: "Sent",
-                                              title: "Send",
-                                              onPressed: () {},
-                                              ctx: context),
-                                        );
-                                      }),
-                                ),
-                              ],
-                            ),
-                          );
-                        });
+                    ShareList(context: context, type: ShareType.feed)
+                        .showShareBottomSheet(widget.feed.id);
                   },
                   child: Icon(
                     Ionicons.paper_plane_outline,
@@ -1497,7 +1300,6 @@ class _FeedLayoutState extends State<FeedLayout> {
               onPressed: () {
                 setState(() {
                   savedPost = !savedPost;
-                  widget.feed.isSaved = savedPost;
                 });
                 onSave();
               },
@@ -1617,6 +1419,8 @@ class _FeedLayoutState extends State<FeedLayout> {
   }
 
   PageController pageController = PageController(initialPage: 0);
+  final Debouncer _debounceLike = Debouncer(milliseconds: 1000);
+  final Debouncer _debounceSave = Debouncer(milliseconds: 1000);
 
   @override
   Widget build(BuildContext context) {
@@ -1719,6 +1523,7 @@ class _FeedLayoutState extends State<FeedLayout> {
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Stack(
                     alignment: Alignment.bottomCenter,
@@ -1798,50 +1603,40 @@ class _FeedLayoutState extends State<FeedLayout> {
                   ),
                   widget.feed.caption == null || widget.feed.caption!.isEmpty
                       ? const SizedBox.shrink()
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 15,
-                                right: 15,
-                                top: 10,
-                                bottom: 0,
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Wrap(
+                            alignment: WrapAlignment.start,
+                            children: [
+                              Text(
+                                "${widget.feed.user.username} ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontSize: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    "${widget.feed.user.username} ",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 16,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  Text(
-                                    widget.feed.caption!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 16,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary
-                                              .withAlpha(200),
-                                          fontStyle: FontStyle.italic,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                  ),
-                                ],
+                              Text(
+                                widget.feed.caption!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      fontSize: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary
+                                          .withAlpha(200),
+                                      fontStyle: FontStyle.italic,
+                                    ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                   widget.feed.tags.isEmpty
                       ? const SizedBox(
@@ -1885,9 +1680,15 @@ class _FeedLayoutState extends State<FeedLayout> {
                     child: getFeedFooter(
                       isPost: false,
                       onLike: () async {
-                        await FeedServices()
-                            .toogleLikeFeeds(feedId: widget.feed.id);
                         setState(() {});
+
+                        _debounceLike.run(() async {
+                          if (isLiked != widget.feed.isLiked) {
+                            widget.feed.isLiked = !widget.feed.isLiked;
+                            await FeedServices()
+                                .toggleLikeFeeds(feedId: widget.feed.id);
+                          }
+                        });
                       },
                       onComment: () {
                         if (widget.isOnCommentPage == false) {
@@ -1904,17 +1705,15 @@ class _FeedLayoutState extends State<FeedLayout> {
                         }
                       },
                       onSave: () async {
-                        await FeedServices()
-                            .toogleSaveFeeds(feedId: widget.feed.id)
-                            .then((value) => Fluttertoast.showToast(
-                                  msg: value,
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.BOTTOM,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.white,
-                                  textColor: Colors.black,
-                                  fontSize: 16.0,
-                                ));
+                        _debounceSave.run(() async {
+                          if (savedPost != widget.feed.isSaved) {
+                            widget.feed.isSaved = !widget.feed.isSaved;
+                            await FeedServices()
+                                .toggleSaveFeeds(feedId: widget.feed.id)
+                                .then((value) =>
+                                    FlutterToast.flutterWhiteToast(value));
+                          }
+                        });
                       },
                     ),
                   ),
