@@ -2,9 +2,17 @@ import 'package:custom_sliding_segmented_control/custom_sliding_segmented_contro
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Models/activityModels.dart';
+import 'package:socioverse/Models/feedActivityModels.dart';
+import 'package:socioverse/Models/threadActivityModel.dart';
+import 'package:socioverse/Models/threadCommentsActivityModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Services/activity_services.dart';
+import 'package:socioverse/Services/feedCommentActivity.dart';
 import 'package:socioverse/Services/thread_services.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
+import 'package:socioverse/Views/Widgets/activityListTileWidget.dart';
 
 class ActivityPage extends StatefulWidget {
   const ActivityPage({super.key, required this.title});
@@ -43,28 +51,200 @@ class _ActivityPageState extends State<ActivityPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             tabSlider(context),
+            const SizedBox(
+              height: 20,
+            ),
             Flexible(
               child: FutureBuilder(
-                future: ActivityServices().getActivity(widget.title,
-                    type: type == 1 ? "likes" : "comments"),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: SpinKit.ring);
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else {
+                  future: ActivityServices().getActivity(widget.title,
+                      type: type == 1 ? "likes" : "comments"),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: SpinKit.ring);
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (snapshot.data == null || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No Activity Found'));
+                    }
                     return ListView.builder(
-                      itemCount: 10,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        return SizedBox(
-                          height: 100,
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+                        itemCount: snapshot.data!.length,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          if (widget.title == "Threads") {
+                            if (type == 1) {
+                              ThreadLikesActivity threadActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: threadActivity
+                                    .latestLike.likedBy.profilePic,
+                                username:
+                                    threadActivity.latestLike.likedBy.username,
+                                createdAt: threadActivity.createdAt,
+                                subtitle:
+                                    'and ${threadActivity.likeCount} others liked a thread',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ThreadCommentPage(
+                                      threadId: threadActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            } else {
+                              ThreadCommentsActivity threadActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: threadActivity
+                                    .latestComment.userId.profilePic,
+                                username: threadActivity
+                                    .latestComment.userId.username,
+                                createdAt: threadActivity.createdAt,
+                                subtitle:
+                                    'and ${threadActivity.commentCount} others commented on a thread',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ThreadCommentPage(
+                                      threadId: threadActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            }
+                          } else if (widget.title == "Feeds") {
+                            if (type == 1) {
+                              FeedLikeActivity feedActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl:
+                                    feedActivity.latestLikes.likedBy.profilePic,
+                                username:
+                                    feedActivity.latestLikes.likedBy.username,
+                                createdAt: feedActivity.createdAt,
+                                subtitle:
+                                    'and ${feedActivity.likeCount} others liked a feed',
+                                postImageUrl: feedActivity.images[0],
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CommentPage(
+                                      feedId: feedActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            } else {
+                              FeedCommentsActivity feedActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: feedActivity
+                                    .latestComment.userId.profilePic,
+                                username:
+                                    feedActivity.latestComment.userId.username,
+                                createdAt: feedActivity.createdAt,
+                                subtitle:
+                                    'and ${feedActivity.commentCount} others commented on a feed',
+                                postImageUrl: feedActivity.images[0],
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CommentPage(
+                                      feedId: feedActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            }
+                          } else if (widget.title == "Thread Comments") {
+                            if (type == 1) {
+                              ThreadCommentLikesActivity threadActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: threadActivity
+                                    .latestLike.likedBy.profilePic,
+                                username:
+                                    threadActivity.latestLike.likedBy.username,
+                                createdAt: threadActivity.createdAt,
+                                subtitle:
+                                    'and ${threadActivity.likeCount} others liked a comment',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ThreadCommentPage(
+                                      threadId: threadActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            } else {
+                              ThreadCommentCommentsActivity threadActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: threadActivity
+                                    .latestComment.userId.profilePic,
+                                username: threadActivity
+                                    .latestComment.userId.username,
+                                createdAt: threadActivity.createdAt,
+                                subtitle:
+                                    'and ${threadActivity.commentCount} others commented on a comment',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return ThreadCommentPage(
+                                      threadId: threadActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            }
+                          } else {
+                            if (type == 1) {
+                              FeedCommentLikesActivity feedActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl:
+                                    feedActivity.latestLike.likedBy.profilePic,
+                                username:
+                                    feedActivity.latestLike.likedBy.username,
+                                createdAt: feedActivity.createdAt,
+                                subtitle:
+                                    'and ${feedActivity.likeCount} others liked a comment',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CommentReplyPage(
+                                      feedCommentId: feedActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            } else {
+                              FeedCommentCommentsActivity feedActivity =
+                                  snapshot.data![index];
+                              return ActivityListTile(
+                                profilePicUrl: feedActivity
+                                    .latestComment.userId.profilePic,
+                                username:
+                                    feedActivity.latestComment.userId.username,
+                                createdAt: feedActivity.createdAt,
+                                subtitle:
+                                    'and ${feedActivity.commentCount} others commented on a comment',
+                                onTap: () {
+                                  Navigator.push(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return CommentReplyPage(
+                                      feedCommentId: feedActivity.id,
+                                    );
+                                  }));
+                                },
+                              );
+                            }
+                          }
+                        });
+                  }),
             ),
           ],
         ),

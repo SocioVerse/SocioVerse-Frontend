@@ -52,97 +52,114 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
           } else {
             return Consumer<FollowRequestPageProvider>(
               builder: (context, prov, child) {
-                return ListView.builder(
-                  itemCount: prov.followRequestModel.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: CircularNetworkImageWithSize(
-                        imageUrl: prov.followRequestModel[index].profilePic,
-                        width: 45,
-                        height: 45,
-                      ),
-                      title: Text(
-                        prov.followRequestModel[index].username,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
+                return prov.followRequestModel.isEmpty
+                    ? const Center(child: Text('No Follow Requests Found'))
+                    : ListView.builder(
+                        itemCount: prov.followRequestModel.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: CircularNetworkImageWithSize(
+                              imageUrl:
+                                  prov.followRequestModel[index].profilePic,
+                              width: 45,
+                              height: 45,
                             ),
-                      ),
-                      subtitle: Text(
-                        prov.followRequestModel[index].occupation,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w300,
-                              fontSize: 13,
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(5),
-                              backgroundColor:
-                                  Theme.of(context).scaffoldBackgroundColor,
-                              side: BorderSide(
-                                  width: 1,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  style: BorderStyle.solid),
-                            ),
-                            onPressed: () async {
-                              String id = prov.followRequestModel[index].id;
-
-                              prov.removeAt(index);
-
-                              if (prov.followRequestModel.isEmpty) {
-                                Navigator.pop(context);
-                              }
-                              await FollowRequestsServices()
-                                  .rejectFollowRequest(id);
-                            },
-                            child: Text(
-                              'Delete',
+                            title: Text(
+                              prov.followRequestModel[index].username,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium!
+                                  .bodyLarge!
                                   .copyWith(
-                                    fontSize: 12,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,
                                   ),
                             ),
-                          ),
-                          const SizedBox(width: 7),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(5),
-                            ),
-                            onPressed: () async {
-                              String id = prov.followRequestModel[index].id;
-                              prov.removeAt(index);
-                              if (prov.followRequestModel.isEmpty && mounted) {
-                                Navigator.pop(context);
-                              }
-                              await FollowRequestsServices()
-                                  .acceptFollowRequest(id);
-                            },
-                            child: Text(
-                              'Accept',
+                            subtitle: Text(
+                              prov.followRequestModel[index].occupation,
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyMedium!
+                                  .bodyLarge!
                                   .copyWith(
-                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: 13,
                                     color:
-                                        Theme.of(context).colorScheme.onPrimary,
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(5),
+                                    backgroundColor: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    side: BorderSide(
+                                        width: 1,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        style: BorderStyle.solid),
+                                  ),
+                                  onPressed: () async {
+                                    String id =
+                                        prov.followRequestModel[index].id;
+
+                                    prov.removeAt(index);
+
+                                    if (prov.followRequestModel.isEmpty) {
+                                      Navigator.pop(context);
+                                    }
+                                    await FollowRequestsServices()
+                                        .rejectFollowRequest(id);
+                                  },
+                                  child: Text(
+                                    'Delete',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 12,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                  ),
+                                ),
+                                const SizedBox(width: 7),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(5),
+                                  ),
+                                  onPressed: () async {
+                                    String id =
+                                        prov.followRequestModel[index].id;
+                                    prov.removeAt(index);
+                                    if (prov.followRequestModel.isEmpty &&
+                                        mounted) {
+                                      Navigator.pop(context);
+                                    }
+                                    await FollowRequestsServices()
+                                        .acceptFollowRequest(id);
+                                  },
+                                  child: Text(
+                                    'Accept',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 12,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
               },
             );
           }

@@ -193,4 +193,10 @@ class FeedServices {
     }
     return fetchedFeeds;
   }
+
+  Future<FeedComment> fetchCommentById({required String commentId}) async {
+    _response = await _helper.get(ApiStringConstants.fetchCommentById,
+        querryParam: {'commentId': commentId});
+    return FeedComment.fromJson(_response.data);
+  }
 }

@@ -251,6 +251,15 @@ class FeedCommentWidget extends StatefulWidget {
 }
 
 class _FeedCommentWidgetState extends State<FeedCommentWidget> {
+  Debouncer _debouncer = Debouncer(milliseconds: 1000);
+  bool isLiked = false;
+
+  @override
+  void initState() {
+    isLiked = widget.feedComment.isLiked;
+    super.initState();
+  }
+
   void showMentionsBottomSheet(BuildContext context, FeedComment feedComment) {
     if (feedComment.userId.isOwner) {
       showModalBottomSheet(
@@ -423,18 +432,24 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                       children: [
                         InkWell(
                           onTap: () async {
-                            widget.feedComment.isLiked =
-                                !widget.feedComment.isLiked;
-                            if (widget.feedComment.isLiked) {
+                            isLiked = !isLiked;
+                            if (isLiked) {
                               widget.feedComment.likeCount++;
                             } else {
                               widget.feedComment.likeCount--;
                             }
                             setState(() {});
-                            await FeedServices().toggleFeedCommentLike(
-                                commentId: widget.feedComment.id);
+
+                            _debouncer.run(() async {
+                              if (isLiked != widget.feedComment.isLiked) {
+                                widget.feedComment.isLiked =
+                                    !widget.feedComment.isLiked;
+                                await FeedServices().toggleFeedCommentLike(
+                                    commentId: widget.feedComment.id);
+                              }
+                            });
                           },
-                          child: widget.feedComment.isLiked
+                          child: isLiked
                               ? const Icon(
                                   Ionicons.heart,
                                   color: Color(0xffFF4D67),

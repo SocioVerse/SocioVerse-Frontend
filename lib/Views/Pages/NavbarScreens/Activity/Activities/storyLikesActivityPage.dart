@@ -4,6 +4,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/storyLikeActivity.dart';
 import 'package:socioverse/Services/activity_services.dart';
+import 'package:socioverse/Views/Widgets/activityListTileWidget.dart';
 
 class StoryLikesActivityPage extends StatefulWidget {
   const StoryLikesActivityPage({super.key});
@@ -36,17 +37,27 @@ class _StoryLikesActivityPageState extends State<StoryLikesActivityPage> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: SpinKit.ring);
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              return ListView.builder(
-                itemCount: 10,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  return SizedBox();
-                },
-              );
             }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No Activity Found'));
+            }
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                StoryLikeActivity storyActivity = snapshot.data![index];
+                return ActivityListTile(
+                  profilePicUrl: storyActivity.latestLike.likedBy.profilePic,
+                  username: storyActivity.latestLike.likedBy.username,
+                  createdAt: storyActivity.createdAt,
+                  subtitle: 'Liked a story',
+                  postImageUrl: storyActivity.image,
+                );
+              },
+            );
           },
         ),
       ),

@@ -205,8 +205,10 @@ class _CommentPageState extends State<CommentPage> {
 
 class CommentReplyPage extends StatefulWidget {
   Function? onDeleted;
-  final FeedComment feedComment;
-  CommentReplyPage({super.key, required this.feedComment, this.onDeleted});
+  FeedComment? feedComment;
+  String? feedCommentId;
+  CommentReplyPage(
+      {super.key, this.feedComment, this.onDeleted, this.feedCommentId});
 
   @override
   State<CommentReplyPage> createState() => _CommentReplyPageState();
@@ -227,14 +229,23 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
       isLoading = true;
     });
     feedReplies = await FeedServices()
-        .fetchcommentReplies(commentId: widget.feedComment.id);
+        .fetchcommentReplies(commentId: widget.feedCommentId!);
     setState(() {
       isLoading = false;
     });
   }
 
+  getFeedComment() async {
+    widget.feedComment =
+        await FeedServices().fetchCommentById(commentId: widget.feedCommentId!);
+    setState(() {});
+  }
+
   @override
   void initState() {
+    if (widget.feedCommentId != null) {
+      getFeedComment();
+    }
     getCommentReply();
     super.initState();
   }
@@ -331,53 +342,53 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
+      body: isLoading
+          ? Center(
+              child: SpinKit.ring,
+            )
+          : Stack(
               children: [
-                FeedCommentWidget(
-                  isComment: true,
-                  onDelete: () {
-                    widget.onDeleted!();
-                    Navigator.pop(context, [true]);
-                  },
-                  feedComment: widget.feedComment,
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      FeedCommentWidget(
+                        isComment: true,
+                        onDelete: () {
+                          widget.onDeleted!();
+                          Navigator.pop(context, [true]);
+                        },
+                        feedComment: widget.feedComment!,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: feedReplies.length,
+                          itemBuilder: (context, index) {
+                            return FeedCommentWidget(
+                              onDelete: () {
+                                widget.feedComment!.commentCount--;
+                                feedReplies.removeAt(index);
+                                setState(() {});
+                              },
+                              feedComment: feedReplies[index],
+                            );
+                          }),
+                      const SizedBox(
+                        height: 100,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                isLoading
-                    ? Center(
-                        child: SpinKit.ring,
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: feedReplies.length,
-                        itemBuilder: (context, index) {
-                          return FeedCommentWidget(
-                            onDelete: () {
-                              widget.feedComment.commentCount--;
-                              feedReplies.removeAt(index);
-                              setState(() {});
-                            },
-                            feedComment: feedReplies[index],
-                          );
-                        }),
-                const SizedBox(
-                  height: 100,
-                ),
+                Align(
+                    alignment: Alignment.bottomCenter,
+                    child: commentField(
+                      feedComment: widget.feedComment!,
+                    )),
               ],
             ),
-          ),
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: commentField(
-                feedComment: widget.feedComment,
-              )),
-        ],
-      ),
     );
   }
 }
