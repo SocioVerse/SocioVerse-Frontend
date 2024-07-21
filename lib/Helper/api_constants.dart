@@ -70,6 +70,7 @@ class ApiStringConstants {
   static const String rejectFollowRequest = "users/delete-follow-request";
   static const String fetchUserProfileDetails =
       "users/fetch-user-profile-details";
+  static const String changePassword = "users/change-password";
   static const String fetchFollowers = "users/fetch-followers";
   static const String fetchFollowing = "users/fetch-following";
   static const String addBio = "users/add-bio";
@@ -83,6 +84,9 @@ class ApiStringConstants {
   static const String getShareList = "users/get-recent-rooms-info";
   static const String fetchRoomId = "users/get-room-id";
   static const String getActivity = "users/get-activity";
+  static const String fetchAllStoryHiddenUsers =
+      "users/fetch-all-story-hidden-users";
+
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
   static const String createRoom = "users/create-room";

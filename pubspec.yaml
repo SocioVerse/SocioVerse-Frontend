@@ -51,6 +51,7 @@ dependencies:
   custom_sliding_segmented_control: ^1.8.1
   after_layout: ^1.2.0
   no_context_navigation: ^3.0.0
+  device_preview: ^1.2.0
   
 flutter_icons:
  image_path: "assets/icon.png"

@@ -7,6 +7,7 @@ import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/storyModels.dart';
+import 'package:socioverse/Models/inboxModel.dart' as InboxModel;
 
 class StoriesServices {
   ApiHelper _helper = ApiHelper();
@@ -118,5 +119,17 @@ class StoriesServices {
       querryParam: {'unhideFrom': userId},
     );
     FlutterToast.flutterWhiteToast("Story Unhidden");
+  }
+
+  Future<List<InboxModel.User>> fetchAllStoryHiddenUsers() async {
+    List<InboxModel.User> fetchedUsers = [];
+    _response = await _helper.get(ApiStringConstants.fetchAllStoryHiddenUsers);
+    if (_response.success == true) {
+      log("Hidden Users ${fetchedUsers.length} ${_response.data}");
+      for (var user in _response.data) {
+        fetchedUsers.add(InboxModel.User.fromJson(user));
+      }
+    }
+    return fetchedUsers;
   }
 }

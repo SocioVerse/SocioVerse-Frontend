@@ -49,4 +49,14 @@ class UserServices {
         .get(ApiStringConstants.fetchRoomId, querryParam: {"userId": userId});
     return Room.fromJson(_response.data);
   }
+
+  Future<ApiResponse> changePassword(
+      {required String oldPassword, required String newPassword}) async {
+    _response =
+        await _helper.post(ApiStringConstants.changePassword, querryParam: {
+      "oldPassword": oldPassword,
+      "newPassword": newPassword,
+    });
+    return _response;
+  }
 }

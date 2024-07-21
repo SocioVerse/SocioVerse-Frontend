@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:face_camera/face_camera.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:no_context_navigation/no_context_navigation.dart';
@@ -73,7 +75,11 @@ void main() async {
     print("Launched from terminated state");
     Future.delayed(const Duration(seconds: 1), () {});
   }
-  runApp(MultiProvider(providers: Providers.providers, child: const MyApp()));
+  runApp(DevicePreview(
+    enabled: !kReleaseMode,
+    builder: (context) => MultiProvider(
+        providers: Providers.providers, child: const MyApp()), // Wrap your app
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -107,6 +113,9 @@ class MyApp extends StatelessWidget {
       },
       child: MaterialApp(
         navigatorKey: NavigationService.navigationKey,
+        useInheritedMediaQuery: true,
+        locale: DevicePreview.locale(context),
+        builder: DevicePreview.appBuilder,
         debugShowCheckedModeBanner: false,
         title: 'SocioVerse',
         theme: MyTheme.theme(),
