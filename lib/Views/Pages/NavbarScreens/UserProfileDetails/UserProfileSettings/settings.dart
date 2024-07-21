@@ -83,50 +83,6 @@ class _ProfileSettingsState extends State<ProfileSettings> {
                   }));
                 },
               ),
-
-              //delete account
-              _customSettingTile(
-                context,
-                title: "Delete Account",
-                icon: Icons.delete_outline,
-                onTap: () {
-                  AlertBoxes.acceptRejectAlertBox(
-                    onReject: () {},
-                    context: context,
-                    title: "Delete Account",
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Are you sure you want to delete your account? This action cannot be undone",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 16,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-
-                        // current password
-
-                        const SizedBox(
-                          height: 20,
-                        ),
-
-                        CustomInputField(
-                          controller: currentPasswordController,
-                          hintText: "Current Password",
-                          obscureText: true,
-                          prefixIcon: Icons.lock_outline_rounded,
-                        )
-                      ],
-                    ),
-                    onAccept: () {},
-                  );
-                },
-                color: Colors.red,
-              ),
             ],
           ),
         ),
