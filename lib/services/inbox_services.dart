@@ -8,10 +8,9 @@ import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Sockets/messageSockets.dart';
 
 class InboxServices {
-  ApiHelper _helper = ApiHelper();
-  Future<List<InboxModel>> fetchInbox(BuildContext context) async {
+  static Future<List<InboxModel>> fetchInbox(BuildContext context) async {
     List<InboxModel> inboxModel = [];
-    ApiResponse response = await _helper.get(
+    ApiResponse response = await ApiHelper.get(
       ApiStringConstants.fetchInbox,
     );
     log(response.data.toString());

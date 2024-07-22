@@ -29,119 +29,116 @@ class ChangePasswordPage extends StatelessWidget {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
         ),
-        body: Expanded(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                  child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    CustomInputField(
-                      controller: currentPasswordController,
-                      hintText: "Current Password",
-                      obscureText: true,
-                      prefixIcon: Icons.lock_outline_rounded,
-                    ),
-
-                    // new password
-
-                    const SizedBox(
-                      height: 20,
-                    ),
-
-                    CustomInputField(
-                      controller: newPasswordController,
-                      hintText: "New Password",
-                      obscureText: true,
-                      prefixIcon: Icons.lock_outline_rounded,
-                    ),
-                    // confirm password
-
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    CustomInputField(
-                      controller: confirmPasswordController,
-                      hintText: "Confirm New Password",
-                      obscureText: true,
-                      prefixIcon: Icons.lock_outline_rounded,
-                    ),
-                  ],
-                ),
-              )),
-              Align(
-                alignment: Alignment.bottomCenter,
+        body: Stack(
+          children: [
+            SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: MyElevatedButton1(
-                      title: "Change Password",
-                      onPressed: () async {
-                        // validate the form
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  CustomInputField(
+                    controller: currentPasswordController,
+                    hintText: "Current Password",
+                    obscureText: true,
+                    prefixIcon: Icons.lock_outline_rounded,
+                  ),
 
-                        if (currentPasswordController.text.isEmpty ||
-                            newPasswordController.text.isEmpty ||
-                            confirmPasswordController.text.isEmpty) {
-                          // show error message
-                          return;
-                        }
-                        if (!CalculatingFunction.isStrongPassword(
-                            newPasswordController.text)) {
-                          Fluttertoast.showToast(
-                              msg:
-                                  "Password should contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          return;
-                        }
-                        if (newPasswordController.text !=
-                            confirmPasswordController.text) {
-                          Fluttertoast.showToast(
-                              msg: "Passwords do not match",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          return;
-                        }
-                        // call the api
-                        ApiResponse message = await UserServices()
-                            .changePassword(
-                                oldPassword: currentPasswordController.text,
-                                newPassword: newPasswordController.text);
+                  // new password
 
-                        if (message.data["success"] == true) {
-                          Fluttertoast.showToast(
-                              msg: message.data["message"],
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.green,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          Navigator.pop(context);
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: message.data["message"],
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.red,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                        }
-                      },
-                      ctx: context),
-                ),
-              )
-            ],
-          ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  CustomInputField(
+                    controller: newPasswordController,
+                    hintText: "New Password",
+                    obscureText: true,
+                    prefixIcon: Icons.lock_outline_rounded,
+                  ),
+                  // confirm password
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  CustomInputField(
+                    controller: confirmPasswordController,
+                    hintText: "Confirm New Password",
+                    obscureText: true,
+                    prefixIcon: Icons.lock_outline_rounded,
+                  ),
+                ],
+              ),
+            )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: MyElevatedButton1(
+                    title: "Change Password",
+                    onPressed: () async {
+                      // validate the form
+
+                      if (currentPasswordController.text.isEmpty ||
+                          newPasswordController.text.isEmpty ||
+                          confirmPasswordController.text.isEmpty) {
+                        // show error message
+                        return;
+                      }
+                      if (!CalculatingFunction.isStrongPassword(
+                          newPasswordController.text)) {
+                        Fluttertoast.showToast(
+                            msg:
+                                "Password should contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                        return;
+                      }
+                      if (newPasswordController.text !=
+                          confirmPasswordController.text) {
+                        Fluttertoast.showToast(
+                            msg: "Passwords do not match",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                        return;
+                      }
+                      // call the api
+                      ApiResponse message = await UserServices.changePassword(
+                          oldPassword: currentPasswordController.text,
+                          newPassword: newPasswordController.text);
+
+                      if (message.data["success"] == true) {
+                        Fluttertoast.showToast(
+                            msg: message.data["message"],
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.green,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                        Navigator.pop(context);
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: message.data["message"],
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      }
+                    },
+                    ctx: context),
+              ),
+            )
+          ],
         ));
   }
 }

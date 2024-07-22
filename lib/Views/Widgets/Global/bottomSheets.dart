@@ -101,17 +101,15 @@ class ReportBottomSheet {
                         ),
                   ),
                   onTap: () async {
-                    await ReportServices()
-                        .createReport(
-                          reportType: reportType,
-                          reason: reportOptions[index],
-                          userId: userId,
-                          feedId: feedId,
-                          threadId: threadId,
-                          storyId: storyId,
-                        )
-                        .then((value) => FlutterToast.flutterWhiteToast(
-                            "Reported Successfully"));
+                    await ReportServices.createReport(
+                      reportType: reportType,
+                      reason: reportOptions[index],
+                      userId: userId,
+                      feedId: feedId,
+                      threadId: threadId,
+                      storyId: storyId,
+                    ).then((value) => FlutterToast.flutterWhiteToast(
+                        "Reported Successfully"));
                   },
                 );
               },
@@ -177,7 +175,7 @@ class ShareList {
                 ),
                 Expanded(
                   child: FutureBuilder(
-                      future: UserServices().getShareList(),
+                      future: UserServices.getShareList(),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -229,8 +227,8 @@ class ShareList {
                                       title2: "Sent",
                                       title: "Send",
                                       onPressed: () async {
-                                        await UserServices()
-                                            .getRoomId(users[index].id)
+                                        await UserServices.getRoomId(
+                                                users[index].id)
                                             .then((value) {
                                           MessagesSocket(context)
                                               .emitJoinChat(value.roomId);

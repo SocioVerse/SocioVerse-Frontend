@@ -144,8 +144,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         emailController.text.trim(),
                         passwordController.text.trim());
                     if (!isValid) return;
-                    ApiResponse response = await AuthServices()
-                        .isEmailExists(email: emailController.text.trim());
+                    ApiResponse response = await AuthServices.isEmailExists(
+                        email: emailController.text.trim());
                     if (response.success == true) {
                       String? fcmToken =
                           await FirebaseMessaging.instance.getToken();

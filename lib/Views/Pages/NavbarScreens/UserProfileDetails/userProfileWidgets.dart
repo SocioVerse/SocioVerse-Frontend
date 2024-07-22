@@ -323,7 +323,7 @@ import 'package:socioverse/Services/thread_services.dart';
 //             getThreadFooter(
 //               isPost: false,
 //               onLike: () async {
-//                 await ThreadServices()
+//                 await ThreadServices
 //                     .toggleLikeThreads(threadId: widget.thread.id);
 
 //                 setState(() {});

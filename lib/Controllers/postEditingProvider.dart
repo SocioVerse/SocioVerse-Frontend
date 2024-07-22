@@ -119,6 +119,6 @@ class PostEditingEmailProvider extends ChangeNotifier {
 
   getUserInfo() async {
     userEmail =
-        await UserServices().getUserDetails().then((value) => value[0].email);
+        await UserServices.getUserDetails().then((value) => value[0].email);
   }
 }

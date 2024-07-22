@@ -76,7 +76,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             ),
             _value == 1
                 ? FutureBuilder(
-                    future: FeedServices().getTrendingFeeds(),
+                    future: FeedServices.getTrendingFeeds(),
                     builder: ((context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -122,7 +122,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                             );
                     }))
                 : FutureBuilder(
-                    future: ThreadServices().getTrendingThreads(),
+                    future: ThreadServices.getTrendingThreads(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return ListView.builder(
@@ -179,7 +179,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     });
     if (searchText.text.trim().isNotEmpty) {
       searchedLocation =
-          await SearchBarServices().getLocation(location: searchText.text);
+          await SearchBarServices.getLocation(location: searchText.text);
     }
     setState(() {
       isSearchingLocation = false;
@@ -192,7 +192,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     });
     if (searchText.text.trim().isNotEmpty) {
       searchedHashtags =
-          await SearchBarServices().getHashtags(hashtag: searchText.text);
+          await SearchBarServices.getHashtags(hashtag: searchText.text);
     }
     setState(() {
       isSearchingHashtag = false;
@@ -203,8 +203,8 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     setState(() {
       isUserFetched = false;
     });
-    searchedUser = await SearchBarServices()
-        .fetchSearchedUser(searchQuery: searchText.text.trim());
+    searchedUser = await SearchBarServices.fetchSearchedUser(
+        searchQuery: searchText.text.trim());
     setState(() {
       isUserFetched = true;
     });
@@ -216,7 +216,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
       isUserFetched = false;
     });
     userByFace =
-        await SearchBarServices().fetchSearchedUserByFace(faceImage: faceImage);
+        await SearchBarServices.fetchSearchedUserByFace(faceImage: faceImage);
     setState(() {
       isUserFetched = true;
     });
@@ -311,8 +311,8 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   );
                 });
           },
-          future: SearchBarServices()
-              .getFeedsMetadata(metadata: searchText.text.trim()),
+          future: SearchBarServices.getFeedsMetadata(
+              metadata: searchText.text.trim()),
         ),
       ),
       Expanded(
@@ -649,11 +649,11 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                   user.state = 0;
                 }
               });
-              await FollowUnfollowServices().unFollow(
+              await FollowUnfollowServices.unFollow(
                 userId: user.id,
               );
             }
-            await FollowUnfollowServices().toggleFollow(
+            await FollowUnfollowServices.toggleFollow(
               userId: user.id,
             );
           },

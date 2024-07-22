@@ -254,7 +254,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
                         );
                       });
                 },
-                future: LocationServices().getLocationFeed(
+                future: LocationServices.getLocationFeed(
                     locationId: widget.locationSearchModel.id ?? "",
                     isRecent: __value == 1 ? true : false),
               ),

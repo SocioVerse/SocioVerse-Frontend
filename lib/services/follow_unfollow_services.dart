@@ -3,20 +3,19 @@ import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
 
 class FollowUnfollowServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<void> toggleFollow({
+  static Future<void> toggleFollow({
     required String userId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toggleFollowReq,
+    _response = await ApiHelper.post(ApiStringConstants.toggleFollowReq,
         querryParam: {'targetUserId': userId});
   }
 
-  Future<void> unFollow({
+  static Future<void> unFollow({
     required String userId,
   }) async {
-    _response = await _helper.delete(ApiStringConstants.unFollow,
+    _response = await ApiHelper.delete(ApiStringConstants.unFollow,
         queryParam: {'targetUserId': userId});
   }
 }

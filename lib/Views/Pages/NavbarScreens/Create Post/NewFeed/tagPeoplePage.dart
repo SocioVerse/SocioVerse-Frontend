@@ -19,8 +19,8 @@ class TagPeoplePage extends StatelessWidget {
   void getQueryUser(var loadingProv) async {
     loadingProv.isLoading = true;
     if (searchText.text.trim().isNotEmpty) {
-      loadingProv.searchedUser = await SearchBarServices()
-          .fetchSearchedUser(searchQuery: searchText.text);
+      loadingProv.searchedUser = await SearchBarServices.fetchSearchedUser(
+          searchQuery: searchText.text);
     } else {
       loadingProv.clearUsers();
     }

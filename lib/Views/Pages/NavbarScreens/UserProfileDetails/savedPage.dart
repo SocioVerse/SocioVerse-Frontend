@@ -45,7 +45,7 @@ class _SavedPageState extends State<SavedPage> {
     setState(() {
       isSavedThreadLoading = true;
     });
-    savedThreads = await ThreadServices().getSavedThreads();
+    savedThreads = await ThreadServices.getSavedThreads();
     setState(() {
       isSavedThreadLoading = false;
     });
@@ -55,7 +55,7 @@ class _SavedPageState extends State<SavedPage> {
     setState(() {
       isSavedPostLoading = true;
     });
-    savedFeeds = await FeedServices().getSavedFeeds();
+    savedFeeds = await FeedServices.getSavedFeeds();
     setState(() {
       isSavedPostLoading = false;
     });

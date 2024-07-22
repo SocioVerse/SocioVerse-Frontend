@@ -38,8 +38,7 @@ class _FollowersPageState extends State<FollowersPage> {
     setState(() {
       isLoading = true;
     });
-    _followersModelList =
-        await FollowersServices().fetchFollowers(widget.userId);
+    _followersModelList = await FollowersServices.fetchFollowers(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -98,11 +97,11 @@ class _FollowersPageState extends State<FollowersPage> {
                       followersModel.state = 0;
                     }
                   });
-                  await FollowUnfollowServices().unFollow(
+                  await FollowUnfollowServices.unFollow(
                     userId: followersModel.user.id,
                   );
                 } else {
-                  await FollowUnfollowServices().toggleFollow(
+                  await FollowUnfollowServices.toggleFollow(
                     userId: followersModel.user.id,
                   );
                 }

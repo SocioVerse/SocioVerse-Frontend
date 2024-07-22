@@ -30,7 +30,7 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
     loadingProv.isLoading = true;
     if (searchText.text.trim().isNotEmpty) {
       loadingProv.searchedHashtags =
-          await HashtagsServices().getHashtags(hashtag: searchText.text);
+          await HashtagsServices.getHashtags(hashtag: searchText.text);
     } else {
       loadingProv.clearHashtags();
     }

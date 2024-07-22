@@ -178,7 +178,7 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                       context.loaderOverlay.show();
                       String? fcmToken =
                           await FirebaseMessaging.instance.getToken();
-                      ApiResponse? response = await AuthServices().userLogin(
+                      ApiResponse? response = await AuthServices.userLogin(
                         loginUser: LoginUser(
                             usernameAndEmail:
                                 userNameOrEmailController.text.trim(),

@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:socioverse/Helper/Debounce/debounce.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
+import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
@@ -42,8 +43,8 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
     _debounceLike.run(() async {
       if (isLiked != widget.readStoryModel.isLiked) {
         widget.readStoryModel.isLiked = isLiked;
-        await StoriesServices()
-            .toggleStoryLike(storyId: widget.readStoryModel.id);
+        await StoriesServices.toggleStoryLike(
+            storyId: widget.readStoryModel.id);
       }
     });
   }
@@ -55,21 +56,9 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
     }
   }
 
-  Future<void> getStorySeens() async {
-    setState(() {
-      isBottomSheetLoading = true;
-    });
-    storySeensModel = await StoriesServices().getStorySeens(
-      storyId: widget.readStoryModel.id,
-    );
-    setState(() {
-      isBottomSheetLoading = false;
-    });
-  }
-
   void showBottomSheet() {
     widget.storyController.pause();
-    getStorySeens();
+
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -80,7 +69,8 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         context: context,
         builder: (context) {
-          return Expanded(
+          return SizedBox(
+            height: 300,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
@@ -101,7 +91,7 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                 ),
                 // Assuming this is part of your build method
                 FutureBuilder<StorySeensModel>(
-                  future: StoriesServices().getStorySeens(
+                  future: StoriesServices.getStorySeens(
                     storyId: widget.readStoryModel.id,
                   ), // Your asynchronous function here
                   builder: (BuildContext context,
@@ -202,7 +192,7 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                               Expanded(
                                 child: ListView.builder(
                                   padding: EdgeInsets.zero,
-                                  itemCount: storySeensModel!.users.length,
+                                  itemCount: storySeensModel.users.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -236,8 +226,7 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                                           ),
                                         ),
                                         title: Text(
-                                          storySeensModel!
-                                              .users[index].username,
+                                          storySeensModel.users[index].username,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium!
@@ -248,13 +237,13 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                                                       .onPrimary),
                                         ),
                                         subtitle: Text(
-                                          storySeensModel!
+                                          storySeensModel
                                               .users[index].occupation,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall,
                                         ),
-                                        trailing: storySeensModel!
+                                        trailing: storySeensModel
                                                     .users[index].isLiked! ==
                                                 true
                                             ? Icon(
@@ -368,13 +357,13 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
                             content: const Text(
                                 "Are you sure you want to delete this Story?"),
                             onAccept: () async {
-                              await StoriesServices()
-                                  .deleteStory(
+                              await StoriesServices.deleteStory(
                                       storyId: widget.readStoryModel.id)
                                   .then((value) => Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => const MyApp()),
+                                          builder: (context) =>
+                                              const GetInitPage()),
                                       (route) => false));
                             },
                             onReject: () {

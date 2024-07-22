@@ -16,7 +16,7 @@ class ActivityPageProvider with ChangeNotifier {
   Future<void> getLatestFollowRequest() async {
     isLoading = true;
     _latestFollowRequestModel =
-        await ActivityServices().fetchLatestFolloweRequests();
+        await ActivityServices.fetchLatestFolloweRequests();
     isLoading = false;
   }
 

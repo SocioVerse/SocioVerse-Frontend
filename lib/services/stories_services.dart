@@ -10,11 +10,10 @@ import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/inboxModel.dart' as InboxModel;
 
 class StoriesServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<ApiResponse> createStory({required List<String> images}) async {
+  static ApiResponse _response = ApiResponse();
+  static Future<ApiResponse> createStory({required List<String> images}) async {
     try {
-      _response = await _helper.post(
+      _response = await ApiHelper.post(
         ApiStringConstants.createStory,
         isPublic: false,
         querryParam: {'images': images},
@@ -27,9 +26,9 @@ class StoriesServices {
     }
   }
 
-  Future<List<ProfileStoryModel>> fetchAllStories() async {
+  static Future<List<ProfileStoryModel>> fetchAllStories() async {
     List<ProfileStoryModel> fetchedStories = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllStories);
+    _response = await ApiHelper.get(ApiStringConstants.fetchAllStories);
     if (_response.success == true) {
       for (var story in _response.data) {
         fetchedStories.add(ProfileStoryModel.fromJson(story));
@@ -38,8 +37,8 @@ class StoriesServices {
     return fetchedStories;
   }
 
-  Future<User?> getUserByStoryId({required String storyId}) async {
-    _response = await _helper.get(
+  static Future<User?> getUserByStoryId({required String storyId}) async {
+    _response = await ApiHelper.get(
       ApiStringConstants.getUserByStoryId,
       querryParam: {'story_id': storyId},
     );
@@ -50,10 +49,11 @@ class StoriesServices {
     return User.fromJson(_response.data);
   }
 
-  Future<List<ReadStoryModel>> getUserStory({required String userId}) async {
+  static Future<List<ReadStoryModel>> getUserStory(
+      {required String userId}) async {
     List<ReadStoryModel> fetchedStories = [];
-    _response = await _helper
-        .get(ApiStringConstants.readStory, querryParam: {'user_id': userId});
+    _response = await ApiHelper.get(ApiStringConstants.readStory,
+        querryParam: {'user_id': userId});
 
     if (_response.success == true) {
       for (var story in _response.data) {
@@ -63,48 +63,49 @@ class StoriesServices {
     return fetchedStories;
   }
 
-  Future<void> storySeen({required String storyId}) async {
-    _response = await _helper.post(
+  static Future<void> storySeen({required String storyId}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.storySeen,
       isPublic: false,
       querryParam: {'story_id': storyId},
     );
   }
 
-  Future<void> toggleStoryLike({required String storyId}) async {
-    _response = await _helper.post(
+  static Future<void> toggleStoryLike({required String storyId}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.toggleStoryLike,
       isPublic: false,
       querryParam: {'story_id': storyId},
     );
   }
 
-  Future<void> uploadStory({required List<String> storyImage}) async {
-    _response = await _helper.post(
+  static Future<void> uploadStory({required List<String> storyImage}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.createStory,
       isPublic: false,
       querryParam: {'images': storyImage},
     );
   }
 
-  Future<void> deleteStory({required String storyId}) async {
-    _response = await _helper.delete(
+  static Future<void> deleteStory({required String storyId}) async {
+    _response = await ApiHelper.delete(
       ApiStringConstants.deleteStory,
       isPublic: false,
       queryParam: {'story_id': storyId},
     );
   }
 
-  Future<StorySeensModel> getStorySeens({required String storyId}) async {
-    _response = await _helper.get(
+  static Future<StorySeensModel> getStorySeens(
+      {required String storyId}) async {
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchAllStorySeen,
       querryParam: {'story_id': storyId},
     );
     return StorySeensModel.fromJson(_response.data);
   }
 
-  Future<void> hideStory({required String userId}) async {
-    _response = await _helper.post(
+  static Future<void> hideStory({required String userId}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.hideStory,
       isPublic: false,
       querryParam: {'hideFrom': userId},
@@ -112,8 +113,8 @@ class StoriesServices {
     FlutterToast.flutterWhiteToast("Story Hidden");
   }
 
-  Future<void> unhideStory({required String userId}) async {
-    _response = await _helper.post(
+  static Future<void> unhideStory({required String userId}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.unhideStory,
       isPublic: false,
       querryParam: {'unhideFrom': userId},
@@ -121,9 +122,10 @@ class StoriesServices {
     FlutterToast.flutterWhiteToast("Story Unhidden");
   }
 
-  Future<List<InboxModel.User>> fetchAllStoryHiddenUsers() async {
+  static Future<List<InboxModel.User>> fetchAllStoryHiddenUsers() async {
     List<InboxModel.User> fetchedUsers = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllStoryHiddenUsers);
+    _response =
+        await ApiHelper.get(ApiStringConstants.fetchAllStoryHiddenUsers);
     if (_response.success == true) {
       log("Hidden Users ${fetchedUsers.length} ${_response.data}");
       for (var user in _response.data) {

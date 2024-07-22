@@ -5,11 +5,10 @@ import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/hashtagModels.dart';
 
 class HashtagsServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<List<HashtagsSearchModel>> getHashtags(
+  static ApiResponse _response = ApiResponse();
+  static Future<List<HashtagsSearchModel>> getHashtags(
       {required String hashtag}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.searchFeedsHashtags,
       querryParam: {'query': hashtag},
     );
@@ -21,9 +20,9 @@ class HashtagsServices {
     return hashtagsSearchModel;
   }
 
-  Future<List<FeedThumbnail>> getHashtagsFeed(
+  static Future<List<FeedThumbnail>> getHashtagsFeed(
       {required String tagId, required bool isRecent}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchHashtagsFeed,
       querryParam: {'tagId': tagId, 'isRecent': isRecent.toString()},
     );

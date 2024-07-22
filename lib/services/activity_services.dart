@@ -12,19 +12,18 @@ import 'package:socioverse/Models/threadCommentsActivityModel.dart';
 import 'package:socioverse/Services/feedCommentActivity.dart';
 
 class ActivityServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<LatestFollowRequestModel> fetchLatestFolloweRequests() async {
-    _response = await _helper.get(
+  static Future<LatestFollowRequestModel> fetchLatestFolloweRequests() async {
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchLatestFolloweRequests,
       isPublic: false,
     );
     return LatestFollowRequestModel.fromJson(_response.data);
   }
 
-  Future<List<RecentLikesModel>> getRecentLikes(String type) async {
-    _response = await _helper.get(
+  static Future<List<RecentLikesModel>> getRecentLikes(String type) async {
+    _response = await ApiHelper.get(
       ApiStringConstants.getActivity,
       querryParam: {
         "type": type,
@@ -39,16 +38,16 @@ class ActivityServices {
     return recentLikes;
   }
 
-  Map<String, String> activityAPIMap = {
+  static Map<String, String> activityAPIMap = {
     'Feeds': ApiStringConstants.fetchFeedActivity,
     'Threads': ApiStringConstants.fetchThreadActivity,
     'Thread Comments': ApiStringConstants.fetchThreadCommentsActivity,
     'Feed Comments': ApiStringConstants.fetchFeedCommentsActivity,
   };
 
-  Future<List<dynamic>> getActivity(String title,
+  static Future<List<dynamic>> getActivity(String title,
       {required String type}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       activityAPIMap[title]!,
       querryParam: {
         "type": type,
@@ -115,8 +114,8 @@ class ActivityServices {
     }
   }
 
-  Future<List<StoryLikeActivity>> getStoryLikes() async {
-    _response = await _helper.get(
+  static Future<List<StoryLikeActivity>> getStoryLikes() async {
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchStoryLikesActivity,
       isPublic: false,
     );
@@ -127,8 +126,8 @@ class ActivityServices {
     return storyLikeActivities;
   }
 
-  Future<List<MentionsActivity>> getMentions() async {
-    _response = await _helper.get(
+  static Future<List<MentionsActivity>> getMentions() async {
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchMentionsActivity,
       isPublic: false,
     );

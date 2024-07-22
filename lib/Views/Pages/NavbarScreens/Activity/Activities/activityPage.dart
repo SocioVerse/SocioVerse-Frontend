@@ -56,7 +56,7 @@ class _ActivityPageState extends State<ActivityPage> {
             ),
             Flexible(
               child: FutureBuilder(
-                  future: ActivityServices().getActivity(widget.title,
+                  future: ActivityServices.getActivity(widget.title,
                       type: type == 1 ? "likes" : "comments"),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

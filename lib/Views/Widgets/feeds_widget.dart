@@ -41,7 +41,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
     setState(() {
       isStoryLoading = true;
     });
-    profileStories = await StoriesServices().fetchAllStories();
+    profileStories = await StoriesServices.fetchAllStories();
     setState(() {
       isStoryLoading = false;
     });
@@ -158,7 +158,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
                                             return null;
                                           });
                                           if (storyImage != null) {
-                                            await StoriesServices().uploadStory(
+                                            await StoriesServices.uploadStory(
                                                 storyImage: [storyImage]);
                                             getProfileStories();
                                           }

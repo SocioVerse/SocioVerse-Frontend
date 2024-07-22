@@ -46,8 +46,8 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
     });
     if (widget.threadModel == null) {
       List<dynamic> fetched = await Future.wait([
-        ThreadServices().getThreadById(threadId: widget.threadId!),
-        ThreadCommentServices().fetchThreadReplies(widget.threadId!)
+        ThreadServices.getThreadById(threadId: widget.threadId!),
+        ThreadCommentServices.fetchThreadReplies(widget.threadId!)
       ]);
       if (fetched[0] == null) {
         Navigator.pop(context);
@@ -58,8 +58,8 @@ class _ThreadCommentPageState extends State<ThreadCommentPage> {
       log(widget.threadModel.toString());
     } else {
       threadModel = widget.threadModel!;
-      threadReplies = await ThreadCommentServices()
-          .fetchThreadReplies(widget.threadModel!.id);
+      threadReplies = await ThreadCommentServices.fetchThreadReplies(
+          widget.threadModel!.id);
     }
     setState(() {
       isLoading = false;

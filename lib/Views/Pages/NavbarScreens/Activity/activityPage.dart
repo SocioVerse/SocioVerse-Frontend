@@ -69,7 +69,7 @@ class _ActivityPageState extends State<ActivityPage> {
                     ),
                     Expanded(
                       child: FutureBuilder<List<RecentLikesModel>>(
-                        future: ActivityServices().getRecentLikes("likes"),
+                        future: ActivityServices.getRecentLikes("likes"),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {

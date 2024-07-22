@@ -107,8 +107,8 @@ class CreateNewThreadAlertBox extends StatelessWidget {
                       ));
                     }
                     showDialog(context: context, builder: (_) => SpinKit.ring);
-                    await ThreadServices()
-                        .createThread(createThreadModel: createThreadModel)
+                    await ThreadServices.createThread(
+                            createThreadModel: createThreadModel)
                         .then((value) {
                       Provider.of<CreateNewThreadAlertBoxProvider>(context,
                               listen: false)

@@ -37,8 +37,7 @@ class _FollowingPageState extends State<FollowingPage> {
     setState(() {
       isLoading = true;
     });
-    _followersModelList =
-        await FollowersServices().fetchFollowing(widget.userId);
+    _followersModelList = await FollowersServices.fetchFollowing(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -92,7 +91,7 @@ class _FollowingPageState extends State<FollowingPage> {
               ispressed: isPressed,
               onPressed: () async {
                 if (followersModel.state == 2) {
-                  await FollowUnfollowServices().unFollow(
+                  await FollowUnfollowServices.unFollow(
                     userId: followersModel.user.id,
                   );
                   setState(() {
@@ -101,7 +100,7 @@ class _FollowingPageState extends State<FollowingPage> {
                     }
                   });
                 } else {
-                  await FollowUnfollowServices().toggleFollow(
+                  await FollowUnfollowServices.toggleFollow(
                     userId: followersModel.user.id,
                   );
                 }

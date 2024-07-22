@@ -183,7 +183,7 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
                     );
                   });
             },
-            future: HashtagsServices().getHashtagsFeed(
+            future: HashtagsServices.getHashtagsFeed(
                 tagId: widget.id, isRecent: __value == 1 ? true : false),
           ),
         ]),

@@ -23,7 +23,7 @@ class LocationSearchProvider with ChangeNotifier {
     isSearching = true;
     if (searchText.text.trim().isNotEmpty) {
       searchedLocation =
-          await LocationServices().getLocation(location: searchText.text);
+          await LocationServices.getLocation(location: searchText.text);
     }
     isSearching = false;
 

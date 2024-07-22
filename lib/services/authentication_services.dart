@@ -9,9 +9,8 @@ import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
 
 class AuthServices {
-  final ApiHelper _helper = ApiHelper();
-  Future<ApiResponse> isEmailExists({required String email}) async {
-    ApiResponse response = await _helper.get(
+  static Future<ApiResponse> isEmailExists({required String email}) async {
+    ApiResponse response = await ApiHelper.get(
       ApiStringConstants.isEmailExists,
       querryParam: {"email": email},
       isPublic: true,
@@ -19,9 +18,10 @@ class AuthServices {
     return response;
   }
 
-  Future<ApiResponse?> userSignUp({required SignupUser signupUser}) async {
+  static Future<ApiResponse?> userSignUp(
+      {required SignupUser signupUser}) async {
     print(signupUser.toJson());
-    ApiResponse? response = await _helper.post(
+    ApiResponse? response = await ApiHelper.post(
       ApiStringConstants.userSignUp,
       querryParam: signupUser.toJson(),
       isPublic: true,
@@ -38,9 +38,9 @@ class AuthServices {
     return response;
   }
 
-  Future<ApiResponse?> userLogin({required LoginUser loginUser}) async {
+  static Future<ApiResponse?> userLogin({required LoginUser loginUser}) async {
     print(loginUser.toJson().toString());
-    ApiResponse? response = await _helper.post(
+    ApiResponse? response = await ApiHelper.post(
       ApiStringConstants.userLogin,
       querryParam: loginUser.toJson(),
       isPublic: true,
@@ -59,8 +59,8 @@ class AuthServices {
     return response;
   }
 
-  Future<ApiResponse?> userLogout({required String? fcmToken}) async {
-    ApiResponse? response = await _helper.delete(
+  static Future<ApiResponse?> userLogout({required String? fcmToken}) async {
+    ApiResponse? response = await ApiHelper.delete(
       ApiStringConstants.userLogout,
       queryParam: {"fcm_token": fcmToken},
       isPublic: false,

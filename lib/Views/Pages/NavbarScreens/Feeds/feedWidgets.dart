@@ -211,8 +211,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                         "Are you sure you want to delete this thread?"),
                     onAccept: () async {
                       context.loaderOverlay.show();
-                      await ThreadServices()
-                          .deleteThread(threadId: widget.thread.id);
+                      await ThreadServices.deleteThread(
+                          threadId: widget.thread.id);
                       context.loaderOverlay.hide();
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -632,7 +632,7 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                           _debounceLike.run(() async {
                             if (isLiked != widget.thread.isLiked) {
                               widget.thread.isLiked = !widget.thread.isLiked;
-                              await ThreadServices().toggleLikeThreads(
+                              await ThreadServices.toggleLikeThreads(
                                 threadId: widget.thread.id,
                               );
                             }
@@ -656,16 +656,16 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                           _debounceSave.run(() async {
                             if (savedPost != widget.thread.isSaved) {
                               widget.thread.isSaved = !widget.thread.isSaved;
-                              await ThreadServices()
-                                  .toggleSaveThreads(threadId: widget.thread.id)
+                              await ThreadServices.toggleSaveThreads(
+                                      threadId: widget.thread.id)
                                   .then((value) =>
                                       FlutterToast.flutterWhiteToast(value));
                             }
                           });
                         },
                         onRepost: () async {
-                          await ThreadServices()
-                              .toggleRepostThreads(threadId: widget.thread.id)
+                          await ThreadServices.toggleRepostThreads(
+                                  threadId: widget.thread.id)
                               .then((value) =>
                                   FlutterToast.flutterWhiteToast(value));
                           setState(() {
@@ -742,8 +742,8 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       showUsersBottomSheet(
                           context,
                           widget.thread.id,
-                          ThreadServices()
-                              .fetchThreadLikes(threadId: widget.thread.id));
+                          ThreadServices.fetchThreadLikes(
+                              threadId: widget.thread.id));
                     },
                     child: Text(
                       "${widget.thread.likeCount} ${widget.thread.likeCount > 1 ? "likes" : "like"}",
@@ -1004,7 +1004,7 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
     setState(() {
       threadFetched = false;
     });
-    allThreads = await ThreadServices().getFollowingThreads();
+    allThreads = await ThreadServices.getFollowingThreads();
     setState(() {
       threadFetched = true;
     });
@@ -1152,7 +1152,7 @@ class _FeedLayoutState extends State<FeedLayout> {
                         "Are you sure you want to delete this feed?"),
                     onAccept: () async {
                       context.loaderOverlay.show();
-                      await FeedServices().deleteFeed(feedId: widget.feed.id);
+                      await FeedServices.deleteFeed(feedId: widget.feed.id);
                       context.loaderOverlay.hide();
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -1579,7 +1579,7 @@ class _FeedLayoutState extends State<FeedLayout> {
                                   showUsersBottomSheet(
                                       context,
                                       widget.feed.id,
-                                      FeedServices().fetchFeedMentions(
+                                      FeedServices.fetchFeedMentions(
                                           feedId: widget.feed.id));
                                 },
                                 child: Container(
@@ -1685,8 +1685,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                         _debounceLike.run(() async {
                           if (isLiked != widget.feed.isLiked) {
                             widget.feed.isLiked = !widget.feed.isLiked;
-                            await FeedServices()
-                                .toggleLikeFeeds(feedId: widget.feed.id);
+                            await FeedServices.toggleLikeFeeds(
+                                feedId: widget.feed.id);
                           }
                         });
                       },
@@ -1708,8 +1708,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                         _debounceSave.run(() async {
                           if (savedPost != widget.feed.isSaved) {
                             widget.feed.isSaved = !widget.feed.isSaved;
-                            await FeedServices()
-                                .toggleSaveFeeds(feedId: widget.feed.id)
+                            await FeedServices.toggleSaveFeeds(
+                                    feedId: widget.feed.id)
                                 .then((value) =>
                                     FlutterToast.flutterWhiteToast(value));
                           }
@@ -1781,11 +1781,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                         ),
                   InkWell(
                     onTap: () {
-                      showUsersBottomSheet(
-                          context,
-                          widget.feed.id,
-                          FeedServices()
-                              .fetchFeedLikes(feedId: widget.feed.id));
+                      showUsersBottomSheet(context, widget.feed.id,
+                          FeedServices.fetchFeedLikes(feedId: widget.feed.id));
                     },
                     child: Text(
                       "${widget.feed.likeCount} ${widget.feed.likeCount > 1 ? "likes" : "like"}",
@@ -1830,7 +1827,7 @@ class _FeedViewBuilderState extends State<FeedViewBuilder> {
     setState(() {
       feedFetched = false;
     });
-    allFeeds = await FeedServices().getFollowingFeeds();
+    allFeeds = await FeedServices.getFollowingFeeds();
     setState(() {
       feedFetched = true;
     });

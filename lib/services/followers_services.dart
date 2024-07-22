@@ -4,19 +4,18 @@ import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/followersModel.dart';
 
 class FollowersServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<List<FollowersModel>> fetchFollowers(String? userId) async {
+  static Future<List<FollowersModel>> fetchFollowers(String? userId) async {
     _response = userId != null
-        ? await _helper.get(
+        ? await ApiHelper.get(
             ApiStringConstants.fetchFollowers,
             querryParam: {
               "userId": userId,
             },
             isPublic: false,
           )
-        : await _helper.get(
+        : await ApiHelper.get(
             ApiStringConstants.fetchFollowers,
             isPublic: false,
           );
@@ -28,16 +27,16 @@ class FollowersServices {
     }
   }
 
-  Future<List<FollowersModel>> fetchFollowing(String? userId) async {
+  static Future<List<FollowersModel>> fetchFollowing(String? userId) async {
     _response = userId != null
-        ? await _helper.get(
+        ? await ApiHelper.get(
             ApiStringConstants.fetchFollowing,
             querryParam: {
               "userId": userId,
             },
             isPublic: false,
           )
-        : await _helper.get(
+        : await ApiHelper.get(
             ApiStringConstants.fetchFollowing,
             isPublic: false,
           );

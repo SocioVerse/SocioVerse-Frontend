@@ -9,12 +9,11 @@ import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Models/userModel.dart';
 
 class UserServices {
-  final ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<List<UserModel>> getUserDetails() async {
+  static ApiResponse _response = ApiResponse();
+  static Future<List<UserModel>> getUserDetails() async {
     List<UserModel> userList = [];
     try {
-      _response = await _helper.get(
+      _response = await ApiHelper.get(
         ApiStringConstants.fetchUser,
         isPublic: false,
       );
@@ -33,9 +32,9 @@ class UserServices {
     }
   }
 
-  Future<List<User>> getShareList() async {
+  static Future<List<User>> getShareList() async {
     List<User> fetchedUsers = [];
-    _response = await _helper.get(ApiStringConstants.getShareList);
+    _response = await ApiHelper.get(ApiStringConstants.getShareList);
     if (_response.success == true) {
       for (var user in _response.data) {
         fetchedUsers.add(User.fromJson(user));
@@ -44,16 +43,16 @@ class UserServices {
     return fetchedUsers;
   }
 
-  Future<Room> getRoomId(String userId) async {
-    _response = await _helper
+  static Future<Room> getRoomId(String userId) async {
+    _response = await ApiHelper
         .get(ApiStringConstants.fetchRoomId, querryParam: {"userId": userId});
     return Room.fromJson(_response.data);
   }
 
-  Future<ApiResponse> changePassword(
+  static Future<ApiResponse> changePassword(
       {required String oldPassword, required String newPassword}) async {
     _response =
-        await _helper.post(ApiStringConstants.changePassword, querryParam: {
+        await ApiHelper.post(ApiStringConstants.changePassword, querryParam: {
       "oldPassword": oldPassword,
       "newPassword": newPassword,
     });

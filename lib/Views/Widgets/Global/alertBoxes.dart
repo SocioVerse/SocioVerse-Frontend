@@ -141,7 +141,7 @@ class UnfollowUserAlertBox {
       context: context,
       title: 'Unfollow User',
       onAccept: () {
-        FollowUnfollowServices().unFollow(userId: userId);
+        FollowUnfollowServices.unFollow(userId: userId);
       },
       onReject: onReject,
       content: Text(

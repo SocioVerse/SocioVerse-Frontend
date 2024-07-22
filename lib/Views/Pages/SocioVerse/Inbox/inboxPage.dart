@@ -113,8 +113,8 @@ class _InboxPageState extends State<InboxPage> {
   Future<void> getQueryUser() async {
     Provider.of<InboxPageLoadingProvider>(context, listen: false)
         .isUserFetched = false;
-    searchedUser = await SearchBarServices()
-        .fetchSearchedUser(searchQuery: search.text.trim());
+    searchedUser = await SearchBarServices.fetchSearchedUser(
+        searchQuery: search.text.trim());
     if (!mounted) return;
     Provider.of<InboxPageLoadingProvider>(context, listen: false)
         .isUserFetched = true;

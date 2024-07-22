@@ -151,7 +151,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _initializeRoom() async {
     if (roomModel.room == null) {
-      roomModel.room = await ChattingServices().createRoom(widget.user.id);
+      roomModel.room = await ChattingServices.createRoom(widget.user.id);
       Provider.of<InboxPageProvider>(context, listen: false)
           .addInbox(InboxModel(
         roomId: roomModel.room!.id,
@@ -173,7 +173,7 @@ class _ChatPageState extends State<ChatPage> {
     _setLoading(true);
     userId = await getStringFromCache(SharedPreferenceString.userId);
     log(userId);
-    roomModel = await ChattingServices().getChatroomInfoByUser(
+    roomModel = await ChattingServices.getChatroomInfoByUser(
       widget.user.id,
       userId,
     );
@@ -406,8 +406,8 @@ class _ChatPageState extends State<ChatPage> {
                           )));
             } else if (type == "Story") {
               print("story");
-              StroyModel.User? user = await StoriesServices()
-                  .getUserByStoryId(storyId: message.story!);
+              StroyModel.User? user = await StoriesServices.getUserByStoryId(
+                  storyId: message.story!);
               if (user == null) return;
               Navigator.push(
                   context,
@@ -694,6 +694,7 @@ class _ChatPageState extends State<ChatPage> {
                               message.id,
                               roomModel.room!.id,
                             );
+                            Navigator.pop(context);
                           },
                           onReject: () {},
                         );

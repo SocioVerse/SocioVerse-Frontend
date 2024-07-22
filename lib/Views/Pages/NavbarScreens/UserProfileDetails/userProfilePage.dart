@@ -110,8 +110,8 @@ class _UserProfilePageState extends State<UserProfilePage>
     setState(() {
       isLoading = true;
     });
-    userProfileDetailsModel = await UserProfileDetailsServices()
-        .fetchUserProfileDetails(widget.userId);
+    userProfileDetailsModel =
+        await UserProfileDetailsServices.fetchUserProfileDetails(widget.userId);
     _value = 1;
     setState(() {
       isLoading = false;
@@ -129,7 +129,7 @@ class _UserProfilePageState extends State<UserProfilePage>
         ispressed: isPressed,
         onPressed: () async {
           if (userProfileDetailsModel.user.state == 2) {
-            await FollowUnfollowServices().unFollow(
+            await FollowUnfollowServices.unFollow(
               userId: userProfileDetailsModel.user.id,
             );
             setState(() {
@@ -138,7 +138,7 @@ class _UserProfilePageState extends State<UserProfilePage>
               }
             });
           } else {
-            await FollowUnfollowServices().toggleFollow(
+            await FollowUnfollowServices.toggleFollow(
               userId: userProfileDetailsModel.user.id,
             );
           }
@@ -314,11 +314,11 @@ class _UserProfilePageState extends State<UserProfilePage>
                 ),
                 onTap: () {
                   if (userProfileDetailsModel!.user.isStoryHidden == false) {
-                    StoriesServices()
-                        .hideStory(userId: userProfileDetailsModel!.user.id);
+                    StoriesServices.hideStory(
+                        userId: userProfileDetailsModel!.user.id);
                   } else {
-                    StoriesServices()
-                        .unhideStory(userId: userProfileDetailsModel!.user.id);
+                    StoriesServices.unhideStory(
+                        userId: userProfileDetailsModel!.user.id);
                   }
                   setState(() {
                     userProfileDetailsModel!.user.isStoryHidden =
@@ -449,7 +449,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                       await FirebaseMessaging.instance
                           .getToken()
                           .then((value) async {
-                        await AuthServices().userLogout(fcmToken: value);
+                        await AuthServices.userLogout(fcmToken: value);
                       });
                       context.loaderOverlay.hide();
                       Navigator.pushAndRemoveUntil(
@@ -582,8 +582,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                           title: "Add Bio",
                           onAccept: () async {
                             if (bioController.text.trim() != "") {
-                              await UserProfileDetailsServices()
-                                  .addBio(bioController.text);
+                              await UserProfileDetailsServices.addBio(
+                                  bioController.text);
                               setState(() {
                                 userProfileDetailsModel!.user.bio =
                                     bioController.text;
@@ -838,8 +838,8 @@ class _UserProfilePageState extends State<UserProfilePage>
               )
             : _value == 2
                 ? FutureBuilder(
-                    future: UserProfileDetailsServices()
-                        .getUserFeeds(userId: userProfileDetailsModel!.user.id),
+                    future: UserProfileDetailsServices.getUserFeeds(
+                        userId: userProfileDetailsModel!.user.id),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Padding(
@@ -890,8 +890,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                     },
                   )
                 : FutureBuilder(
-                    future: UserProfileDetailsServices()
-                        .getRepostThreads(widget.userId),
+                    future: UserProfileDetailsServices.getRepostThreads(
+                        widget.userId),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Padding(

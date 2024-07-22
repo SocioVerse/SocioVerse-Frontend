@@ -5,11 +5,10 @@ import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/locationModel.dart';
 
 class LocationServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<List<LocationSearchModel>> getLocation(
+  static ApiResponse _response = ApiResponse();
+  static Future<List<LocationSearchModel>> getLocation(
       {required String location}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.searchFeedsLocation,
       querryParam: {'query': location},
     );
@@ -21,9 +20,9 @@ class LocationServices {
     return locationList;
   }
 
-  Future<List<FeedThumbnail>> getLocationFeed(
+  static Future<List<FeedThumbnail>> getLocationFeed(
       {required String locationId, required bool isRecent}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchLocationFeed,
       querryParam: {'locationID': locationId, 'isRecent': isRecent.toString()},
     );

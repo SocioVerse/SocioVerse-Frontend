@@ -68,7 +68,7 @@ class InboxPageProvider extends ChangeNotifier {
     Provider.of<InboxPageLoadingProvider>(context, listen: false).isLoading =
         true;
     userId = await getStringFromCache(SharedPreferenceString.userId);
-    inboxModel = await InboxServices().fetchInbox(context);
+    inboxModel = await InboxServices.fetchInbox(context);
     requestModel =
         inboxModel.where((element) => element.isRequestMessage).toList();
     inboxModel.removeWhere((element) => element.isRequestMessage);

@@ -43,7 +43,7 @@ class _CommentPageState extends State<CommentPage> {
       isLoading = true;
     });
     if (widget.feedId != null) {
-      feed = await FeedServices().getFeed(feedId: widget.feedId!);
+      feed = await FeedServices.getFeed(feedId: widget.feedId!);
       if (feed == null) {
         if (context.mounted) {
           Navigator.pop(context);
@@ -53,7 +53,7 @@ class _CommentPageState extends State<CommentPage> {
     } else {
       feed = widget.feed;
     }
-    feedReplies = await FeedServices().fetchFeedComments(feedId: feed!.id);
+    feedReplies = await FeedServices.fetchFeedComments(feedId: feed!.id);
     setState(() {
       isLoading = false;
     });
@@ -116,8 +116,8 @@ class _CommentPageState extends State<CommentPage> {
           TextButton(
             onPressed: () async {
               context.loaderOverlay.show();
-              FeedComment newComment = await FeedServices()
-                  .createComment(content: content.text, feedId: feed!.id);
+              FeedComment newComment = await FeedServices.createComment(
+                  content: content.text, feedId: feed!.id);
 
               content.clear();
 
@@ -228,24 +228,19 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
     setState(() {
       isLoading = true;
     });
-    feedReplies = await FeedServices()
-        .fetchcommentReplies(commentId: widget.feedCommentId!);
+    if (widget.feedCommentId != null) {
+      widget.feedComment =
+          await FeedServices.fetchCommentById(commentId: widget.feedCommentId!);
+    }
+    feedReplies = await FeedServices.fetchcommentReplies(
+        commentId: widget.feedCommentId ?? widget.feedComment!.id);
     setState(() {
       isLoading = false;
     });
   }
 
-  getFeedComment() async {
-    widget.feedComment =
-        await FeedServices().fetchCommentById(commentId: widget.feedCommentId!);
-    setState(() {});
-  }
-
   @override
   void initState() {
-    if (widget.feedCommentId != null) {
-      getFeedComment();
-    }
     getCommentReply();
     super.initState();
   }
@@ -307,7 +302,7 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
           TextButton(
             onPressed: () async {
               context.loaderOverlay.show();
-              FeedComment newComment = await FeedServices().createCommentReply(
+              FeedComment newComment = await FeedServices.createCommentReply(
                   content: content.text, commentId: feedComment.id);
 
               content.clear();

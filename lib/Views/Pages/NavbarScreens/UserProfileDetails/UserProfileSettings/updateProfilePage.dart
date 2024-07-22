@@ -242,8 +242,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           widget.user.occupation = occupation.text;
                           widget.user.profilePic =
                               currentImage ?? widget.user.profilePic;
-                          await UserProfileSettingsServices()
-                              .updateProfile(widget.user)
+                          await UserProfileSettingsServices.updateProfile(
+                                  widget.user)
                               .then((response) {
                             context.loaderOverlay.hide();
                             if (response.success == true && context.mounted) {

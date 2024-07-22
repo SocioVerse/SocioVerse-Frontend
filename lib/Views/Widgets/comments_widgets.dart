@@ -187,8 +187,8 @@ class _ThreadCommentLayoutState extends State<ThreadCommentLayout> {
                 onLike: () async {
                   setState(() {});
                   _debounceLike.run(() async {
-                    await ThreadServices()
-                        .toggleLikeThreads(threadId: widget.thread.commentId);
+                    await ThreadServices.toggleLikeThreads(
+                        threadId: widget.thread.commentId);
                   });
                 },
                 onComment: () {
@@ -294,8 +294,8 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                   onTap: () async {
                     context.loaderOverlay.show();
 
-                    await FeedServices()
-                        .deleteFeedComment(commentId: feedComment.id)
+                    await FeedServices.deleteFeedComment(
+                            commentId: feedComment.id)
                         .then((value) => {
                               if (context.mounted)
                                 {
@@ -444,7 +444,7 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                               if (isLiked != widget.feedComment.isLiked) {
                                 widget.feedComment.isLiked =
                                     !widget.feedComment.isLiked;
-                                await FeedServices().toggleFeedCommentLike(
+                                await FeedServices.toggleFeedCommentLike(
                                     commentId: widget.feedComment.id);
                               }
                             });

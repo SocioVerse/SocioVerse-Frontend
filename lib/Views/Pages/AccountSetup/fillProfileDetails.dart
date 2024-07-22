@@ -408,7 +408,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             log(signupUser.toJson().toString());
 
                             ApiResponse? response =
-                                await AuthServices().userSignUp(
+                                await AuthServices.userSignUp(
                               signupUser: signupUser,
                             );
                             context.loaderOverlay.hide();

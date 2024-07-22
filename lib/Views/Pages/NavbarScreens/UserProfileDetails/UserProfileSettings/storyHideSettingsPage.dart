@@ -81,7 +81,7 @@ class _StoryHideSettingsPageState extends State<StoryHideSettingsPage> {
           body: Padding(
             padding: const EdgeInsets.all(10.0),
             child: FutureBuilder<List<User>>(
-              future: StoriesServices().fetchAllStoryHiddenUsers(),
+              future: StoriesServices.fetchAllStoryHiddenUsers(),
               // initialData: const [],
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -112,8 +112,8 @@ class _StoryHideSettingsPageState extends State<StoryHideSettingsPage> {
                             user: data[index],
                             context: context,
                             onTap: () {
-                              StoriesServices()
-                                  .unhideStory(userId: data[index].id);
+                              StoriesServices.unhideStory(
+                                  userId: data[index].id);
                               data.removeAt(index);
                               innerSetState(() {});
                             });

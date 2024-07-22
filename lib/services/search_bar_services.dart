@@ -7,14 +7,13 @@ import 'package:socioverse/Models/locationModel.dart';
 import 'package:socioverse/Models/searchedUser.dart';
 
 class SearchBarServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<List<SearchedUser>> fetchSearchedUser({
+  static Future<List<SearchedUser>> fetchSearchedUser({
     required String searchQuery,
   }) async {
     List<SearchedUser> fetchedUsers = [];
-    _response = await _helper.get(ApiStringConstants.searchUser,
+    _response = await ApiHelper.get(ApiStringConstants.searchUser,
         querryParam: {'query': searchQuery});
     if (_response.success == true) {
       for (var user in _response.data) {
@@ -24,17 +23,17 @@ class SearchBarServices {
     return fetchedUsers;
   }
 
-  Future<String> fetchSearchedUserByFace({
+  static Future<String> fetchSearchedUserByFace({
     required String faceImage,
   }) async {
-    _response = await _helper.get(ApiStringConstants.searchUserByFace,
+    _response = await ApiHelper.get(ApiStringConstants.searchUserByFace,
         querryParam: {'faceImage': faceImage});
     return _response.data['label'];
   }
 
-  Future<List<HashtagsSearchModel>> getHashtags(
+  static Future<List<HashtagsSearchModel>> getHashtags(
       {required String hashtag}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.searchHashtags,
       querryParam: {'query': hashtag},
     );
@@ -46,9 +45,9 @@ class SearchBarServices {
     return hashtagsSearchModel;
   }
 
-  Future<List<LocationSearchModel>> getLocation(
+  static Future<List<LocationSearchModel>> getLocation(
       {required String location}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.searchLocation,
       querryParam: {'query': location},
     );
@@ -60,9 +59,9 @@ class SearchBarServices {
     return locationList;
   }
 
-  Future<List<FeedThumbnail>> getFeedsMetadata(
+  static Future<List<FeedThumbnail>> getFeedsMetadata(
       {required String metadata}) async {
-    _response = await _helper.get(
+    _response = await ApiHelper.get(
       ApiStringConstants.searchFeedsByMetadata,
       querryParam: {'query': metadata},
     );

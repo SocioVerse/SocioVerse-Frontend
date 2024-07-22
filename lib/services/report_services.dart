@@ -6,9 +6,9 @@ import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/userModel.dart';
 
 class ReportServices {
-  final ApiHelper _helper = ApiHelper();
-  ApiResponse response = ApiResponse();
-  Future<String> createReport({
+  
+  static ApiResponse response = ApiResponse();
+  static Future<String> createReport({
     required String reportType,
     required String reason,
     required String userId,
@@ -16,7 +16,7 @@ class ReportServices {
     String? threadId,
     String? storyId,
   }) async {
-    response = await _helper.post(
+    response = await ApiHelper.post(
       ApiStringConstants.createReport,
       querryParam: {
         "reportType": reportType,

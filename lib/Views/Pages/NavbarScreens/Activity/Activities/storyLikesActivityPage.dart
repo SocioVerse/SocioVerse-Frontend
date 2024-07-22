@@ -33,7 +33,7 @@ class _StoryLikesActivityPageState extends State<StoryLikesActivityPage> {
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: FutureBuilder<List<StoryLikeActivity>>(
-          future: ActivityServices().getStoryLikes(),
+          future: ActivityServices.getStoryLikes(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: SpinKit.ring);

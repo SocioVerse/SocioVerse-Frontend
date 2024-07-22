@@ -63,7 +63,7 @@ class _NewThreadState extends State<NewThread> {
 
   void fetchUserdata() async {
     Provider.of<NewThreadPageProvider>(context, listen: false).user =
-        await UserServices().getUserDetails();
+        await UserServices.getUserDetails();
   }
 
   @override
@@ -120,7 +120,7 @@ class _NewThreadState extends State<NewThread> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CircularNetworkImageWithSize(
-                                imageUrl: prov. user[0].profilePic,
+                                imageUrl: prov.user[0].profilePic,
                                 height: 35,
                                 width: 35,
                               ),

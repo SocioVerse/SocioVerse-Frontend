@@ -92,7 +92,7 @@ class _PostEditPageState extends State<PostEditPage> {
                         FirebaseHelper.Image);
                     images.add(url);
                   });
-                  await FeedServices().createFeed(
+                  await FeedServices.createFeed(
                       postData: FeedData(
                           caption: captionController.text,
                           allowComments: addtionalFeatureProvider.allowComments,

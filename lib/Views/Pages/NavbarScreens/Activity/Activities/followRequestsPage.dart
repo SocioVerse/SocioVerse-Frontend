@@ -110,7 +110,7 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
                                     if (prov.followRequestModel.isEmpty) {
                                       Navigator.pop(context);
                                     }
-                                    await FollowRequestsServices()
+                                    await FollowRequestsServices
                                         .rejectFollowRequest(id);
                                   },
                                   child: Text(
@@ -139,7 +139,7 @@ class _FollowRequestsPageState extends State<FollowRequestsPage> {
                                         mounted) {
                                       Navigator.pop(context);
                                     }
-                                    await FollowRequestsServices()
+                                    await FollowRequestsServices
                                         .acceptFollowRequest(id);
                                   },
                                   child: Text(

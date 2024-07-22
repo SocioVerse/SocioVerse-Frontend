@@ -8,7 +8,7 @@ class FollowRequestPageProvider with ChangeNotifier {
 
   getFollowRequest() async {
     _followRequestModel =
-        await FollowRequestsServices().fetchAllFolloweRequests();
+        await FollowRequestsServices.fetchAllFolloweRequests();
   }
 
   // removeAt

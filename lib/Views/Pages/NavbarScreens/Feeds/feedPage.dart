@@ -197,11 +197,11 @@ class _FeedsPageState extends State<FeedsPage>
     socketInit();
 
     if (prov.value == 1) {
-      allFeeds = await FeedServices().getFollowingFeeds();
+      allFeeds = await FeedServices.getFollowingFeeds();
     } else if (prov.value == 2) {
-      allThreads = await ThreadServices().getFollowingThreads();
+      allThreads = await ThreadServices.getFollowingThreads();
     } else {
-      profileStories = await StoriesServices().fetchAllStories();
+      profileStories = await StoriesServices.fetchAllStories();
     }
     prov.isLoading = false;
   }
@@ -361,7 +361,7 @@ class _FeedsPageState extends State<FeedsPage>
                                                           });
                                                           if (storyImage !=
                                                               null) {
-                                                            await StoriesServices()
+                                                            await StoriesServices
                                                                 .uploadStory(
                                                                     storyImage: [
                                                                   storyImage

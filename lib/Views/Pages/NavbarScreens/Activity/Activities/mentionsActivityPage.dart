@@ -22,7 +22,7 @@ class _MentionsActivityPageState extends State<MentionsActivityPage> {
   Function? _data;
   @override
   void initState() {
-    _data = ActivityServices().getMentions;
+    _data = ActivityServices.getMentions;
     super.initState();
   }
 

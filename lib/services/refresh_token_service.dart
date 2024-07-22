@@ -11,12 +11,11 @@ import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/main.dart';
 
 class RefreshToken {
-  final ApiHelper _helper = ApiHelper();
-  Future<String?> updateToken() async {
+ static Future<String?> updateToken() async {
     String token =
         await getStringFromCache(SharedPreferenceString.refreshToken);
     print("here 5");
-    ApiResponse response = await _helper.post(ApiStringConstants.refreshToken,
+    ApiResponse response = await ApiHelper.post(ApiStringConstants.refreshToken,
         querryParam: {"refresh_token": token}, isPublic: true);
     if (response.success == false) {
       setStringIntoCache(SharedPreferenceString.accessToken, null);
@@ -41,7 +40,7 @@ class RefreshToken {
     return response.data["access_token"];
   }
 
-  Future<Map<String, String>> GetContentType(dynamic header, CTtype) async {
+  static Future<Map<String, String>> GetContentType(dynamic header, CTtype) async {
     dynamic contentType;
     switch (CTtype) {
       case ContentType.Text:

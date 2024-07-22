@@ -44,7 +44,7 @@ class _LikedPageState extends State<LikedPage> {
     setState(() {
       isLikedThreadLoading = true;
     });
-    likedThreads = await ThreadServices().getLikedThreads();
+    likedThreads = await ThreadServices.getLikedThreads();
     setState(() {
       isLikedThreadLoading = false;
     });
@@ -54,7 +54,7 @@ class _LikedPageState extends State<LikedPage> {
     setState(() {
       isLikedThreadLoading = true;
     });
-    likedFeeds = await FeedServices().getLikedFeeds();
+    likedFeeds = await FeedServices.getLikedFeeds();
     setState(() {
       isLikedThreadLoading = false;
     });

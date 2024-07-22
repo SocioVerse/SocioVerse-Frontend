@@ -34,7 +34,7 @@ class _StoryPageState extends State<StoryPage> {
     return SafeArea(
       child: Scaffold(
         body: FutureBuilder<List<ReadStoryModel>>(
-          future: StoriesServices().getUserStory(userId: widget.user.id),
+          future: StoriesServices.getUserStory(userId: widget.user.id),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -98,19 +98,18 @@ class StoryPageContent extends StatelessWidget {
                 storyItems: storyItems,
                 onStoryShow: (s) async {
                   storyIndexProvider.updateIndex(storyItems.indexOf(s));
-                  await StoriesServices().storySeen(
+                  await StoriesServices.storySeen(
                       storyId:
                           fetchedStories[storyIndexProvider.currentIndex].id);
                 },
                 onComplete: () async {
-                  await StoriesServices()
-                      .storySeen(
+                  await StoriesServices.storySeen(
                           storyId:
                               fetchedStories[storyIndexProvider.currentIndex]
                                   .id)
                       .then(
-                        (value) => Navigator.pop(context),
-                      );
+                    (value) => Navigator.pop(context),
+                  );
                 },
                 progressPosition: ProgressPosition.top,
                 repeat: false,
@@ -268,9 +267,9 @@ class StoryPageContent extends StatelessWidget {
                 ),
                 onTap: () {
                   if (user.isStoryHidden == false) {
-                    StoriesServices().hideStory(userId: user.id);
+                    StoriesServices.hideStory(userId: user.id);
                   } else {
-                    StoriesServices().unhideStory(userId: user.id);
+                    StoriesServices.unhideStory(userId: user.id);
                   }
                 },
               ),
