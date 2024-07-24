@@ -171,6 +171,7 @@ class _SearchHashtagPageState extends State<SearchHashtagPage> {
                                         )),
                                 backgroundColor:
                                     Theme.of(context).colorScheme.secondary,
+                                deleteIconColor: Colors.white,
                                 onDeleted: () {
                                   prov.removeHashtag(prov.hashtagList[index]);
                                 },

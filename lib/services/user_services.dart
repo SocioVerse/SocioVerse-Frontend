@@ -44,13 +44,13 @@ class UserServices {
   }
 
   static Future<Room> getRoomId(String userId) async {
-    _response = await ApiHelper
-        .get(ApiStringConstants.fetchRoomId, querryParam: {"userId": userId});
+    _response = await ApiHelper.get(ApiStringConstants.fetchRoomId,
+        querryParam: {"userId": userId});
     return Room.fromJson(_response.data);
   }
 
   static Future<ApiResponse> changePassword(
-      {required String oldPassword, required String newPassword}) async {
+      {required String? oldPassword, required String newPassword}) async {
     _response =
         await ApiHelper.post(ApiStringConstants.changePassword, querryParam: {
       "oldPassword": oldPassword,

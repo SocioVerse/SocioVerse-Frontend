@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -19,11 +21,14 @@ import 'package:story_view/controller/story_controller.dart';
 class StoryPageControllers extends StatefulWidget {
   final StoryController storyController;
   final bool isOwner;
+  bool isLiked;
   final ReadStoryModel readStoryModel;
 
-  const StoryPageControllers(
-      {required this.readStoryModel,
+  StoryPageControllers(
+      {super.key,
+      required this.readStoryModel,
       required this.isOwner,
+      required this.isLiked,
       required this.storyController});
   @override
   _StoryPageControllersState createState() => _StoryPageControllersState();
@@ -33,16 +38,14 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
   StorySeensModel? storySeensModel;
   bool isBottomSheetLoading = true;
   final Debouncer _debounceLike = Debouncer(milliseconds: 1000);
-  late bool isLiked;
   TextEditingController search = TextEditingController();
   TextEditingController storyMessage = TextEditingController();
   Future<void> toggleLike() async {
-    setState(() {
-      isLiked = !isLiked;
-    });
+    widget.isLiked = !widget.isLiked;
+    setState(() {});
     _debounceLike.run(() async {
-      if (isLiked != widget.readStoryModel.isLiked) {
-        widget.readStoryModel.isLiked = isLiked;
+      if (widget.isLiked != widget.readStoryModel.isLiked) {
+        widget.readStoryModel.isLiked = widget.isLiked;
         await StoriesServices.toggleStoryLike(
             storyId: widget.readStoryModel.id);
       }
@@ -273,7 +276,8 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
 
   @override
   void initState() {
-    isLiked = widget.readStoryModel.isLiked;
+    widget.isLiked = widget.readStoryModel.isLiked;
+    log("widget.isLiked $widget.isLiked , index ${widget.readStoryModel.id}");
     super.initState();
   }
 
@@ -382,10 +386,12 @@ class _StoryPageControllersState extends State<StoryPageControllers> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: IconButton(
-                  onPressed: toggleLike, // Toggle the like button
+                  onPressed: () {
+                    toggleLike();
+                  }, // Toggle the like button
                   icon: Icon(
-                    isLiked ? Ionicons.heart : Ionicons.heart_outline,
-                    color: isLiked
+                    widget.isLiked ? Ionicons.heart : Ionicons.heart_outline,
+                    color: widget.isLiked
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
                     size: 30,

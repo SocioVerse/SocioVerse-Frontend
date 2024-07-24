@@ -33,7 +33,7 @@ class ChangePasswordPage extends StatelessWidget {
           children: [
             SingleChildScrollView(
                 child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   CustomInputField(

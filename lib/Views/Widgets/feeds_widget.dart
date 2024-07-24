@@ -50,7 +50,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
   Widget _buildLoadingShimmer() {
     return Shimmer.fromColors(
       baseColor: Theme.of(context).colorScheme.tertiary,
-      highlightColor: Colors.grey[100]!,
+      highlightColor: Colors.grey[500]!,
       child: ListView.builder(
         itemCount: 5, // Choose the number of shimmer placeholders
         scrollDirection: Axis.horizontal,

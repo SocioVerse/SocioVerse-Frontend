@@ -13,6 +13,8 @@ import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/followers_services.dart';
+import 'package:socioverse/Services/user_services.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
 import 'package:socioverse/Views/Pages/SocioThread/CommentPage/addCommentPage.dart';
@@ -269,25 +271,30 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                   ;
                 },
               ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.person_remove,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  'Unfollow',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {
-                  UnfollowUserAlertBox(
-                      context: context,
-                      username: widget.thread.user.username,
-                      userId: widget.thread.user.id,
-                      onReject: () {});
-                },
-              ),
+              widget.thread.user.isFollowing
+                  ? ListTile(
+                      leading: Icon(
+                        Ionicons.person_remove,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      title: Text(
+                        'Unfollow',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16),
+                      ),
+                      onTap: () {
+                        UnfollowUserAlertBox(
+                            context: context,
+                            username: widget.thread.user.username,
+                            userId: widget.thread.user.id,
+                            onReject: () {});
+                        setState(() {
+                          widget.thread.user.isFollowing = false;
+                        });
+                      },
+                    )
+                  : SizedBox.shrink(),
             ],
           );
         });
@@ -445,21 +452,27 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                 const SizedBox(
                   width: 10,
                 ),
-                InkWell(
-                  onTap: () {
-                    onRepost();
-                  },
-                  child: Icon(
-                    Ionicons.repeat,
-                    color: widget.thread.isReposted
-                        ? Colors.green
-                        : Theme.of(context).colorScheme.onPrimary,
-                    size: 25,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
+                widget.thread.isPrivate
+                    ? const SizedBox.shrink()
+                    : Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              onRepost();
+                            },
+                            child: Icon(
+                              Ionicons.repeat,
+                              color: widget.thread.isReposted
+                                  ? Colors.green
+                                  : Theme.of(context).colorScheme.onPrimary,
+                              size: 25,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
                 InkWell(
                   onTap: () {
                     ShareList(type: ShareType.thread, context: context)
@@ -513,10 +526,35 @@ class _ThreadLayoutState extends State<ThreadLayout> {
             child: SizedBox(
               height: 40,
               width: 40,
-              child: CircularNetworkImageWithSize(
-                imageUrl: widget.thread.user.profilePic,
-                height: 35,
-                width: 35,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CircularNetworkImageWithSize(
+                      imageUrl: widget.thread.user.profilePic,
+                      height: 35,
+                      width: 35,
+                    ),
+                  ),
+                  widget.thread.isPrivate
+                      ? Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            height: 15,
+                            width: 15,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(7.5),
+                            ),
+                            child: const Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 10,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ],
               ),
             ),
           ),
@@ -788,30 +826,34 @@ class FeedShimmer extends StatelessWidget {
               width: 40,
               child: ClipOval(
                 child: Shimmer.fromColors(
-                  baseColor: Theme.of(context).colorScheme.tertiary,
-                  highlightColor: Colors.grey[100]!,
-                  child:
-                      Container(color: Theme.of(context).colorScheme.tertiary),
+                  baseColor:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                  highlightColor: Colors.grey[500]!,
+                  child: Container(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5)),
                 ),
               ),
             ),
           ),
           title: Shimmer.fromColors(
-            baseColor: Theme.of(context).colorScheme.tertiary,
-            highlightColor: Colors.grey[100]!,
+            baseColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+            highlightColor: Colors.grey[500]!,
             child: Container(
               height: 20,
               width: 150,
-              color: Theme.of(context).colorScheme.tertiary,
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
             ),
           ),
           subtitle: Shimmer.fromColors(
-            baseColor: Theme.of(context).colorScheme.tertiary,
-            highlightColor: Colors.grey[100]!,
+            baseColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+            highlightColor: Colors.grey[500]!,
             child: Container(
               height: 15,
               width: 100,
-              color: Theme.of(context).colorScheme.tertiary,
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
             ),
           ),
         ),
@@ -824,25 +866,29 @@ class FeedShimmer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 300,
                   width: 300,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                   ),
                 ),
               ),
               const SizedBox(height: 10),
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 20,
                   width: 170,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 ),
               ),
             ],
@@ -878,30 +924,34 @@ class ThreadShimmer extends StatelessWidget {
               width: 40,
               child: ClipOval(
                 child: Shimmer.fromColors(
-                  baseColor: Theme.of(context).colorScheme.tertiary,
-                  highlightColor: Colors.grey[100]!,
-                  child:
-                      Container(color: Theme.of(context).colorScheme.tertiary),
+                  baseColor:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                  highlightColor: Colors.grey[500]!,
+                  child: Container(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5)),
                 ),
               ),
             ),
           ),
           title: Shimmer.fromColors(
-            baseColor: Theme.of(context).colorScheme.tertiary,
-            highlightColor: Colors.grey[100]!,
+            baseColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+            highlightColor: Colors.grey[500]!,
             child: Container(
               height: 20,
               width: 150,
-              color: Theme.of(context).colorScheme.tertiary,
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
             ),
           ),
           subtitle: Shimmer.fromColors(
-            baseColor: Theme.of(context).colorScheme.tertiary,
-            highlightColor: Colors.grey[100]!,
+            baseColor: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+            highlightColor: Colors.grey[500]!,
             child: Container(
               height: 15,
               width: 100,
-              color: Theme.of(context).colorScheme.tertiary,
+              color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
             ),
           ),
         ),
@@ -914,30 +964,36 @@ class ThreadShimmer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 20,
                   width: 150,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 ),
               ),
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 20,
                   width: 170,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 ),
               ),
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 20,
                   width: 160,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 ),
               ),
               const SizedBox(height: 10),
@@ -952,22 +1008,28 @@ class ThreadShimmer extends StatelessWidget {
                 ),
                 itemBuilder: (context, index) {
                   return Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.tertiary,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                    highlightColor: Colors.grey[500]!,
                     child: Container(
-                      color: Theme.of(context).colorScheme.tertiary,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5),
                     ),
                   );
                 },
               ),
               const SizedBox(height: 10),
               Shimmer.fromColors(
-                baseColor: Theme.of(context).colorScheme.tertiary,
-                highlightColor: Colors.grey[100]!,
+                baseColor:
+                    Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                highlightColor: Colors.grey[500]!,
                 child: Container(
                   height: 20,
                   width: 170,
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                 ),
               ),
             ],
@@ -1208,25 +1270,27 @@ class _FeedLayoutState extends State<FeedLayout> {
                       .showReportBottomSheet();
                 },
               ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.person_remove,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  'Unfollow',
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontSize: 16),
-                ),
-                onTap: () {
-                  UnfollowUserAlertBox(
-                      context: context,
-                      username: widget.feed.user.username,
-                      userId: widget.feed.user.id,
-                      onReject: () {});
-                },
-              ),
+              !widget.feed.user.isFollowing
+                  ? const SizedBox.shrink()
+                  : ListTile(
+                      leading: Icon(
+                        Ionicons.person_remove,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                      title: Text(
+                        'Unfollow',
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 16),
+                      ),
+                      onTap: () {
+                        UnfollowUserAlertBox(
+                            context: context,
+                            username: widget.feed.user.username,
+                            userId: widget.feed.user.id,
+                            onReject: () {});
+                      },
+                    ),
             ],
           );
         });
@@ -1270,19 +1334,25 @@ class _FeedLayoutState extends State<FeedLayout> {
                 const SizedBox(
                   width: 10,
                 ),
-                InkWell(
-                  onTap: () {
-                    onComment();
-                  },
-                  child: Icon(
-                    Ionicons.chatbubble_outline,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    size: 25,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
+                widget.feed.allowComments == false
+                    ? const SizedBox.shrink()
+                    : Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              onComment();
+                            },
+                            child: Icon(
+                              Ionicons.chatbubble_outline,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 25,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                        ],
+                      ),
                 InkWell(
                   onTap: () {
                     ShareList(context: context, type: ShareType.feed)
@@ -1296,19 +1366,21 @@ class _FeedLayoutState extends State<FeedLayout> {
                 ),
               ],
             ),
-            IconButton(
-              onPressed: () {
-                setState(() {
-                  savedPost = !savedPost;
-                });
-                onSave();
-              },
-              icon: Icon(
-                savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
-                color: Theme.of(context).colorScheme.onPrimary,
-                size: 25,
-              ),
-            ),
+            widget.feed.allowSave == false
+                ? const SizedBox.shrink()
+                : IconButton(
+                    onPressed: () {
+                      setState(() {
+                        savedPost = !savedPost;
+                      });
+                      onSave();
+                    },
+                    icon: Icon(
+                      savedPost ? Ionicons.bookmark : Ionicons.bookmark_outline,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      size: 25,
+                    ),
+                  ),
           ],
         );
       },
@@ -1443,10 +1515,35 @@ class _FeedLayoutState extends State<FeedLayout> {
             child: SizedBox(
               height: 40,
               width: 40,
-              child: CircularNetworkImageWithSize(
-                imageUrl: widget.feed.user.profilePic,
-                height: 35,
-                width: 35,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: CircularNetworkImageWithSize(
+                      imageUrl: widget.feed.user.profilePic,
+                      height: 35,
+                      width: 35,
+                    ),
+                  ),
+                  widget.feed.isPrivate
+                      ? Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            height: 15,
+                            width: 15,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(7.5),
+                            ),
+                            child: const Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 10,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ],
               ),
             ),
           ),
@@ -1642,38 +1739,32 @@ class _FeedLayoutState extends State<FeedLayout> {
                       ? const SizedBox(
                           height: 10,
                         )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Wrap(
-                                children: List.generate(
-                                    widget.feed.tags.length,
-                                    (index) => Padding(
-                                          padding: const EdgeInsets.all(2.0),
-                                          child: Chip(
-                                            label: Text(
-                                                '#${widget.feed.tags[index]}',
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall!
-                                                    .copyWith(
-                                                      fontSize: 12,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .primary,
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                    )),
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary,
-                                          ),
-                                        )),
-                              ),
-                            ),
-                          ],
+                      : Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Wrap(
+                            children: List.generate(
+                                widget.feed.tags.length,
+                                (index) => Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Chip(
+                                        label: Text(
+                                            '#${widget.feed.tags[index]}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  fontStyle: FontStyle.italic,
+                                                )),
+                                        backgroundColor: Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
+                                      ),
+                                    )),
+                          ),
                         ),
                   Padding(
                     padding: const EdgeInsets.only(left: 9),
@@ -1758,27 +1849,32 @@ class _FeedLayoutState extends State<FeedLayout> {
                 children: [
                   widget.isOnCommentPage == true
                       ? const SizedBox.shrink()
-                      : InkWell(
-                          onTap: () {
-                            if (widget.isOnCommentPage) return;
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CommentPage(
-                                          feed: widget.feed,
-                                        ))).then((value) => setState(() {}));
-                          },
-                          child: Text(
-                            "${widget.feed.commentCount} ${widget.feed.commentCount > 1 ? "replies" : "reply"} • ",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
-                                  fontSize: 14,
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                ),
-                          ),
-                        ),
+                      : widget.feed.allowComments == false
+                          ? const SizedBox.shrink()
+                          : InkWell(
+                              onTap: () {
+                                if (widget.isOnCommentPage) return;
+                                Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => CommentPage(
+                                                  feed: widget.feed,
+                                                )))
+                                    .then((value) => setState(() {}));
+                              },
+                              child: Text(
+                                "${widget.feed.commentCount} ${widget.feed.commentCount > 1 ? "replies" : "reply"} • ",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary,
+                                    ),
+                              ),
+                            ),
                   InkWell(
                     onTap: () {
                       showUsersBottomSheet(context, widget.feed.id,

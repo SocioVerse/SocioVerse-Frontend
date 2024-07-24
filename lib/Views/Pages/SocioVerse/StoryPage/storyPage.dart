@@ -28,13 +28,22 @@ class StoryPage extends StatefulWidget {
 
 class _StoryPageState extends State<StoryPage> {
   StoryController storyController = StoryController();
+  late final Future<List<ReadStoryModel>> _storydata;
+  @override
+  void initState() {
+    _storydata = StoriesServices.getUserStory(userId: widget.user.id);
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      Provider.of<StoryIndexProvider>(context, listen: false).reset();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: FutureBuilder<List<ReadStoryModel>>(
-          future: StoriesServices.getUserStory(userId: widget.user.id),
+          future: _storydata,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -55,14 +64,11 @@ class _StoryPageState extends State<StoryPage> {
                       ))
                   .toList();
 
-              return ChangeNotifierProvider<StoryIndexProvider>(
-                create: (_) => StoryIndexProvider(),
-                child: StoryPageContent(
-                  storyItems: storyItems,
-                  fetchedStories: fetchedStories,
-                  storyController: storyController,
-                  user: widget.user,
-                ),
+              return StoryPageContent(
+                storyItems: storyItems,
+                fetchedStories: fetchedStories,
+                storyController: storyController,
+                user: widget.user,
               );
             }
           },
@@ -97,7 +103,9 @@ class StoryPageContent extends StatelessWidget {
               StoryView(
                 storyItems: storyItems,
                 onStoryShow: (s) async {
-                  storyIndexProvider.updateIndex(storyItems.indexOf(s));
+                  WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+                    storyIndexProvider.currentIndex = storyItems.indexOf(s);
+                  });
                   await StoriesServices.storySeen(
                       storyId:
                           fetchedStories[storyIndexProvider.currentIndex].id);
@@ -182,7 +190,9 @@ class StoryPageContent extends StatelessWidget {
         ),
         Consumer<StoryIndexProvider>(
           builder: (context, storyIndexProvider, _) {
+            log('Current Index: ${storyIndexProvider.currentIndex} , isLiked: ${fetchedStories[storyIndexProvider.currentIndex].isLiked}');
             return StoryPageControllers(
+              isLiked: fetchedStories[storyIndexProvider.currentIndex].isLiked,
               storyController: storyController,
               isOwner: user.isOwner,
               readStoryModel: fetchedStories[storyIndexProvider.currentIndex],

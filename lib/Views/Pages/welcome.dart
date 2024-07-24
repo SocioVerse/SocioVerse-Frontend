@@ -5,6 +5,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/welcomePageProvider.dart';
+import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/Authentication/socialMediaSignUp.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -147,7 +148,7 @@ class WelcomePage extends StatelessWidget {
                             context,
                             CupertinoPageRoute(
                                 builder: (context) =>
-                                    const SocialMediaSignUpPage()));
+                                    const PasswordSignInPage()));
                       },
                       child: Text("Skip",
                           style: GoogleFonts.openSans(

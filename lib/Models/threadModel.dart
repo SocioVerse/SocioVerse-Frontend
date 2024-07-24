@@ -141,12 +141,14 @@ class User {
   String occupation;
   String profilePic;
   bool isOwner = false;
+  bool isFollowing;
   User({
     required this.id,
     required this.username,
     required this.occupation,
     required this.profilePic,
     required this.isOwner,
+    required this.isFollowing,
   });
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
@@ -159,6 +161,7 @@ class User {
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
         isOwner: json["isOwner"] ?? false,
+        isFollowing: json["isFollowing"] ?? true,
       );
 
   Map<String, dynamic> toJson() => {

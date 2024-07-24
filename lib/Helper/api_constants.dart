@@ -86,6 +86,9 @@ class ApiStringConstants {
   static const String getActivity = "users/get-activity";
   static const String fetchAllStoryHiddenUsers =
       "users/fetch-all-story-hidden-users";
+  static const String removeFollower = "users/remove-follower";
+  static const String generateOtp = "users/generate-otp";
+  static const String verifyOtp = "users/verify-otp";
 
   //Chat APIs
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";

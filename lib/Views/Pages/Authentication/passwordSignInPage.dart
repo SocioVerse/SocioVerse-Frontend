@@ -133,35 +133,26 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
                         hintText: "Password",
                       )),
               const SizedBox(
-                height: 20,
+                height: 5,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Consumer<PasswordSignInPageProvider>(
-                    builder: (context, provider, child) => Checkbox(
-                        value: provider.isRememberMe,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        checkColor: Theme.of(context).colorScheme.surface,
-                        fillColor: MaterialStateProperty.all<Color>(
-                            Theme.of(context).colorScheme.secondary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(
-                            width: 2,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        onChanged: (value) {
-                          provider.isRememberMe = value!;
-                        }),
-                  ),
-                  Text(
-                    "Remember me",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 16,
-                        ),
-                  ),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) =>
+                                    const ForgotPasswordPage()));
+                      },
+                      child: Text(
+                        "Forgot the password?",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 14,
+                            color: Theme.of(context).colorScheme.primary),
+                        textAlign: TextAlign.center,
+                      )),
                 ],
               ),
               const SizedBox(
@@ -205,114 +196,6 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) =>
-                                    const ForgotPasswordPage()));
-                      },
-                      child: Text(
-                        "Forgot the password?",
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.primary),
-                        textAlign: TextAlign.center,
-                      )),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(children: [
-                Expanded(
-                  child:
-                      Divider(color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "OR continue with",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child:
-                      Divider(color: Theme.of(context).colorScheme.onPrimary),
-                )
-              ]),
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Icon(
-                        Icons.facebook_rounded,
-                        color: Colors.blue,
-                        size: 35,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Icon(
-                        Ionicons.logo_google,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        size: 35,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Icon(
-                        Ionicons.logo_apple,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        size: 35,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
                   Text(
                     "Don't have an account?",
                     style: Theme.of(context).textTheme.bodySmall,
@@ -336,6 +219,94 @@ class _PasswordSignInPageState extends State<PasswordSignInPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Column _otherMethods(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        Row(children: [
+          Expanded(
+            child: Divider(color: Theme.of(context).colorScheme.onPrimary),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(
+            "OR continue with",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Expanded(
+            child: Divider(color: Theme.of(context).colorScheme.onPrimary),
+          )
+        ]),
+        const SizedBox(
+          height: 40,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () {},
+                child: const Icon(
+                  Icons.facebook_rounded,
+                  color: Colors.blue,
+                  size: 35,
+                ),
+              ),
+            ),
+            Container(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () {},
+                child: Icon(
+                  Ionicons.logo_google,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 35,
+                ),
+              ),
+            ),
+            Container(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                onPressed: () {},
+                child: Icon(
+                  Ionicons.logo_apple,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 35,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -535,7 +535,8 @@ class _UserProfilePageState extends State<UserProfilePage>
                                 MaterialPageRoute(
                                     builder: (context) => UpdateProfilePage(
                                           user: userProfileDetailsModel!.user,
-                                        )));
+                                        ))).then(
+                                (value) => getUserProfileDetails());
                           },
                           child: Icon(
                             Icons.edit,
@@ -1033,79 +1034,5 @@ class _UserProfilePageState extends State<UserProfilePage>
             },
           ),
         ]));
-  }
-
-  RefreshIndicator oldProfilePage() {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await getUserProfileDetails();
-      },
-      child: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverToBoxAdapter(
-            child: DefaultTabController(
-              length: 3,
-              child: TabBar(
-                controller: _tabController,
-                labelColor: Theme.of(context).colorScheme.primary,
-                unselectedLabelColor: Theme.of(context).colorScheme.onPrimary,
-                indicatorColor: Theme.of(context).colorScheme.primary,
-                automaticIndicatorColorAdjustment: true,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorWeight: 3,
-                dividerColor: Theme.of(context).colorScheme.onPrimary,
-                tabs: const [
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Ionicons.text,
-                          size: 20,
-                        ),
-                        SizedBox(width: 5), // Add spacing between icon and text
-                        Text("Threads"),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Ionicons.grid_outline,
-                          size: 20,
-                        ),
-                        SizedBox(width: 5), // Add spacing between icon and text
-                        Text("Feeds"),
-                      ],
-                    ),
-                  ),
-                  Tab(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Ionicons.repeat_outline,
-                          size: 20,
-                        ),
-                        SizedBox(width: 5), // Add spacing between icon and text
-                        Text("Reposts"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [],
-        ),
-      ),
-    );
   }
 }

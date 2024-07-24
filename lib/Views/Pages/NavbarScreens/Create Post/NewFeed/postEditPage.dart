@@ -238,6 +238,7 @@ class _PostEditPageState extends State<PostEditPage> {
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
                                                 .secondary,
+                                            deleteIconColor: Colors.white,
                                             onDeleted: () {
                                               prov.removeHashtag(
                                                   prov.hashtagList[index]);
@@ -305,6 +306,7 @@ class _PostEditPageState extends State<PostEditPage> {
                                             backgroundColor: Theme.of(context)
                                                 .colorScheme
                                                 .secondary,
+                                            deleteIconColor: Colors.white,
                                             onDeleted: () {
                                               prov.removeTaggedUser(
                                                   prov.taggedUser[index]);

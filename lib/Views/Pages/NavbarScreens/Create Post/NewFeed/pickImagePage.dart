@@ -245,7 +245,7 @@ class _PickImagePageState extends State<PickImagePage> {
                                           baseColor: Theme.of(context)
                                               .colorScheme
                                               .tertiary,
-                                          highlightColor: Colors.grey[100]!,
+                                          highlightColor: Colors.grey[500]!,
                                           child: Container(
                                             color: Colors.grey,
                                           ),

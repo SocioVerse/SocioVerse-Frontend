@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:socioverse/Controllers/feedPageProviders.dart';
@@ -221,11 +222,13 @@ class _FeedsPageState extends State<FeedsPage>
           ),
           itemBuilder: (context, index) {
             return Shimmer.fromColors(
-              baseColor: Theme.of(context).colorScheme.tertiary,
-              highlightColor: Colors.grey[100]!,
+              baseColor:
+                  Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              highlightColor: Colors.grey[500]!,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -347,6 +350,9 @@ class _FeedsPageState extends State<FeedsPage>
                                                                   .then(
                                                                       (value) async {
                                                             if (value != null) {
+                                                              context
+                                                                  .loaderOverlay
+                                                                  .show();
                                                               return await FirebaseHelper.uploadFile(
                                                                   value.path,
                                                                   profileStories[
@@ -366,6 +372,9 @@ class _FeedsPageState extends State<FeedsPage>
                                                                     storyImage: [
                                                                   storyImage
                                                                 ]);
+                                                            context
+                                                                .loaderOverlay
+                                                                .hide();
                                                             getFeedData();
                                                           }
                                                         },

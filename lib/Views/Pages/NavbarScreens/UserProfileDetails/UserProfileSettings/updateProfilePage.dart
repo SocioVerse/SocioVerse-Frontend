@@ -242,16 +242,13 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           widget.user.occupation = occupation.text;
                           widget.user.profilePic =
                               currentImage ?? widget.user.profilePic;
+                          widget.user.bio = bioController.text;
                           await UserProfileSettingsServices.updateProfile(
                                   widget.user)
                               .then((response) {
                             context.loaderOverlay.hide();
                             if (response.success == true && context.mounted) {
-                              Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MainPage()),
-                                  (route) => false);
+                              Navigator.pop(context);
                             } else {
                               FlutterToast.flutterWhiteToast(
                                   response.message.toString());

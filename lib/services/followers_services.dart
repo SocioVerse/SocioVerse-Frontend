@@ -47,4 +47,14 @@ class FollowersServices {
       return [];
     }
   }
+
+  static Future<void> removeFollower(String userId) async {
+    await ApiHelper.delete(
+      ApiStringConstants.removeFollower,
+      queryParam: {
+        "userId": userId,
+      },
+      isPublic: false,
+    );
+  }
 }

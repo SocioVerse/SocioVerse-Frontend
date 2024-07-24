@@ -95,14 +95,14 @@ class _StoryHideSettingsPageState extends State<StoryHideSettingsPage> {
                   log(data.toString());
                   if (data == null || data.isEmpty) {
                     return const Center(
-                      child: Text("No Data Found"),
+                      child: Text("Not Hidden By Anyone"),
                     );
                   }
 
                   return StatefulBuilder(builder: (context, innerSetState) {
                     if (data.isEmpty) {
                       return const Center(
-                        child: Text("No Data Found"),
+                        child: Text("Not Hidden By Anyone"),
                       );
                     }
                     return ListView.builder(

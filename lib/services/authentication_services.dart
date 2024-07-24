@@ -30,6 +30,7 @@ class AuthServices {
       UserSignUpModel user = UserSignUpModel.fromJson(response.data);
       setStringIntoCache(
           SharedPreferenceString.refreshToken, user.refreshToken);
+      setStringIntoCache(SharedPreferenceString.email, user.email);
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
@@ -70,6 +71,26 @@ class AuthServices {
     setStringIntoCache(SharedPreferenceString.refreshToken, null);
     setStringIntoCache(SharedPreferenceString.userId, null);
 
+    return response;
+  }
+
+  static Future<ApiResponse?> generateOtp(bool isSignup,
+      {required String email}) async {
+    ApiResponse? response = await ApiHelper.get(
+      querryParam: {"email": email, "isSignup": isSignup.toString()},
+      ApiStringConstants.generateOtp,
+      isPublic: true,
+    );
+    return response;
+  }
+
+  static Future<ApiResponse> verifyOtp(
+      {required String email, required String otp}) async {
+    ApiResponse response = await ApiHelper.get(
+      ApiStringConstants.verifyOtp,
+      querryParam: {"otp": otp, "email": email},
+      isPublic: true,
+    );
     return response;
   }
 }

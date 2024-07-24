@@ -1,7 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:socioverse/Views/Pages/Authentication/forgotPasswordMotp.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:socioverse/Models/authUserModels.dart';
+import 'package:socioverse/Services/authentication_services.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Views/Pages/Authentication/forgotPasswordOtpPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPageWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -12,6 +18,7 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  final TextEditingController _emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,136 +35,77 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         elevation: 0,
       ),
       body: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            Expanded(child: Container()),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              "Select which contact details should we use to reset your password",
-              style: Theme.of(context).textTheme.bodySmall,
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.onBackground,
-                      child: Icon(
-                        Ionicons.chatbubble_ellipses,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 30,
+        padding: EdgeInsets.all(20.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Enter your email address to reset your password",
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontWeight: FontWeight.w100,
+                        fontSize: 15,
                       ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'via SMS',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          '+91935****37',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  textAlign: TextAlign.start,
                 ),
               ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.onBackground,
-                      child: Icon(
-                        Ionicons.mail,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 30,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'via Email',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          'jaink****129@gmail.com',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              const SizedBox(
+                height: 20,
               ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            MyElevatedButton1(
-                title: "Continue",
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                          builder: (context) => ForgotPasswordMotpPage()));
-                },
-                ctx: context),
-            const SizedBox(
-              height: 40,
-            ),
-          ],
+              CustomTextField(
+                  controller: _emailController,
+                  hintText: "Email",
+                  onChanged: (value) {}),
+              const SizedBox(
+                height: 20,
+              ),
+              MyElevatedButton1(
+                  title: "Continue",
+                  onPressed: () {
+                    if (_emailController.text.isEmpty) {
+                      Fluttertoast.showToast(
+                          msg: "Please enter your email address",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                      return;
+                    }
+                    if (!CalculatingFunction.isEmailValid(
+                        _emailController.text)) return;
+                    context.loaderOverlay.show();
+                    AuthServices.isEmailExists(
+                            email: _emailController.text.trim())
+                        .then((value) {
+                      if (!value.success) {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => ForgotPasswordOtpPage(
+                                    isSignup: false,
+                                    signupUser: SignupUser(
+                                        email: _emailController.text.trim()))));
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Email not found",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 16.0);
+                      }
+                    }).whenComplete(() => context.loaderOverlay.hide());
+                  },
+                  ctx: context),
+              const SizedBox(
+                height: 40,
+              ),
+            ],
+          ),
         ),
       ),
     );

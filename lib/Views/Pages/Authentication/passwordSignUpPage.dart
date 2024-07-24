@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
@@ -16,6 +17,7 @@ import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Utils/Validators.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/SelectCountry.dart';
 import 'package:socioverse/Views/Pages/AccountSetup/fillProfileDetails.dart';
+import 'package:socioverse/Views/Pages/Authentication/forgotPasswordOtpPage.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Services/authentication_services.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
@@ -95,39 +97,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         hintText: "Password",
                       )),
               const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Consumer<PasswordSignUpPageProvider>(
-                    builder: (context, provider, child) => Checkbox(
-                        value: provider.isRememberMe,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        checkColor: Theme.of(context).colorScheme.surface,
-                        fillColor: MaterialStateProperty.all<Color>(
-                            Theme.of(context).colorScheme.secondary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: BorderSide(
-                            width: 2,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                        ),
-                        onChanged: (value) {
-                          provider.isRememberMe = value!;
-                        }),
-                  ),
-                  Text(
-                    "Remember me",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 16,
-                        ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
+                height: 40,
               ),
               SizedBox(
                 width: double.infinity,
@@ -139,6 +109,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                     ),
                   ),
                   onPressed: () async {
+                    context.loaderOverlay.show();
                     bool isValid = ValidationHelper.validateEmailAndPassword(
                         context,
                         emailController.text.trim(),
@@ -152,7 +123,8 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                       Navigator.push(
                           context,
                           CupertinoPageRoute(
-                              builder: (context) => SelectCountryPage(
+                              builder: (context) => ForgotPasswordOtpPage(
+                                    isSignup: true,
                                     signupUser: SignupUser(
                                         email: emailController.text.trim(),
                                         password:
@@ -169,6 +141,7 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                           textColor: Colors.white,
                           fontSize: 16.0);
                     }
+                    context.loaderOverlay.hide();
                   },
                   child: Text("Sign up",
                       style: GoogleFonts.openSans(
@@ -180,83 +153,6 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
               ),
               const SizedBox(
                 height: 40,
-              ),
-              Row(children: [
-                Expanded(
-                  child:
-                      Divider(color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "OR continue with",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child:
-                      Divider(color: Theme.of(context).colorScheme.onPrimary),
-                )
-              ]),
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: const Icon(
-                      Icons.facebook_rounded,
-                      color: Colors.blue,
-                      size: 35,
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: const Icon(
-                      Ionicons.logo_google,
-                      color: Colors.white,
-                      size: 35,
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: const Icon(
-                      Ionicons.logo_apple,
-                      color: Colors.white,
-                      size: 35,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 20,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

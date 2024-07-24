@@ -128,12 +128,14 @@ class _InboxPageState extends State<InboxPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Shimmer.fromColors(
-              baseColor: Theme.of(context).colorScheme.tertiary,
-              highlightColor: Colors.grey[100]!,
+              baseColor:
+                  Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+              highlightColor: Colors.grey[500]!,
               child: Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color:
+                      Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(8.0),
                 ),
               ),
@@ -158,29 +160,41 @@ class _InboxPageState extends State<InboxPage> {
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.tertiary,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                    highlightColor: Colors.grey[500]!,
                     child: CircleAvatar(
                       radius: 30,
-                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5),
                     ),
                   ),
                   title: Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.tertiary,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                    highlightColor: Colors.grey[500]!,
                     child: Container(
                       height: 20,
                       width: 50,
-                      color: Theme.of(context).colorScheme.tertiary,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5),
                     ),
                   ),
                   subtitle: Shimmer.fromColors(
-                    baseColor: Theme.of(context).colorScheme.tertiary,
-                    highlightColor: Colors.grey[100]!,
+                    baseColor:
+                        Theme.of(context).colorScheme.tertiary.withOpacity(0.5),
+                    highlightColor: Colors.grey[500]!,
                     child: Container(
                       height: 16,
                       width: 100,
-                      color: Theme.of(context).colorScheme.tertiary,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .tertiary
+                          .withOpacity(0.5),
                     ),
                   ),
                   trailing: Column(
@@ -189,24 +203,35 @@ class _InboxPageState extends State<InboxPage> {
                         height: 7,
                       ),
                       Shimmer.fromColors(
-                        baseColor: Theme.of(context).colorScheme.tertiary,
-                        highlightColor: Colors.grey[100]!,
+                        baseColor: Theme.of(context)
+                            .colorScheme
+                            .tertiary
+                            .withOpacity(0.5),
+                        highlightColor: Colors.grey[500]!,
                         child: CircleAvatar(
                           radius: 10,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.tertiary,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.5),
                         ),
                       ),
                       const SizedBox(
                         height: 10,
                       ),
                       Shimmer.fromColors(
-                        baseColor: Theme.of(context).colorScheme.tertiary,
-                        highlightColor: Colors.grey[100]!,
+                        baseColor: Theme.of(context)
+                            .colorScheme
+                            .tertiary
+                            .withOpacity(0.5),
+                        highlightColor: Colors.grey[500]!,
                         child: Container(
                           height: 10,
                           width: 40,
-                          color: Theme.of(context).colorScheme.tertiary,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .tertiary
+                              .withOpacity(0.5),
                         ),
                       ),
                     ],
