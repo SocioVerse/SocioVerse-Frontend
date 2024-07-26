@@ -20,6 +20,7 @@ import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/storyModels.dart';
 import 'package:socioverse/Models/threadModel.dart';
+import 'package:socioverse/Services/chatting_services.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Services/thread_services.dart';
@@ -31,6 +32,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/Inbox/inboxPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/main.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../Widgets/feeds_widget.dart';
 
@@ -48,6 +50,7 @@ class _FeedsPageState extends State<FeedsPage>
   List<FeedModel> allFeeds = [];
   List<ThreadModel> allThreads = [];
   FeedPageProvider? feedPageProvider;
+  int? messageCount;
 
   @override
   afterFirstLayout(BuildContext context) {
@@ -63,16 +66,6 @@ class _FeedsPageState extends State<FeedsPage>
       }
     });
     getFeedData();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override
@@ -100,45 +93,57 @@ class _FeedsPageState extends State<FeedsPage>
           const SizedBox(
             height: 10,
           ),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: ((context) {
-                return const InboxPage();
-              }))).then((value) => getFeedData());
-            },
-            backgroundColor: Theme.of(context).colorScheme.secondary,
-            child: Stack(
-              children: [
-                const Positioned.fill(
-                  child: Icon(
-                    Icons.chat_bubble_outline,
-                    color: Colors.white,
-                  ),
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                    child: Consumer<FeedPageProvider>(
-                        builder: (context, prov, child) {
-                      return Text(
-                        prov.messageCount.toString(),
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              color: Colors.white,
-                              fontSize: 12,
+          Consumer<FeedPageProvider>(builder: (context, prov, child) {
+            return prov.isLoading == true
+                ? const SizedBox.shrink()
+                : FloatingActionButton(
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: ((context) {
+                        return const InboxPage();
+                      }))).then((value) => getFeedData());
+                    },
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    child: Stack(
+                      children: [
+                        const Align(
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.chat_bubble_outline,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Visibility(
+                          visible: messageCount != null && messageCount! > 0,
+                          child: Positioned(
+                            right: 10,
+                            top: 10,
+                            child: Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.red,
+                              ),
+                              child: Consumer<FeedPageProvider>(
+                                  builder: (context, prov, child) {
+                                return Text(
+                                  messageCount!.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                      ),
+                                );
+                              }),
                             ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+          }),
         ],
       ),
       body: SafeArea(
@@ -171,25 +176,11 @@ class _FeedsPageState extends State<FeedsPage>
   }
 
   Future<void> socketInit() async {
-    log('Here');
     await SocketHelper.initSocketIO();
-
     if (SocketHelper.socketHelper.active) {
       SocketHelper.socketHelper.dispose();
     }
     await SocketHelper.initSocketIO();
-    String userId = await getStringFromCache(SharedPreferenceString.userId);
-    print(userId);
-    SocketHelper.socketHelper.emit('join-chat', {
-      'roomId': userId,
-    });
-    SocketHelper.socketHelper.on('feed-page-count', (data) {
-      log(data.toString());
-      feedPageProvider!.messageCount = data['cnt'];
-    });
-    SocketHelper.socketHelper.emit('send-home-page', {
-      'sentTo': userId,
-    });
   }
 
   getFeedData() async {
@@ -204,6 +195,7 @@ class _FeedsPageState extends State<FeedsPage>
     } else {
       profileStories = await StoriesServices.fetchAllStories();
     }
+    messageCount = await ChattingServices.unReadMessageCount();
     prov.isLoading = false;
   }
 
@@ -356,9 +348,11 @@ class _FeedsPageState extends State<FeedsPage>
                                                               return await FirebaseHelper.uploadFile(
                                                                   value.path,
                                                                   profileStories[
-                                                                          0]
-                                                                      .user
-                                                                      .email,
+                                                                              0]
+                                                                          .user
+                                                                          .email +
+                                                                      const Uuid()
+                                                                          .v4(),
                                                                   "${profileStories[0].user.email}/stories",
                                                                   FirebaseHelper
                                                                       .Image);

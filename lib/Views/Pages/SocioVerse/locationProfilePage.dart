@@ -126,7 +126,7 @@ class _LocationProfilePageState extends State<LocationProfilePage> {
               const SizedBox(height: 20),
               SizedBox(
                 height: 250,
-                width: MyApp.width! - 30,
+                width: MediaQuery.of(context).size.width - 30,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: FlutterMap(

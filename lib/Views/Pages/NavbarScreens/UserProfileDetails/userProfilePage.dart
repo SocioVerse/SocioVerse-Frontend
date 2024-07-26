@@ -118,34 +118,6 @@ class _UserProfilePageState extends State<UserProfilePage>
     });
   }
 
-  Widget toggleFollowButton(
-      {required String ttl1,
-      required String ttl2,
-      required UserProfileDetailsModel userProfileDetailsModel,
-      required bool isPressed}) {
-    return MyEleButtonsmall(
-        title2: ttl2,
-        title: ttl1,
-        ispressed: isPressed,
-        onPressed: () async {
-          if (userProfileDetailsModel.user.state == 2) {
-            await FollowUnfollowServices.unFollow(
-              userId: userProfileDetailsModel.user.id,
-            );
-            setState(() {
-              if (userProfileDetailsModel.user.state == 2) {
-                userProfileDetailsModel.user.state = 0;
-              }
-            });
-          } else {
-            await FollowUnfollowServices.toggleFollow(
-              userId: userProfileDetailsModel.user.id,
-            );
-          }
-        },
-        ctx: context);
-  }
-
   _buildTabContext(int lineCount) => Container(
         child: ListView.builder(
           physics: const ClampingScrollPhysics(),
@@ -770,20 +742,10 @@ class _UserProfilePageState extends State<UserProfilePage>
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Expanded(
-                      child: toggleFollowButton(
-                          userProfileDetailsModel: userProfileDetailsModel!,
-                          ttl1: userProfileDetailsModel!.user.state == 0
-                              ? "Follow"
-                              : userProfileDetailsModel!.user.state == 2
-                                  ? "Following"
-                                  : "Requested",
-                          isPressed: userProfileDetailsModel!.user.state == 0
-                              ? false
-                              : true,
-                          ttl2: userProfileDetailsModel!.user.state == 0
-                              ? "Requested"
-                              : "Follow"),
-                    ),
+                        child: ToggleFollowButton(
+                      state: userProfileDetailsModel!.user.state!,
+                      userId: userProfileDetailsModel!.user.id,
+                    )),
                     const SizedBox(
                       width: 20,
                     ),

@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:device_preview/device_preview.dart';
@@ -10,71 +8,32 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:no_context_navigation/no_context_navigation.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'package:socioverse/Controllers/countryListPageProvider.dart';
-import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Controllers/multiProviderList.dart';
-import 'package:socioverse/Controllers/passwordSignUpPageProvider.dart';
-import 'package:socioverse/Controllers/passwordSingInPageProvider.dart';
-import 'package:socioverse/Controllers/welcomePageProvider.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Helper/get_Routes.dart';
-import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
-import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
-import 'package:socioverse/Views/Pages/welcome.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/Activities/activityPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/Activities/followRequestsPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/Activities/mentionsActivityPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/Activities/storyLikesActivityPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatPage.dart';
 import 'package:socioverse/Views/UI/theme.dart';
-import 'package:socioverse/push_notifications.dart';
-import 'Views/Pages/SocioVerse/StoryPage/storyPageController.dart';
+import 'Models/inboxModel.dart';
 import 'firebase_options.dart';
 
-Future _firebaseBackgroundMessage(RemoteMessage message) async {
-  if (message.notification != null) {
-    print("Some notification Received");
-  }
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); //Add this
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FaceCamera.initialize();
-
-  // on background notification tapped
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    if (message.notification != null) {
-      print("Background Notification Tapped");
-    }
-  });
-
-  PushNotifications.init();
-  PushNotifications.localNotiInit();
-  // Listen to background notifications
-  FirebaseMessaging.onBackgroundMessage(_firebaseBackgroundMessage);
-
-  // to handle foreground notifications
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    String payloadData = jsonEncode(message.data);
-    print("Got a message in foreground");
-    if (message.notification != null) {
-      PushNotifications.showSimpleNotification(
-          title: message.notification!.title!,
-          body: message.notification!.body!,
-          payload: payloadData);
-    }
-  });
-
-  // for handling in terminated state
-  final RemoteMessage? message =
-      await FirebaseMessaging.instance.getInitialMessage();
-
-  if (message != null) {
-    print("Launched from terminated state");
-    Future.delayed(const Duration(seconds: 1), () {});
-  }
   runApp(DevicePreview(
     enabled: !kReleaseMode,
     builder: (context) => MultiProvider(
@@ -82,44 +41,102 @@ void main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  static double? width;
-  static double? height;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    setupInteractedMessage();
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
+    super.initState();
+  }
+
+  Future<void> setupInteractedMessage() async {
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+    FirebaseMessaging.onMessageOpenedApp.listen(
+      (RemoteMessage message) {
+        _handleMessage(message);
+      },
+    );
+  }
+
+  void _handleMessage(RemoteMessage message) {
+    // if app is opened then return
+
+    if (message.data['type'] == 'chat') {
+      NavigationService.navigationKey.currentState!.push(MaterialPageRoute(
+          builder: (context) => ChatPage(
+                user: User.fromJson(message.data['user']),
+              )));
+    } else if (message.data['type'] == 'story-like') {
+      NavigationService.navigationKey.currentState!.push(MaterialPageRoute(
+          builder: (context) => const StoryLikesActivityPage()));
+    } else if (message.data['type'] == 'activity') {
+      NavigationService.navigationKey.currentState!.push(MaterialPageRoute(
+          builder: (context) =>
+              ActivityPage(title: message.data['activityType'])));
+    } else if (message.data['type'] == 'mentions') {
+      NavigationService.navigationKey.currentState!.push(MaterialPageRoute(
+          builder: (context) => const MentionsActivityPage()));
+    } else if (message.data['type'] == 'follow-request') {
+      NavigationService.navigationKey.currentState!.push(
+          MaterialPageRoute(builder: (context) => const FollowRequestsPage()));
+    } else if (message.data['type'] == 'repost' ||
+        message.data['type'] == 'follow-request-accepted') {
+      NavigationService.navigationKey.currentState!.push(MaterialPageRoute(
+          builder: (context) => UserProfilePage(
+                userId: message.data['userId'],
+              )));
+    } else {
+      // route to default page
+      NavigationService.navigationKey.currentState!
+          .push(MaterialPageRoute(builder: (context) => const GetInitPage()));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
-    return GlobalLoaderOverlay(
-      overlayColor: Colors.transparent,
-      useDefaultLoading: false,
-      overlayWidgetBuilder: (_) {
-        //ignored progress for the moment
-        return Stack(
-          children: [
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-              child: SizedBox.expand(
-                child: Container(
-                  color: Colors.black.withOpacity(0.5),
+    return OverlaySupport(
+      child: GlobalLoaderOverlay(
+        overlayColor: Colors.transparent,
+        useDefaultLoading: false,
+        overlayWidgetBuilder: (_) {
+          //ignored progress for the moment
+          return Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: SizedBox.expand(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.5),
+                  ),
                 ),
               ),
-            ),
-            Center(
-              child: SpinKit.ring,
-            ),
-          ],
-        );
-      },
-      child: MaterialApp(
-        navigatorKey: NavigationService.navigationKey,
-        useInheritedMediaQuery: true,
-        locale: DevicePreview.locale(context),
-        builder: DevicePreview.appBuilder,
-        debugShowCheckedModeBanner: false,
-        title: 'SocioVerse',
-        theme: MyTheme.theme(),
-        home: GetInitPage(),
+              Center(
+                child: SpinKit.ring,
+              ),
+            ],
+          );
+        },
+        child: MaterialApp(
+          navigatorKey: NavigationService.navigationKey,
+          useInheritedMediaQuery: true,
+          locale: DevicePreview.locale(context),
+          builder: DevicePreview.appBuilder,
+          debugShowCheckedModeBanner: false,
+          title: 'SocioVerse',
+          theme: MyTheme.theme(),
+          home: const GetInitPage(),
+        ),
       ),
     );
   }

@@ -535,22 +535,30 @@ class _ThreadLayoutState extends State<ThreadLayout> {
                       width: 35,
                     ),
                   ),
-                  widget.thread.isPrivate
+                  widget.thread.isPrivate || widget.thread.isRepostedByUser
                       ? Positioned(
                           bottom: 0,
                           right: 0,
                           child: Container(
-                            height: 15,
-                            width: 15,
+                            height: 20,
+                            width: 20,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(7.5),
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              shape: BoxShape.circle,
                             ),
-                            child: const Icon(
-                              Icons.lock,
-                              color: Colors.white,
-                              size: 10,
-                            ),
+                            child: widget.thread.isRepostedByUser
+                                ? Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: CircularNetworkImageWithoutSize(
+                                      imageUrl:
+                                          widget.thread.repostedBy!.profilePic,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.lock,
+                                    color: Colors.white,
+                                    size: 10,
+                                  ),
                           ),
                         )
                       : const SizedBox.shrink(),
@@ -1626,8 +1634,8 @@ class _FeedLayoutState extends State<FeedLayout> {
                     alignment: Alignment.bottomCenter,
                     children: [
                       SizedBox(
-                        width: MyApp.width! / 1.25,
-                        height: MyApp.width! / 1.25,
+                        width: MediaQuery.of(context).size.width / 1.25,
+                        height: MediaQuery.of(context).size.width / 1.25,
                         child: PageView(
                             controller: pageController,
                             children: List.generate(

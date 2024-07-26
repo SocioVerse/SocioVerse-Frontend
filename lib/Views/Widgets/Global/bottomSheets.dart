@@ -7,6 +7,7 @@ import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Services/report_services.dart';
+import 'package:socioverse/Services/search_bar_services.dart';
 import 'package:socioverse/Services/user_services.dart';
 import 'package:socioverse/Sockets/messageSockets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
@@ -147,123 +148,131 @@ class ShareList {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         context: context,
         builder: (context) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 15.0, right: 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.horizontal_rule_rounded,
-                  size: 50,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                TextFieldBuilder(
-                    tcontroller: search,
-                    hintTexxt: "Search",
-                    onChangedf: () {},
-                    prefixxIcon: Icon(
-                      Ionicons.search,
-                      size: 20,
-                      color: Theme.of(context).colorScheme.surface,
-                    )),
-                const SizedBox(
-                  height: 10,
-                ),
-                Expanded(
-                  child: FutureBuilder(
-                      future: UserServices.getShareList(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 15.0, right: 15),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.horizontal_rule_rounded,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextFieldBuilder(
+                      tcontroller: search,
+                      hintTexxt: "Search",
+                      onChangedf: () {
+                        setState(() {});
+                      },
+                      prefixxIcon: Icon(
+                        Ionicons.search,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.surface,
+                      )),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
+                    child: FutureBuilder(
+                        future: UserServices.getShareList(
+                            query: search.text.trim()),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: SpinKit.ring,
+                            );
+                          }
+                          if (snapshot.hasData) {
+                            List<User> users = snapshot.data as List<User>;
+                            return ListView.builder(
+                                itemCount: users.length,
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) =>
+                                                UserProfilePage(
+                                                  owner: false,
+                                                  userId: users[index].id,
+                                                ))),
+                                    leading: CircularNetworkImageWithSize(
+                                      imageUrl: users[index].profilePic,
+                                      height: 40,
+                                      width: 40,
+                                    ),
+                                    title: Text(
+                                      users[index].username,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(
+                                            fontSize: 16,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
+                                    ),
+                                    subtitle: Text(
+                                      users[index].occupation,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall!
+                                          .copyWith(
+                                            fontSize: 14,
+                                          ),
+                                    ),
+                                    trailing: MyEleButtonsmall(
+                                        title2: "Sent",
+                                        title: "Send",
+                                        onPressed: () async {
+                                          await UserServices.getRoomId(
+                                                  users[index].id)
+                                              .then((value) {
+                                            MessagesSocket(context)
+                                                .emitJoinChat(value.roomId);
+                                            if (type == ShareType.feed) {
+                                              MessagesSocket(context)
+                                                  .emitMessageFeed(
+                                                      value.roomId, objectId);
+                                            } else if (type ==
+                                                ShareType.thread) {
+                                              MessagesSocket(context)
+                                                  .emitMessageThread(
+                                                      value.roomId, objectId);
+                                            } else if (type ==
+                                                ShareType.story) {
+                                              MessagesSocket(context)
+                                                  .emitMessageStory(
+                                                      value.roomId, objectId);
+                                            } else if (type ==
+                                                ShareType.profile) {
+                                              MessagesSocket(context)
+                                                  .emitMessageProfile(
+                                                      value.roomId, objectId);
+                                            }
+                                          });
+                                        },
+                                        ctx: context),
+                                  );
+                                });
+                          }
                           return Center(
                             child: SpinKit.ring,
                           );
-                        }
-                        if (snapshot.hasData) {
-                          List<User> users = snapshot.data as List<User>;
-                          return ListView.builder(
-                              itemCount: users.length,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  onTap: () => Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                          builder: (context) => UserProfilePage(
-                                                owner: false,
-                                                userId: users[index].id,
-                                              ))),
-                                  leading: CircularNetworkImageWithSize(
-                                    imageUrl: users[index].profilePic,
-                                    height: 40,
-                                    width: 40,
-                                  ),
-                                  title: Text(
-                                    users[index].username,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 16,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                  ),
-                                  subtitle: Text(
-                                    users[index].occupation,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall!
-                                        .copyWith(
-                                          fontSize: 14,
-                                        ),
-                                  ),
-                                  trailing: MyEleButtonsmall(
-                                      title2: "Sent",
-                                      title: "Send",
-                                      onPressed: () async {
-                                        await UserServices.getRoomId(
-                                                users[index].id)
-                                            .then((value) {
-                                          MessagesSocket(context)
-                                              .emitJoinChat(value.roomId);
-                                          if (type == ShareType.feed) {
-                                            MessagesSocket(context)
-                                                .emitMessageFeed(
-                                                    value.roomId, objectId);
-                                          } else if (type == ShareType.thread) {
-                                            MessagesSocket(context)
-                                                .emitMessageThread(
-                                                    value.roomId, objectId);
-                                          } else if (type == ShareType.story) {
-                                            MessagesSocket(context)
-                                                .emitMessageStory(
-                                                    value.roomId, objectId);
-                                          } else if (type ==
-                                              ShareType.profile) {
-                                            MessagesSocket(context)
-                                                .emitMessageProfile(
-                                                    value.roomId, objectId);
-                                          }
-                                        });
-                                      },
-                                      ctx: context),
-                                );
-                              });
-                        }
-                        return Center(
-                          child: SpinKit.ring,
-                        );
-                      }),
-                ),
-              ],
-            ),
-          );
+                        }),
+                  ),
+                ],
+              ),
+            );
+          });
         });
   }
 }

@@ -4,7 +4,6 @@ import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/createPostPag
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Search/searchFeeds.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityPage.dart';
 
 class NavigatorPage {
   static List<Widget> pages = [

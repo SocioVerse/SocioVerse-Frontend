@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "backend-socioverse.onrender.com";
+  static const String baseUrl = "192.168.29.71:4000";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs
@@ -94,6 +94,7 @@ class ApiStringConstants {
   static const String getChatroomInfoByUser = "users/get-room-info-by-user";
   static const String createRoom = "users/create-room";
   static const String fetchInbox = "users/all-recent-chats";
+  static const String unReadMessageCount = "users/unread-message-count";
 
   //Hashtags APIs
   static const String fetchHashtagsFeed = "hashtags/fetch-hashtags-feeds";

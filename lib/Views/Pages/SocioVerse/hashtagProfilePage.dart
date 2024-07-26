@@ -85,7 +85,7 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
             height: 20,
           ),
           // SizedBox(
-          //   width: MyApp.width! - 30,
+          //   width: MediaQuery.of(context).size.width - 30,
           //   height: 50,
           //   child: MyEleButtonsmall(
           //     title: "Follow",

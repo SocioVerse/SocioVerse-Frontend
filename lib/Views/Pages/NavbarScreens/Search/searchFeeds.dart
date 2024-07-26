@@ -236,17 +236,8 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                 itemBuilder: (context, index) {
                   return Column(children: [
                     personListTile(
-                        user: searchedUser[index],
-                        ttl1: searchedUser[index].state == 0
-                            ? "Follow"
-                            : searchedUser[index].state == 2
-                                ? "Following"
-                                : "Requested",
-                        isPressed:
-                            searchedUser[index].state == 0 ? false : true,
-                        ttl2: searchedUser[index].state == 0
-                            ? "Requested"
-                            : "Follow"),
+                      user: searchedUser[index],
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -595,11 +586,9 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     );
   }
 
-  ListTile personListTile(
-      {required String ttl1,
-      required String ttl2,
-      required SearchedUser user,
-      required bool isPressed}) {
+  ListTile personListTile({
+    required SearchedUser user,
+  }) {
     return ListTile(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -638,26 +627,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
               fontSize: 12,
             ),
       ),
-      trailing: MyEleButtonsmall(
-          title2: ttl2,
-          title: ttl1,
-          ispressed: isPressed,
-          onPressed: () async {
-            if (user.state == 2) {
-              setState(() {
-                if (user.state == 2) {
-                  user.state = 0;
-                }
-              });
-              await FollowUnfollowServices.unFollow(
-                userId: user.id,
-              );
-            }
-            await FollowUnfollowServices.toggleFollow(
-              userId: user.id,
-            );
-          },
-          ctx: context),
+      trailing: ToggleFollowButton(state: user.state!, userId: user.id),
     );
   }
 

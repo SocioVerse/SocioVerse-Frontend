@@ -10,6 +10,7 @@ import 'package:socioverse/Helper/get_Routes.dart';
 import 'package:socioverse/Services/stories_services.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/pickImagePage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewThread/newThread.dart';
+import 'package:uuid/uuid.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({super.key});
@@ -107,8 +108,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                           .then((value) async {
                     if (value != null) {
                       context.loaderOverlay.show();
-                      return await FirebaseHelper.uploadFile(value.path, email,
-                          "${email}/stories", FirebaseHelper.Image);
+                      return await FirebaseHelper.uploadFile(
+                          value.path,
+                          email + const Uuid().v4(),
+                          "$email/stories",
+                          FirebaseHelper.Image);
                     }
                     return null;
                   });

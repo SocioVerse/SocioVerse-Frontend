@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:socioverse/Services/follow_unfollow_services.dart';
 import '../Pages/Authentication/passwordSignUpPage.dart';
 
 Widget MyElevatedButton1(
@@ -108,6 +112,7 @@ class MyEleButtonsmall extends StatefulWidget {
   String? title;
   String? title2;
   Function? onPressed;
+
   BuildContext? ctx;
   IconButton? iconButton1;
   IconButton? iconButton2;
@@ -170,16 +175,15 @@ class _MyEleButtonsmallState extends State<MyEleButtonsmall> {
               )),
         ),
         onPressed: () {
-          setState(() {
-            _ispressed = !_ispressed;
-            if (rtitle == widget.title) {
-              rtitle = widget.title2;
-              riconButton = widget.iconButton2;
-            } else {
-              rtitle = widget.title;
-              riconButton = widget.iconButton1;
-            }
-          });
+          _ispressed = !_ispressed;
+          if (rtitle == widget.title) {
+            rtitle = widget.title2;
+            riconButton = widget.iconButton2;
+          } else {
+            rtitle = widget.title;
+            riconButton = widget.iconButton1;
+          }
+          setState(() {});
           widget.onPressed!();
         },
         child: Center(
@@ -249,5 +253,86 @@ class SocialMediaButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class ToggleFollowButton extends StatefulWidget {
+  final int state;
+  final String userId;
+
+  const ToggleFollowButton(
+      {super.key, required this.state, required this.userId});
+
+  @override
+  _ToggleFollowButtonState createState() => _ToggleFollowButtonState();
+}
+
+class _ToggleFollowButtonState extends State<ToggleFollowButton> {
+  int state = 0;
+  @override
+  void initState() {
+    state = widget.state;
+    super.initState();
+  }
+
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    String ttl1;
+    String ttl2;
+    bool isPressed;
+
+    if (state == 0) {
+      ttl1 = "Follow";
+      ttl2 = "Requested";
+      isPressed = false;
+    } else if (state == 2) {
+      ttl1 = "Following";
+      ttl2 = "Follow";
+      isPressed = true;
+    } else {
+      ttl1 = "Requested";
+      ttl2 = "Follow";
+      isPressed = true;
+    }
+    log("state: $state");
+
+    return _isLoading
+        ? SizedBox(
+            width: 30,
+            height: 10,
+            child: Center(
+              child: SpinKitThreeBounce(
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+            ),
+          )
+        : MyEleButtonsmall(
+            title2: ttl2,
+            title: ttl1,
+            ctx: context,
+            ispressed: isPressed,
+            onPressed: () async {
+              setState(() {
+                _isLoading = true;
+              });
+              if (state == 2) {
+                await FollowUnfollowServices.unFollow(
+                  userId: widget.userId,
+                );
+                state = 0;
+              } else {
+                await FollowUnfollowServices.toggleFollow(
+                  userId: widget.userId,
+                );
+                state = state == 1 ? 0 : 1;
+              }
+              setState(() {
+                _isLoading = false;
+              });
+            },
+          );
   }
 }

@@ -32,9 +32,13 @@ class UserServices {
     }
   }
 
-  static Future<List<User>> getShareList() async {
+  static Future<List<User>> getShareList({required String query}) async {
     List<User> fetchedUsers = [];
-    _response = await ApiHelper.get(ApiStringConstants.getShareList);
+    _response = query.isEmpty
+        ? await ApiHelper.get(ApiStringConstants.getShareList)
+        : await ApiHelper.get(ApiStringConstants.searchUser,
+            querryParam: {'query': query});
+
     if (_response.success == true) {
       for (var user in _response.data) {
         fetchedUsers.add(User.fromJson(user));

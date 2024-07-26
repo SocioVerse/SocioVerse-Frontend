@@ -18,8 +18,7 @@ class ApiHelper {
 
     if (!isPublic) headers = ({"Authorization": "Bearer $token"});
     try {
-      Uri uri =
-          Uri.https(ApiStringConstants.baseUrl, "/api/$path", querryParam);
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path", querryParam);
       log(uri.toString());
       final response = await http.get(
         uri,
@@ -77,7 +76,7 @@ class ApiHelper {
   static Future<ApiResponse> post(String path,
       {dynamic querryParam, bool isPublic = false}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       log(uri.toString());
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
@@ -126,7 +125,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -180,7 +179,7 @@ class ApiHelper {
       List<File>? files,
       String? fileParamName}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? headers;
@@ -231,7 +230,7 @@ class ApiHelper {
 
   static Future<ApiResponse> put(String path, {dynamic querryParam}) async {
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path");
       String token =
           await getStringFromCache(SharedPreferenceString.accessToken);
       Map<String, String>? _headers;
@@ -271,7 +270,7 @@ class ApiHelper {
 
     if (!isPublic) headers = ({"Authorization": "Bearer $token"});
     try {
-      Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path", queryParam);
+      Uri uri = Uri.http(ApiStringConstants.baseUrl, "/api/$path", queryParam);
       final response = await http.delete(
         uri,
         headers: headers,

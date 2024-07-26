@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/inboxPageProvider.dart';
@@ -28,8 +27,6 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/main.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uuid/uuid.dart';
 import 'package:socioverse/Models/storyModels.dart' as StroyModel;
 
@@ -87,22 +84,28 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Ionicons.call_outline,
-              size: 25,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Ionicons.videocam_outline,
-              size: 25,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
+          Consumer<ChatProvider>(builder: (context, chatProvider, child) {
+            return IconButton(
+              onPressed: () {
+                if (isLoading == false) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RoomInfoPage(
+                                user: widget.user,
+                                inboxModelList: chatProvider.messages
+                                    .where((element) => element.image != null)
+                                    .toList(),
+                              )));
+                }
+              },
+              icon: Icon(
+                Ionicons.arrow_forward,
+                size: 25,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            );
+          }),
         ],
       ),
       body: isLoading
@@ -309,7 +312,8 @@ class _ChatPageState extends State<ChatPage> {
           : MainAxisAlignment.start,
       children: [
         Container(
-          constraints: BoxConstraints(maxWidth: MyApp.width! / 2),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2),
           margin: const EdgeInsets.symmetric(
             vertical: 7,
           ),
@@ -357,8 +361,8 @@ class _ChatPageState extends State<ChatPage> {
                 child: Image.asset(
                   "assets/Country_flag/in.png",
                   fit: BoxFit.cover,
-                  height: MyApp.width! / 2,
-                  width: MyApp.width! / 2,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
                 ),
               )
             ],
@@ -418,7 +422,8 @@ class _ChatPageState extends State<ChatPage> {
             }
           },
           child: Container(
-            constraints: BoxConstraints(maxWidth: MyApp.width! / 1.5),
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width / 1.5),
             margin: const EdgeInsets.symmetric(
               vertical: 2,
             ),
@@ -488,7 +493,8 @@ class _ChatPageState extends State<ChatPage> {
           : MainAxisAlignment.start,
       children: [
         Container(
-          constraints: BoxConstraints(maxWidth: MyApp.width! / 2),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2),
           margin: const EdgeInsets.symmetric(
             vertical: 2,
           ),
@@ -562,10 +568,10 @@ class _ChatPageState extends State<ChatPage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
-              width: MyApp.width! / 2,
-              height: MyApp.width! / 2,
+              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.width / 2,
               constraints: BoxConstraints(
-                maxWidth: MyApp.width! / 2,
+                maxWidth: MediaQuery.of(context).size.width / 2,
               ),
               margin: const EdgeInsets.symmetric(
                 vertical: 2,
@@ -709,85 +715,62 @@ class _ChatPageState extends State<ChatPage> {
     }));
   }
 
-  Consumer<ChatProvider> personTile() {
-    return Consumer<ChatProvider>(
-      builder: (context, chatProvider, child) {
-        return InkWell(
-          focusColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          overlayColor: MaterialStateProperty.all(Colors.transparent),
-          onTap: () {
-            //if room chat loaded
-
-            if (isLoading == false) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => RoomInfoPage(
-                            user: widget.user,
-                            inboxModelList: chatProvider.messages
-                                .where((element) => element.image != null)
-                                .toList(),
-                          )));
-            }
-          },
-          child: Row(
+  Widget personTile() {
+    return InkWell(
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: MaterialStateProperty.all(Colors.transparent),
+      child: Row(
+        children: [
+          CircularNetworkImageWithSize(
+            imageUrl: widget.user.profilePic,
+            height: 40,
+            width: 40,
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircularNetworkImageWithSize(
-                imageUrl: widget.user.profilePic,
-                height: 40,
-                width: 40,
+              Text(
+                widget.user.name,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      overflow: TextOverflow.ellipsis,
+                    ),
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.user.name,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                  ),
-                  Consumer<ChatProvider>(
-                    builder: (context, chatProvider, child) {
-                      return chatProvider.isTyping &&
-                              chatProvider.typingUserId == widget.user.id
-                          ? Text(
-                              "Typing...",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
+              Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  return chatProvider.isTyping &&
+                          chatProvider.typingUserId == widget.user.id
+                      ? Text(
+                          "Typing...",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 14,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                            )
-                          : Text(
-                              widget.user.username,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
+                        )
+                      : Text(
+                          widget.user.username,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.w400,
                                     fontSize: 14,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                            );
-                    },
-                  ),
-                ],
+                        );
+                },
               ),
             ],
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 

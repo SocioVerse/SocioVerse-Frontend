@@ -1,14 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/bottomNavigationProvider.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
-import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
-import 'package:socioverse/Models/authUserModels.dart';
-import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/staticPagesClass.dart';
 
 class MainPage extends StatefulWidget {
@@ -96,7 +90,7 @@ class _MainPageState extends State<MainPage> {
               ),
               const BottomNavigationBarItem(
                 icon: Icon(Ionicons.notifications_outline),
-                label: 'Activity',
+                label: 'Notification',
               ),
               const BottomNavigationBarItem(
                   icon: Icon(Ionicons.person_outline), label: 'Account'),

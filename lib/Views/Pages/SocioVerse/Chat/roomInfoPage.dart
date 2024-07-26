@@ -117,35 +117,24 @@ class _RoomInfoPageState extends State<RoomInfoPage> {
           const SizedBox(
             height: 20,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _outlineBox(
-                text: "Profile",
-                icon: Ionicons.person,
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserProfilePage(
-                                userId: widget.user.id,
-                              )));
-                },
-              ),
-              _outlineBox(
-                text: "Audio",
-                icon: Ionicons.call,
-              ),
-              _outlineBox(
-                text: "Video",
-                icon: Ionicons.videocam,
-              ),
-              _outlineBox(
-                text: "Report",
-                icon: Ionicons.flag,
-                color: Colors.redAccent,
-              ),
-            ],
+          TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserProfilePage(
+                              userId: widget.user.id,
+                            )));
+              },
+              child: Text(
+                "View Profile",
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.primary),
+              )),
+          const SizedBox(
+            height: 20,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(

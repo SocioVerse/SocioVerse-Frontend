@@ -25,4 +25,11 @@ class ChattingServices {
     );
     return Room.fromJson(response.data);
   }
+
+  static Future<int> unReadMessageCount() async {
+    ApiResponse response = await ApiHelper.get(
+      ApiStringConstants.unReadMessageCount,
+    );
+    return response.data;
+  }
 }

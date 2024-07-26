@@ -194,8 +194,8 @@ class _PickImagePageState extends State<PickImagePage> {
                     //     if (snapshot.connectionState == ConnectionState.waiting) {
                     //       return Center(
                     //           child: SizedBox(
-                    //               width: MyApp.width!,
-                    //               height: MyApp.width! - 20,
+                    //               width: MediaQuery.of(context).size.width,
+                    //               height: MediaQuery.of(context).size.width - 20,
                     //               child: const Center(
                     //                   child: CircularProgressIndicator())));
                     //     } else if (snapshot.hasError) {
@@ -210,8 +210,8 @@ class _PickImagePageState extends State<PickImagePage> {
                     //     return ClipRRect(
                     //       borderRadius: BorderRadius.circular(10),
                     //       child: SizedBox(
-                    //         width: MyApp.width!,
-                    //         height: MyApp.width! - 20,
+                    //         width: MediaQuery.of(context).size.width,
+                    //         height: MediaQuery.of(context).size.width - 20,
                     //         child: _buildAssetWidget(bytes),
                     //       ),
                     //     );

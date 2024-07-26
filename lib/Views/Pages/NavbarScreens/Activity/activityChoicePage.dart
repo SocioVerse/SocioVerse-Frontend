@@ -15,14 +15,6 @@ class Activity {
 class Activitychoicepage extends StatelessWidget {
   Activitychoicepage({super.key});
   final List<Activity> choices = [
-    // 'Requests',
-    // 'Feeds',
-    // 'Threads',
-    // 'Story Likes',
-    // 'Thread Comments',
-    // 'Feed Comments',
-    // 'Mentions',
-
     Activity(title: 'Requests', icon: Icons.people),
     Activity(title: 'Story Likes', icon: Icons.history),
     Activity(title: 'Feeds', icon: Ionicons.grid_outline),

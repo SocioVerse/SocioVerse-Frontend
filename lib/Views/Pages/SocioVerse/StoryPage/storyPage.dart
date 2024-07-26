@@ -58,6 +58,7 @@ class _StoryPageState extends State<StoryPage> {
                   snapshot.data as List<ReadStoryModel>;
               List<StoryItem> storyItems = fetchedStories
                   .map((e) => StoryItem.pageImage(
+                        key: ValueKey(e.id),
                         url: e.image,
                         controller: storyController,
                         imageFit: BoxFit.contain,
@@ -102,9 +103,9 @@ class StoryPageContent extends StatelessWidget {
             children: [
               StoryView(
                 storyItems: storyItems,
-                onStoryShow: (s) async {
-                  WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-                    storyIndexProvider.currentIndex = storyItems.indexOf(s);
+                onStoryShow: (s, index) async {
+                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                    storyIndexProvider.currentIndex = index;
                   });
                   await StoriesServices.storySeen(
                       storyId:
