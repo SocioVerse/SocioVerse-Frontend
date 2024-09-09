@@ -776,11 +776,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Padding chatInput(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 10,
-        right: 10,
-        bottom: 20,
-      ),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: Row(
         children: [
           IconButton(

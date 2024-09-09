@@ -1,5 +1,5 @@
 class ApiStringConstants {
-  static const String baseUrl = "192.168.29.71:4000";
+  static const String baseUrl = "socioverse-backend-ygo9.onrender.com";
   static const String refreshToken = "token/refresh";
 
   //Threads APIs

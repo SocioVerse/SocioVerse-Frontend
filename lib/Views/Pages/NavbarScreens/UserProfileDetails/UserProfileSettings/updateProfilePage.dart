@@ -4,20 +4,20 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
+import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Services/user_profile_settings_services.dart';
+import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
-import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
-import 'package:socioverse/Services/authentication_services.dart';
+import 'package:uuid/uuid.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   final UserProfileDetailsModelUser user;
@@ -29,6 +29,7 @@ class UpdateProfilePage extends StatefulWidget {
 }
 
 class _UpdateProfilePageState extends State<UpdateProfilePage> {
+  File? faceDetectImages;
   TextEditingController fullName = TextEditingController();
   TextEditingController username = TextEditingController();
   TextEditingController occupation = TextEditingController();
@@ -66,7 +67,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
         onChangedf();
       },
       keyboardType: TextInputType.text,
-      readOnly: readOnly == null ? false : readOnly,
+      readOnly: readOnly ?? false,
       cursorOpacityAnimates: true,
       style: Theme.of(context)
           .textTheme
@@ -215,6 +216,69 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                     lableText: "Bio",
                     onChangedf: () {},
                     maxLines: 5),
+                Consumer<FillProfileProvider>(builder: (context, prov, child) {
+                  return TextButton(
+                    onPressed: () async {
+                      prov.faceImageLoading = true;
+                      List<dynamic>? image = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const FaceDetectionPage()));
+                      if (image != null) {
+                        faceDetectImages = image[0] as File;
+
+                        log(faceDetectImages!.path.toString());
+                      } else {
+                        faceDetectImages = null;
+                      }
+                      prov.faceImageLoading = false;
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.face_2,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 15,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Add Face Search (Optional)",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 12,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        prov.faceImageLoading == true
+                            ? SpinKit.threeBounce
+                            : faceDetectImages != null
+                                ? Icon(
+                                    Icons.done,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 15,
+                                  )
+                                : Icon(
+                                    Icons.info_outline,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    size: 15,
+                                  ),
+                      ],
+                    ),
+                  );
+                }),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: MyElevatedButton1(
@@ -228,6 +292,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                           return;
                         } else {
                           context.loaderOverlay.show();
+                          String? faceImage;
                           if (profileImage != null) {
                             await FirebaseHelper.deleteFolder(
                                 "${widget.user.email}/profilepic");
@@ -237,14 +302,22 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                                 "${widget.user.email}/profilepic",
                                 FirebaseHelper.Image);
                           }
+                          if (faceDetectImages != null) {
+                            faceImage = await FirebaseHelper.uploadFile(
+                                faceDetectImages!.path,
+                                "${widget.user.email}\$${const Uuid().v4()}.jpg",
+                                "Faces",
+                                FirebaseHelper.Image);
+                          }
                           widget.user.name = fullName.text;
                           widget.user.username = username.text;
                           widget.user.occupation = occupation.text;
                           widget.user.profilePic =
                               currentImage ?? widget.user.profilePic;
                           widget.user.bio = bioController.text;
+
                           await UserProfileSettingsServices.updateProfile(
-                                  widget.user)
+                                  widget.user, faceImage)
                               .then((response) {
                             context.loaderOverlay.hide();
                             if (response.success == true && context.mounted) {

@@ -403,8 +403,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                             signupUser.occupation = occupation.text;
                             signupUser.dob = prov.birthDate;
                             signupUser.profilePic = dp;
-                            signupUser.faceImageDataset =
-                                faceDetectImages == null ? null : [faceImage];
+                            signupUser.faceImageDataset = faceImage;
                             log(signupUser.toJson().toString());
 
                             ApiResponse? response =

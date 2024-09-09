@@ -408,22 +408,15 @@ class _FeedCommentWidgetState extends State<FeedCommentWidget> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.feedComment.content,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 16,
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      CalculatingFunction.getTimeDiff(
-                          widget.feedComment.createdAt),
-                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width - 90,
+                      child: Text(
+                        widget.feedComment.content,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                      ),
                     ),
                     const SizedBox(
                       height: 20,

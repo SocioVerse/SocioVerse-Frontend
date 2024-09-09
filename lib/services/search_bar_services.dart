@@ -23,12 +23,18 @@ class SearchBarServices {
     return fetchedUsers;
   }
 
-  static Future<String> fetchSearchedUserByFace({
+  static Future<List<SearchedUser>> fetchSearchedUserByFace({
     required String faceImage,
   }) async {
-    _response = await ApiHelper.get(ApiStringConstants.searchUserByFace,
+    List<SearchedUser> fetchedUsers = [];
+    _response = await ApiHelper.post(ApiStringConstants.searchUserByFace,
         querryParam: {'faceImage': faceImage});
-    return _response.data['label'];
+    if (_response.success == true) {
+      for (var user in _response.data) {
+        fetchedUsers.add(SearchedUser.fromJson(user));
+      }
+    }
+    return fetchedUsers;
   }
 
   static Future<List<HashtagsSearchModel>> getHashtags(

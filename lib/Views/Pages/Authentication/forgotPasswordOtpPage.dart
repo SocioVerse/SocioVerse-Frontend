@@ -145,16 +145,6 @@ class _ForgotPasswordOtpPageState extends State<ForgotPasswordOtpPage> {
                                         Theme.of(context).colorScheme.primary,
                                   ),
                             ),
-                            Text(
-                              ' s',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium!
-                                  .copyWith(
-                                    color:
-                                        Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                            ),
                           ],
                         );
                       },

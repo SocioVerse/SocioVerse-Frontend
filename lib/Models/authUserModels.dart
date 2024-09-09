@@ -9,7 +9,7 @@ class SignupUser {
   String? occupation;
   String? country;
   DateTime? dob;
-  List<String?>? faceImageDataset;
+  String? faceImageDataset;
   String? profilePic;
   String? fcmtoken;
 

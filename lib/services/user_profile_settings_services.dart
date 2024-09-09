@@ -7,10 +7,13 @@ class UserProfileSettingsServices {
   static ApiResponse _response = ApiResponse();
 
   static Future<ApiResponse> updateProfile(
-      UserProfileDetailsModelUser user) async {
+      UserProfileDetailsModelUser user, String? faceImage) async {
     _response = await ApiHelper.put(
       ApiStringConstants.updateProfile,
-      querryParam: user.toJson(),
+      querryParam: user.toJson()
+        ..addAll({
+          'face_image_dataset': faceImage,
+        }),
     );
     return _response;
   }

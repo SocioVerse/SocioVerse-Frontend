@@ -34,11 +34,7 @@ void main() async {
   );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FaceCamera.initialize();
-  runApp(DevicePreview(
-    enabled: !kReleaseMode,
-    builder: (context) => MultiProvider(
-        providers: Providers.providers, child: const MyApp()), // Wrap your app
-  ));
+  runApp(MultiProvider(providers: Providers.providers, child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {

@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/feedModel.dart';
@@ -210,21 +211,20 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
     });
   }
 
-  Future<String> getQueryUserByFace({required String faceImage}) async {
-    String? userByFace;
+  Future<void> getQueryUserByFace({required String faceImage}) async {
     setState(() {
       isUserFetched = false;
     });
-    userByFace =
+    searchedUser =
         await SearchBarServices.fetchSearchedUserByFace(faceImage: faceImage);
+
     setState(() {
       isUserFetched = true;
     });
-    return userByFace;
   }
 
   Widget searchEnabled() {
-    List<Widget> _searchWidgets = [
+    List<Widget> searchWidgets = [
       Expanded(
         child: searchText.text.isNotEmpty && isUserFetched == false
             ? Center(
@@ -410,11 +410,11 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                                       Theme.of(context).colorScheme.onPrimary,
                                 )),
                         subtitle: Text(
-                          searchedLocation[index].postCount! < 100
-                              ? searchedLocation[index].postCount! <= 1
+                          searchedLocation[index].postCount < 100
+                              ? searchedLocation[index].postCount <= 1
                                   ? "${searchedLocation[index].postCount} Post"
                                   : "${searchedLocation[index].postCount} Posts"
-                              : "${CalculatingFunction.numberToMkConverter(searchedLocation[index].postCount!.toDouble())} Posts",
+                              : "${CalculatingFunction.numberToMkConverter(searchedLocation[index].postCount.toDouble())} Posts",
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
@@ -489,7 +489,7 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
               )
             ]),
           ),
-          _searchWidgets[selectedChip - 1],
+          searchWidgets[selectedChip - 1],
         ],
       ),
     );
@@ -657,20 +657,13 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
                             }
                             return null;
                           });
-                          if (faceImage == null) {
-                            return;
-                          } else {
-                            String? userByFace =
-                                await getQueryUserByFace(faceImage: faceImage);
-                            if (context.mounted) {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return UserProfilePage(
-                                  owner: false,
-                                  userId: userByFace,
-                                );
-                              }));
-                            }
+
+                          if (faceImage != null) {
+                            await getQueryUserByFace(faceImage: faceImage);
+                          }
+                          context.loaderOverlay.hide();
+                          if (searchedUser.isEmpty) {
+                            FlutterToast.flutterWhiteToast("No User Found");
                           }
                         },
                         child: Icon(Ionicons.image_outline,
@@ -701,7 +694,9 @@ class _SearchFeedsPageState extends State<SearchFeedsPage>
             const SizedBox(
               height: 10,
             ),
-            searchText.text.trim() == '' ? allSearchFeeds() : searchEnabled(),
+            searchText.text.trim().isEmpty && searchedUser.isEmpty
+                ? allSearchFeeds()
+                : searchEnabled(),
           ],
         ),
       ),

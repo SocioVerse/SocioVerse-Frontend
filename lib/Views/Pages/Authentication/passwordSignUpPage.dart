@@ -114,7 +114,9 @@ class _PasswordSignUpPageState extends State<PasswordSignUpPage> {
                         context,
                         emailController.text.trim(),
                         passwordController.text.trim());
-                    if (!isValid) return;
+                    if (!isValid) {
+                      context.loaderOverlay.hide();
+                      return;}
                     ApiResponse response = await AuthServices.isEmailExists(
                         email: emailController.text.trim());
                     if (response.success == true) {
