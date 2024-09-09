@@ -1,22 +1,24 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/threadModel.dart';
 
 class ThreadServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<ApiResponse> createThread(
+  static ApiResponse _response = ApiResponse();
+  static Future<ApiResponse> createThread(
       {required CreateThreadModel createThreadModel}) async {
     try {
-      _response = await _helper.post(
+      _response = await ApiHelper.post(
         ApiStringConstants.createThread,
         isPublic: false,
         querryParam: createThreadModel.toJson(),
       );
-      log(_response.data);
+      log(_response.data.toString());
       return _response;
     } catch (e) {
       print(e);
@@ -24,9 +26,9 @@ class ThreadServices {
     }
   }
 
-  Future<List<ThreadModel>> getFollowingThreads() async {
+  static Future<List<ThreadModel>> getFollowingThreads() async {
     List<ThreadModel> fetchedThreads = [];
-    _response = await _helper.get(ApiStringConstants.getFollowingThread);
+    _response = await ApiHelper.get(ApiStringConstants.getFollowingThread);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedThreads.add(ThreadModel.fromJson(thread));
@@ -35,26 +37,26 @@ class ThreadServices {
     return fetchedThreads;
   }
 
-  Future<bool> toogleLikeThreads({
+  static Future<bool> toggleLikeThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleLikeThread,
+    _response = await ApiHelper.post(ApiStringConstants.toggleLikeThread,
         querryParam: {'threadId': threadId});
     return _response.success;
   }
 
-  Future<String> toogleSaveThreads({
+  static Future<String> toggleSaveThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleSaveThread,
+    _response = await ApiHelper.post(ApiStringConstants.toggleSaveThread,
         querryParam: {'threadId': threadId});
     return _response.data;
   }
 
-  Future<void> createComment(
+  static Future<void> createComment(
       {required CreateThreadModel createThreadModel}) async {
     try {
-      _response = await _helper.post(
+      _response = await ApiHelper.post(
         ApiStringConstants.createComment,
         isPublic: false,
         querryParam: createThreadModel.toJson(),
@@ -64,10 +66,10 @@ class ThreadServices {
     }
   }
 
-  Future<void> deleteThread({required String threadId}) async {
+  static Future<void> deleteThread({required String threadId}) async {
     log("here2");
     try {
-      _response = await _helper.delete(
+      _response = await ApiHelper.delete(
         ApiStringConstants.deleteThreads,
         queryParam: {'threadId': threadId},
       );
@@ -76,17 +78,17 @@ class ThreadServices {
     }
   }
 
-  Future<String> toogleRepostThreads({
+  static Future<String> toggleRepostThreads({
     required String threadId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleRepostThread,
+    _response = await ApiHelper.post(ApiStringConstants.toggleRepostThread,
         querryParam: {'threadId': threadId});
     return _response.data;
   }
 
-  Future<List<ThreadModel>> getSavedThreads() async {
+  static Future<List<ThreadModel>> getSavedThreads() async {
     List<ThreadModel> fetchedThreads = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllSavedThreads);
+    _response = await ApiHelper.get(ApiStringConstants.fetchAllSavedThreads);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedThreads.add(ThreadModel.fromJson(thread));
@@ -95,9 +97,44 @@ class ThreadServices {
     return fetchedThreads;
   }
 
-  Future<List<ThreadModel>> getLikedThreads() async {
+  static Future<List<ThreadModel>> getLikedThreads() async {
     List<ThreadModel> fetchedThreads = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllLikedThreads);
+    _response = await ApiHelper.get(ApiStringConstants.fetchAllLikedThreads);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedThreads.add(ThreadModel.fromJson(thread));
+      }
+    }
+    return fetchedThreads;
+  }
+
+  static Future<ThreadModel?> getThreadById({required String threadId}) async {
+    _response = await ApiHelper.get(ApiStringConstants.getThreadById,
+        querryParam: {'threadId': threadId});
+    if (_response.success == false) {
+      FlutterToast.flutterWhiteToast(_response.message);
+      return null;
+    }
+    return ThreadModel.fromJson(_response.data);
+  }
+
+  static Future<List<User>> fetchThreadLikes({
+    required String threadId,
+  }) async {
+    _response = await ApiHelper.get(ApiStringConstants.fetchThreadLikes,
+        querryParam: {'threadId': threadId});
+    List<User> fetchedUsers = [];
+    if (_response.success == true) {
+      for (var user in _response.data) {
+        fetchedUsers.add(User.fromJson(user));
+      }
+    }
+    return fetchedUsers;
+  }
+
+  static Future<List<ThreadModel>> getTrendingThreads() async {
+    List<ThreadModel> fetchedThreads = [];
+    _response = await ApiHelper.get(ApiStringConstants.fetchTrendingThreads);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedThreads.add(ThreadModel.fromJson(thread));

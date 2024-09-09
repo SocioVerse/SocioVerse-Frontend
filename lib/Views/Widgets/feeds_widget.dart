@@ -41,7 +41,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
     setState(() {
       isStoryLoading = true;
     });
-    profileStories = await StoriesServices().fetchAllStories();
+    profileStories = await StoriesServices.fetchAllStories();
     setState(() {
       isStoryLoading = false;
     });
@@ -50,7 +50,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
   Widget _buildLoadingShimmer() {
     return Shimmer.fromColors(
       baseColor: Theme.of(context).colorScheme.tertiary,
-      highlightColor: Colors.grey[100]!,
+      highlightColor: Colors.grey[500]!,
       child: ListView.builder(
         itemCount: 5, // Choose the number of shimmer placeholders
         scrollDirection: Axis.horizontal,
@@ -110,7 +110,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
                           child: Stack(
                             children: [
                               Container(
-                                  padding: EdgeInsets.all(3),
+                                  padding: const EdgeInsets.all(3),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
@@ -158,7 +158,7 @@ class _StoriesScrollerState extends State<StoriesScroller> {
                                             return null;
                                           });
                                           if (storyImage != null) {
-                                            await StoriesServices().uploadStory(
+                                            await StoriesServices.uploadStory(
                                                 storyImage: [storyImage]);
                                             getProfileStories();
                                           }
@@ -350,7 +350,7 @@ StatefulBuilder getFooter({
                                           backgroundColor: Theme.of(context)
                                               .colorScheme
                                               .secondary,
-                                          child: CircleAvatar(
+                                          child: const CircleAvatar(
                                               radius: 28,
                                               backgroundImage: AssetImage(
                                                 "assets/Country_flag/in.png",

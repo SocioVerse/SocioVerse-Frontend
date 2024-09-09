@@ -16,8 +16,7 @@ class InboxModel {
   String roomId;
   DateTime createdAt;
   DateTime updatedAt;
-  int v;
-  LastMessage lastMessage;
+  LastMessage? lastMessage;
   User user;
   bool isRequestMessage;
   int unreadMessages;
@@ -28,7 +27,6 @@ class InboxModel {
     required this.roomId,
     required this.createdAt,
     required this.updatedAt,
-    required this.v,
     required this.lastMessage,
     required this.isRequestMessage,
     required this.user,
@@ -41,8 +39,9 @@ class InboxModel {
         roomId: json["roomId"],
         createdAt: DateTime.parse(json["createdAt"]).toLocal(),
         updatedAt: DateTime.parse(json["updatedAt"]),
-        v: json["__v"],
-        lastMessage: LastMessage.fromJson(json["lastMessage"]),
+        lastMessage: json["lastMessage"] == null
+            ? null
+            : LastMessage.fromJson(json["lastMessage"]),
         user: User.fromJson(json["user"]),
         unreadMessages: json["unreadMessages"],
         isRequestMessage: json["isRequestMessage"] ?? false,
@@ -54,8 +53,7 @@ class InboxModel {
         "roomId": roomId,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
-        "__v": v,
-        "lastMessage": lastMessage.toJson(),
+        "lastMessage": lastMessage!.toJson(),
         "user": user.toJson(),
         "unreadMessages": unreadMessages,
         "isRequestMessage": isRequestMessage,
@@ -65,6 +63,7 @@ class InboxModel {
 class LastMessage {
   String id;
   String? message;
+  String sentBy;
   dynamic image;
   dynamic thread;
   DateTime createdAt;
@@ -77,10 +76,12 @@ class LastMessage {
     required this.thread,
     required this.createdAt,
     required this.updatedAt,
+    required this.sentBy,
   });
 
   factory LastMessage.fromJson(Map<String, dynamic> json) => LastMessage(
         id: json["_id"],
+        sentBy: json["sentBy"],
         message: json["message"],
         image: json["image"],
         thread: json["thread"],

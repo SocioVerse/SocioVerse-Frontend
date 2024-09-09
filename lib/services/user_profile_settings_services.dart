@@ -4,13 +4,16 @@ import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 
 class UserProfileSettingsServices {
-  final ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<ApiResponse> updateProfile(UserProfileDetailsModelUser user) async {
-    _response = await _helper.put(
+  static Future<ApiResponse> updateProfile(
+      UserProfileDetailsModelUser user, String? faceImage) async {
+    _response = await ApiHelper.put(
       ApiStringConstants.updateProfile,
-      querryParam: user.toJson(),
+      querryParam: user.toJson()
+        ..addAll({
+          'face_image_dataset': faceImage,
+        }),
     );
     return _response;
   }

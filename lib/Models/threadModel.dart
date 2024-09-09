@@ -1,5 +1,28 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+
+class ThreadData {
+  int line;
+  String id;
+  late bool isSelected;
+  late TextEditingController textEditingController;
+  double verticalDividerLength;
+  List<String> images;
+  bool isUploading = false;
+
+  ThreadData(
+      {required this.line,
+      this.id = '',
+      required this.isSelected,
+      required this.textEditingController,
+      required this.verticalDividerLength,
+      required this.images}) {
+    id = const Uuid().v4();
+  }
+}
+
 class ThreadModel {
   String id;
   String content;
@@ -18,6 +41,8 @@ class ThreadModel {
   bool isLiked = false;
   bool isReposted = false;
   bool isSaved = false;
+  bool isRepostedByUser = false;
+  User? repostedBy;
   ThreadModel({
     required this.id,
     required this.content,
@@ -36,6 +61,8 @@ class ThreadModel {
     required this.isLiked,
     required this.isReposted,
     required this.isSaved,
+    this.isRepostedByUser = false,
+    this.repostedBy,
   });
 
   factory ThreadModel.fromRawJson(String str) =>
@@ -64,6 +91,10 @@ class ThreadModel {
         isLiked: json["isLiked"] ?? false,
         isReposted: json["isReposted"] ?? false,
         isSaved: json["isSaved"] ?? false,
+        isRepostedByUser: json["isRepostedByUser"] ?? false,
+        repostedBy: json["repostedBy"] != null
+            ? User.fromJson(json["repostedBy"])
+            : null,
       );
 
   Map<String, dynamic> toJson() => {
@@ -118,12 +149,14 @@ class User {
   String occupation;
   String profilePic;
   bool isOwner = false;
+  bool isFollowing;
   User({
     required this.id,
     required this.username,
     required this.occupation,
     required this.profilePic,
     required this.isOwner,
+    required this.isFollowing,
   });
 
   factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
@@ -136,6 +169,7 @@ class User {
         occupation: json["occupation"],
         profilePic: json["profile_pic"],
         isOwner: json["isOwner"] ?? false,
+        isFollowing: json["isFollowing"] ?? true,
       );
 
   Map<String, dynamic> toJson() => {

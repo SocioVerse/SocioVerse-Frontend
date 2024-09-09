@@ -379,14 +379,14 @@
 //     setState(() {
 //       isLoading = true;
 //     });
-//     userProfileDetailsModel = await UserProfileDetailsServices()
+//     userProfileDetailsModel = await UserProfileDetailsServices
 //         .fetchUserProfileDetails(widget.userId);
 //     setState(() {
 //       isLoading = false;
 //     });
 //   }
 
-//   Widget toogleFollowButton(
+//   Widget toggleFollowButton(
 //       {required String ttl1,
 //       required String ttl2,
 //       required UserProfileDetailsModel userProfileDetailsModel,
@@ -397,7 +397,7 @@
 //         ispressed: isPressed,
 //         onPressed: () async {
 //           if (userProfileDetailsModel.user.state == 2) {
-//             await FollowUnfollowServices().unFollow(
+//             await FollowUnfollowServices.unFollow(
 //               userId: userProfileDetailsModel.user.id,
 //             );
 //             setState(() {
@@ -406,7 +406,7 @@
 //               }
 //             });
 //           } else {
-//             await FollowUnfollowServices().toogleFollow(
+//             await FollowUnfollowServices.toggleFollow(
 //               userId: userProfileDetailsModel.user.id,
 //             );
 //           }
@@ -543,7 +543,7 @@
 //                   color: Theme.of(context).colorScheme.onPrimary,
 //                 ),
 //                 title: Text(
-//                   'Block',
+//                   'Unfollow',
 //                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
 //                       color: Theme.of(context).colorScheme.onPrimary,
 //                       fontSize: 16),
@@ -1076,7 +1076,7 @@
 //                     content: const Text(" Are you sure you want to log out?"),
 //                     onAccept: () async {
 //                       FirebaseMessaging.instance.getToken().then((value) async {
-//                         await AuthServices()
+//                         await AuthServices
 //                             .userLogout(fcmToken: value)
 //                             .then((value) {
 //                           Navigator.pushAndRemoveUntil(
@@ -1242,7 +1242,7 @@
 //                                           onAccept: () async {
 //                                             if (bioController.text.trim() !=
 //                                                 "") {
-//                                               await UserProfileDetailsServices()
+//                                               await UserProfileDetailsServices
 //                                                   .addBio(bioController.text);
 //                                               setState(() {
 //                                                 userProfileDetailsModel!.user
@@ -1455,7 +1455,7 @@
 //                                       MainAxisAlignment.spaceAround,
 //                                   children: [
 //                                     Expanded(
-//                                       child: toogleFollowButton(
+//                                       child: toggleFollowButton(
 //                                           userProfileDetailsModel:
 //                                               userProfileDetailsModel!,
 //                                           ttl1: userProfileDetailsModel!
@@ -1616,7 +1616,7 @@
 //                           userProfileDetailsModel!.threadsWithUserDetails,
 //                     ),
 //                     FutureBuilder(
-//                       future: UserProfileDetailsServices().getUserFeeds(
+//                       future: UserProfileDetailsServices.getUserFeeds(
 //                           userId: userProfileDetailsModel!.user.id),
 //                       builder: (context, snapshot) {
 //                         if (snapshot.connectionState ==
@@ -1669,7 +1669,7 @@
 //                       },
 //                     ),
 //                     FutureBuilder(
-//                         future: UserProfileDetailsServices()
+//                         future: UserProfileDetailsServices
 //                             .getRepostThreads(widget.userId),
 //                         builder: (context, snapshot) {
 //                           if (snapshot.connectionState ==

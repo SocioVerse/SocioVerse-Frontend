@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/userProfileWidgetProvider.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Feeds/feedWidgets.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
@@ -321,8 +323,8 @@ import 'package:socioverse/Services/thread_services.dart';
 //             getThreadFooter(
 //               isPost: false,
 //               onLike: () async {
-//                 await ThreadServices()
-//                     .toogleLikeThreads(threadId: widget.thread.id);
+//                 await ThreadServices
+//                     .toggleLikeThreads(threadId: widget.thread.id);
 
 //                 setState(() {});
 //               },
@@ -418,20 +420,18 @@ class _ThreadViewBuilderState extends State<ThreadViewBuilder> {
   Widget build(BuildContext context) {
     return allThreads.isEmpty
         ? const NoPostYet()
-        : Container(
-            child: ListView.builder(
-              physics: widget.shrinkWrap
-                  ? const NeverScrollableScrollPhysics()
-                  : const ClampingScrollPhysics(),
-              shrinkWrap: widget.shrinkWrap,
-              padding: const EdgeInsets.only(top: 10),
-              itemCount: allThreads.length,
-              itemBuilder: (context, index) {
-                return ThreadLayout(
-                  thread: allThreads[index],
-                );
-              },
-            ),
+        : ListView.builder(
+            physics: widget.shrinkWrap
+                ? const NeverScrollableScrollPhysics()
+                : const ClampingScrollPhysics(),
+            shrinkWrap: widget.shrinkWrap,
+            padding: const EdgeInsets.only(top: 10),
+            itemCount: allThreads.length,
+            itemBuilder: (context, index) {
+              return ThreadLayout(
+                thread: allThreads[index],
+              );
+            },
           );
   }
 }
@@ -455,7 +455,7 @@ class NoPostYet extends StatelessWidget {
             height: 20,
           ),
           Text(
-            "No posts yet",
+            "Nothing to show yet",
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   fontSize: 20,
                   color: Theme.of(context).colorScheme.onPrimary,
@@ -467,77 +467,64 @@ class NoPostYet extends StatelessWidget {
   }
 }
 
-class ExpandableTextWidget extends StatefulWidget {
+class ExpandableTextWidget extends StatelessWidget {
   final String text;
   final int maxLines;
 
   const ExpandableTextWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.maxLines = 2,
-  }) : super(key: key);
-
-  @override
-  _ExpandableTextWidgetState createState() => _ExpandableTextWidgetState();
-}
-
-class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
-  bool isExpanded = false;
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        AnimatedCrossFade(
-          duration: Duration(milliseconds: 300),
-          firstChild: Text(
-            widget.text,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                ),
-            maxLines: isExpanded ? null : widget.maxLines,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          secondChild: GestureDetector(
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: Text(
-              widget.text,
+    return Consumer<UserProfileWidgetBioProvider>(
+        builder: (context, prov, child) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            firstChild: Text(
+              text,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                   ),
+              maxLines: prov.isExpanded ? null : maxLines,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
             ),
-          ),
-          crossFadeState:
-              isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-        ),
-        if (!isExpanded)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: TextButton(
-              onPressed: () {
-                setState(() {
-                  isExpanded = true;
-                });
+            secondChild: GestureDetector(
+              onTap: () {
+                prov.isExpanded = !prov.isExpanded;
               },
-              child: Text('Read More'),
+              child: Text(
+                text,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                textAlign: TextAlign.center,
+              ),
             ),
+            crossFadeState: prov.isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
           ),
-      ],
-    );
+          if (!prov.isExpanded)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: TextButton(
+                onPressed: () {
+                  prov.isExpanded = true;
+                },
+                child: const Text('Read More'),
+              ),
+            ),
+        ],
+      );
+    });
   }
 }

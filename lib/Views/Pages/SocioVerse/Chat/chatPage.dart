@@ -3,29 +3,36 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/inboxPageProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
-import 'package:socioverse/Helper/ServiceHelpers/socketHelper.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
+import 'package:socioverse/Services/stories_services.dart';
+import 'package:socioverse/Sockets/messageSockets.dart';
 import 'package:socioverse/Models/chatModels.dart';
 import 'package:socioverse/Models/inboxModel.dart';
 import 'package:socioverse/Services/chatting_services.dart';
+import 'package:socioverse/Sockets/socketMain.dart';
 import 'package:socioverse/Utils/CalculatingFunctions.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfilePage.dart';
+import 'package:socioverse/Views/Pages/SocioThread/CommentPage/threadCommentPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/chatProvider.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/Chat/roomInfoPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/Comment/commentPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
+import 'package:socioverse/Views/Pages/SocioVerse/StoryPage/storyPage.dart';
 import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
-import 'package:socioverse/main.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:uuid/uuid.dart';
+import 'package:socioverse/Models/storyModels.dart' as StroyModel;
 
 class ChatPage extends StatefulWidget {
   final User user;
+
   const ChatPage({super.key, required this.user});
 
   @override
@@ -37,11 +44,19 @@ class _ChatPageState extends State<ChatPage> {
   bool isLoading = false;
   late RoomModel roomModel;
   late String userId;
-  late IO.Socket socketHelper;
+  bool _isFirstBuild = true;
+  TextEditingController message = TextEditingController();
+  ScrollController scrollChat = ScrollController();
+  List<Map<String, dynamic>> newMessages = [];
   @override
   void initState() {
     super.initState();
-    getRoomInfo();
+    getRoomInfo().then(
+        (value) => WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              if (roomModel.room != null) {
+                _initializeListeners();
+              }
+            }));
   }
 
   @override
@@ -53,25 +68,118 @@ class _ChatPageState extends State<ChatPage> {
 
   void dispose() {
     scrollChat.dispose();
-    socketHelper.dispose();
+    SocketHelper.socketHelper.off('unsend-message');
+    SocketHelper.socketHelper.off('typing');
+    SocketHelper.socketHelper.off('message-seen');
+    SocketHelper.socketHelper.off('message');
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: personTile(),
+        toolbarHeight: 70,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        actions: [
+          Consumer<ChatProvider>(builder: (context, chatProvider, child) {
+            return IconButton(
+              onPressed: () {
+                if (isLoading == false) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => RoomInfoPage(
+                                user: widget.user,
+                                inboxModelList: chatProvider.messages
+                                    .where((element) => element.image != null)
+                                    .toList(),
+                              )));
+                }
+              },
+              icon: Icon(
+                Ionicons.arrow_forward,
+                size: 25,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            );
+          }),
+        ],
+      ),
+      body: isLoading
+          ? Center(
+              child: SpinKit.ring,
+            )
+          : Column(children: [
+              chatsArea(),
+              chatInput(context),
+            ]),
+    );
+  }
+
+  _initializeListeners() {
+    addMessageInboxListner();
+    _setupSocketListeners(userId, roomModel.room!.id);
+    _updateChatProviderWithMessages(roomModel.messages);
+  }
+
+  addMessageInboxListner() {
+    message.addListener(() {
+      if (message.text.trim() != "") {
+        MessagesSocket(context).emitMessageTyping(roomModel.room!.roomId, true);
+      } else {
+        MessagesSocket(context)
+            .emitMessageTyping(roomModel.room!.roomId, false);
+      }
+    });
+  }
+
+  Future<void> _sendMessage() async {
+    await _initializeRoom();
+    if (message.text.trim() != "") {
+      if (Provider.of<InboxPageProvider>(context, listen: false)
+          .requestModel
+          .where((element) => element.id == roomModel.room!.id)
+          .isNotEmpty) {
+        log('request');
+        Provider.of<InboxPageProvider>(context, listen: false)
+            .requestToInbox(roomModel.room!.id);
+      }
+      MessagesSocket(context).emitMessage(roomModel.room!.roomId, message.text);
+      message.clear();
+    }
+  }
+
+  Future<void> _initializeRoom() async {
+    if (roomModel.room == null) {
+      roomModel.room = await ChattingServices.createRoom(widget.user.id);
+      Provider.of<InboxPageProvider>(context, listen: false)
+          .addInbox(InboxModel(
+        roomId: roomModel.room!.id,
+        user: widget.user,
+        lastMessage: null,
+        createdAt: DateTime.now(),
+        id: roomModel.room!.id,
+        isGroup: false,
+        unreadMessages: 0,
+        updatedAt: DateTime.now(),
+        isRequestMessage: false,
+      ));
+      MessagesSocket(context).emitInboxAdd(roomModel.room!.id, widget.user.id);
+      _initializeListeners();
+    }
   }
 
   Future<void> getRoomInfo() async {
     _setLoading(true);
-    socketHelper = await SocketHelper().initSocketIO();
     userId = await getStringFromCache(SharedPreferenceString.userId);
     log(userId);
-    roomModel = await ChattingServices().getChatroomInfoByUser(
+    roomModel = await ChattingServices.getChatroomInfoByUser(
       widget.user.id,
       userId,
     );
-
-    _setupSocketListeners(userId, roomModel.room.id);
-    if (!context.mounted) return;
-    _updateChatProviderWithMessages(roomModel.messages);
-
-    _scrollToBottomAndEmitSeenMessages();
 
     _setLoading(false);
   }
@@ -82,90 +190,118 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  TextField messageTextField(BuildContext context) {
+    return TextField(
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
+      textInputAction: TextInputAction.newline,
+      controller: message,
+      onChanged: (value) {},
+      cursorOpacityAnimates: true,
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.surface,
+          ),
+      decoration: InputDecoration(
+        filled: true,
+        contentPadding: const EdgeInsets.all(20),
+        fillColor: Theme.of(context).colorScheme.secondary,
+        hintText: "Type message...",
+        hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 16,
+            ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.onBackground,
+          ),
+        ),
+      ),
+    );
+  }
+
   void _updateChatProviderWithMessages(List<Message> messages) {
     Provider.of<ChatProvider>(context, listen: false).addAll(messages);
   }
 
   void _scrollToBottomAndEmitSeenMessages() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (scrollChat.hasClients) {
-        scrollChat.jumpTo(
-          scrollChat.position.maxScrollExtent,
-        );
-        socketHelper.emit('message-seen', {
-          'roomId': roomModel.room.id,
-        });
+    if (scrollChat.hasClients) {
+      scrollChat.animateTo(
+        scrollChat.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      if (Provider.of<ChatProvider>(context, listen: false)
+              .messages
+              .isNotEmpty &&
+          roomModel.room != null &&
+          Provider.of<ChatProvider>(context, listen: false)
+                  .messages
+                  .last
+                  .isSeenByAll ==
+              false) {
+        MessagesSocket(context).emitMessageSeen(roomModel.room!.id);
       }
-    });
+    }
   }
 
   void _setupSocketListeners(String userId, String roomId) {
-    socketHelper.emit('join', {
-      'roomId': roomId,
-    });
-    socketHelper.on('unsend-message', (data) {
+    if (Provider.of<ChatProvider>(context, listen: false).messages.isEmpty) {
+      MessagesSocket(context).emitJoinChat(roomModel.room!.id);
+    }
+    SocketHelper.socketHelper.on('unsend-message', (data) {
       log(data.toString());
-      _handleUnsendMessage(data);
+
+      MessagesSocket(context).handleUnsendMessage(data);
+      if (Provider.of<ChatProvider>(context, listen: false).messages.isEmpty) {
+        SocketHelper.socketHelper.emit('leave-room', {
+          'roomId': roomModel.room!.id,
+        });
+        SocketHelper.socketHelper.clearListeners();
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainPage(index: 0),
+            ),
+            (route) => route.isFirst);
+      }
     });
-    socketHelper.on('typing', (data) {
+    SocketHelper.socketHelper.on('typing', (data) {
       log(data.toString());
-      _handleMessageTyping(data);
+      MessagesSocket(context).handleMessageTyping(data);
     });
 
-    socketHelper.on('message-seen', (data) {
-      _handleMessageSeen(data, userId);
+    SocketHelper.socketHelper.on('message-seen', (data) {
+      MessagesSocket(context).handleMessageSeen(data, userId);
     });
 
-    socketHelper.on('message', (data) {
-      log(data.toString());
-      _handleNewMessage(data, userId, roomId);
+    SocketHelper.socketHelper.on('message', (data) {
+      log(data.toString() + 'gotit');
+      MessagesSocket(context)
+          .handleNewMessage(data, userId, roomId, scrollChat);
     });
   }
 
   Widget getMessageWidget(Message message) {
-    if (message.thread != null) {
-      return postMessage(message);
+    if (message.feed != null) {
+      return post(message, "Feed");
+    } else if (message.profile != null) {
+      return post(message, "Profile");
+    } else if (message.thread != null) {
+      return post(message, "Thread");
+    } else if (message.story != null) {
+      return post(message, "Story");
     } else if (message.image != null) {
       return photoMessage(message);
     } else {
       return textMessage(message);
     }
-  }
-
-  void _handleUnsendMessage(dynamic data) {
-    log(data.toString());
-    Provider.of<ChatProvider>(context, listen: false)
-        .removeMessage(data['messageId']);
-  }
-
-  void _handleMessageTyping(dynamic data) {
-    log(data.toString());
-    Provider.of<ChatProvider>(context, listen: false).setTyping(data);
-  }
-
-  void _handleMessageSeen(dynamic data, String userId) {
-    log(data.toString());
-    List<Message> messages =
-        List<Message>.from(data.map((x) => Message.fromJson(x, userId)));
-    Provider.of<ChatProvider>(context, listen: false).updateMessages(messages);
-  }
-
-  void _handleNewMessage(dynamic data, String userId, String roomId) {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (scrollChat.hasClients) {
-        scrollChat.jumpTo(
-          scrollChat.position.maxScrollExtent,
-        );
-        socketHelper.emit('message-seen', {
-          'roomId': roomId,
-        });
-      }
-    });
-    Message message = Message.fromJson(data, userId);
-    Provider.of<ChatProvider>(context, listen: false).addNewMessage(
-      message,
-      roomId,
-    );
   }
 
   Widget postMessage(Message message) {
@@ -176,7 +312,8 @@ class _ChatPageState extends State<ChatPage> {
           : MainAxisAlignment.start,
       children: [
         Container(
-          constraints: BoxConstraints(maxWidth: MyApp.width! / 2),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2),
           margin: const EdgeInsets.symmetric(
             vertical: 7,
           ),
@@ -224,13 +361,125 @@ class _ChatPageState extends State<ChatPage> {
                 child: Image.asset(
                   "assets/Country_flag/in.png",
                   fit: BoxFit.cover,
-                  height: MyApp.width! / 2,
-                  width: MyApp.width! / 2,
+                  height: MediaQuery.of(context).size.width / 2,
+                  width: MediaQuery.of(context).size.width / 2,
                 ),
               )
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget post(Message message, String type) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: message.sender.isOwner
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () async {
+            if (type == "Feed") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CommentPage(
+                            feedId: message.feed,
+                          )));
+            } else if (type == "Profile") {
+              String userId =
+                  await getStringFromCache(SharedPreferenceString.userId);
+
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserProfilePage(
+                            owner: userId == message.profile,
+                            userId: userId == message.profile
+                                ? null
+                                : message.profile,
+                          )));
+            } else if (type == "Thread") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ThreadCommentPage(
+                            threadId: message.thread,
+                          )));
+            } else if (type == "Story") {
+              print("story");
+              StroyModel.User? user = await StoriesServices.getUserByStoryId(
+                  storyId: message.story!);
+              if (user == null) return;
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => StoryPage(
+                            user: user,
+                          )));
+            }
+          },
+          child: Container(
+            constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width / 1.5),
+            margin: const EdgeInsets.symmetric(
+              vertical: 2,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Flexible(
+                  child: Text(
+                    "Tap to View $type",
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  CalculatingFunction.getTime(message.createdAt),
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        fontSize: 8,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onPrimary
+                            .withAlpha(150),
+                      ),
+                )
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(
+          width: 8,
+        ),
+        message.sender.isOwner
+            ? Align(
+                alignment: Alignment.bottomCenter,
+                child: Icon(
+                  message.isSeenByAll
+                      ? Ionicons.checkmark_circle
+                      : Ionicons.checkmark_circle_outline,
+                  size: 15,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            : const SizedBox.shrink()
       ],
     );
   }
@@ -244,7 +493,8 @@ class _ChatPageState extends State<ChatPage> {
           : MainAxisAlignment.start,
       children: [
         Container(
-          constraints: BoxConstraints(maxWidth: MyApp.width! / 2),
+          constraints:
+              BoxConstraints(maxWidth: MediaQuery.of(context).size.width / 2),
           margin: const EdgeInsets.symmetric(
             vertical: 2,
           ),
@@ -318,10 +568,10 @@ class _ChatPageState extends State<ChatPage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Container(
-              width: MyApp.width! / 2,
-              height: MyApp.width! / 2,
+              width: MediaQuery.of(context).size.width / 2,
+              height: MediaQuery.of(context).size.width / 2,
               constraints: BoxConstraints(
-                maxWidth: MyApp.width! / 2,
+                maxWidth: MediaQuery.of(context).size.width / 2,
               ),
               margin: const EdgeInsets.symmetric(
                 vertical: 2,
@@ -372,286 +622,161 @@ class _ChatPageState extends State<ChatPage> {
         ]);
   }
 
-  TextEditingController message = TextEditingController();
-  ScrollController scrollChat = ScrollController();
-  List<Map<String, dynamic>> newMessages = [];
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Consumer<ChatProvider>(
-          builder: (context, chatProvider, child) {
-            return InkWell(
-              focusColor: Colors.transparent,
-              hoverColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-              onTap: () {
-                //if room chat loaded
+  Expanded chatsArea() {
+    return Expanded(child: Builder(builder: (context) {
+      return Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Consumer<ChatProvider>(
+            builder: (context, chatProvider, child) {
+              return ListView.separated(
+                controller: scrollChat,
+                itemCount: chatProvider.messages.length + 1,
+                separatorBuilder: (context, index) {
+                  if (_isFirstBuild) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollToBottomAndEmitSeenMessages();
+                    });
+                    _isFirstBuild = false;
+                  }
+                  if (index == 0) {
+                    return const SizedBox.shrink();
+                  }
 
-                if (isLoading == false) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => RoomInfoPage(
-                                user: widget.user,
-                                inboxModelList: chatProvider.messages
-                                    .where((element) => element.image != null)
-                                    .toList(),
-                              )));
-                }
-              },
-              child: Row(
-                children: [
-                  CircularNetworkImageWithSize(
-                    imageUrl: widget.user.profilePic,
-                    height: 40,
-                    width: 40,
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.user.name,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 16,
-                              overflow: TextOverflow.ellipsis,
+                  if (chatProvider.messages[index].createdAt.day !=
+                          chatProvider.messages[index - 1].createdAt.day ||
+                      chatProvider.messages[index].createdAt.month !=
+                          chatProvider.messages[index - 1].createdAt.month ||
+                      chatProvider.messages[index].createdAt.year !=
+                          chatProvider.messages[index - 1].createdAt.year) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        CalculatingFunction.getDay(
+                            chatProvider.messages[index].createdAt),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                       ),
-                      Consumer<ChatProvider>(
-                        builder: (context, chatProvider, child) {
-                          return chatProvider.isTyping &&
-                                  chatProvider.typingUserId == widget.user.id
-                              ? Text(
-                                  "Typing...",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 14,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                )
-                              : Text(
-                                  widget.user.username,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 14,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                );
-                        },
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        chatProvider.messages.isEmpty
+                            ? 'Today'
+                            : CalculatingFunction.getDay(
+                                chatProvider.messages[index].createdAt),
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        toolbarHeight: 70,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Ionicons.call_outline,
-              size: 25,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+                    );
+                  }
+
+                  Message message = chatProvider.messages[index - 1];
+                  return InkWell(
+                    focusColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    onLongPress: () {
+                      if (message.sender.isOwner) {
+                        AlertBoxes.acceptRejectAlertBox(
+                          context: context,
+                          title: "Unsend Message",
+                          content: const Text(
+                              "Are you sure you want to unsend this message?"),
+                          onAccept: () async {
+                            MessagesSocket(context).emitUnsendMessage(
+                              message.id,
+                              roomModel.room!.id,
+                            );
+                            Navigator.pop(context);
+                          },
+                          onReject: () {},
+                        );
+                      }
+                    },
+                    child: getMessageWidget(message),
+                  );
+                },
+              );
+            },
+          ));
+    }));
+  }
+
+  Widget personTile() {
+    return InkWell(
+      focusColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      overlayColor: MaterialStateProperty.all(Colors.transparent),
+      child: Row(
+        children: [
+          CircularNetworkImageWithSize(
+            imageUrl: widget.user.profilePic,
+            height: 40,
+            width: 40,
           ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Ionicons.videocam_outline,
-              size: 25,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
+          const SizedBox(
+            width: 10,
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.user.name,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              ),
+              Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  return chatProvider.isTyping &&
+                          chatProvider.typingUserId == widget.user.id
+                      ? Text(
+                          "Typing...",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                        )
+                      : Text(
+                          widget.user.username,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                        );
+                },
+              ),
+            ],
           ),
         ],
       ),
-      body: isLoading
-          ? Center(
-              child: SpinKit.ring,
-            )
-          : Column(children: [
-              Expanded(
-                  child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Consumer<ChatProvider>(
-                        builder: (context, chatProvider, child) {
-                          return ListView.separated(
-                            controller: scrollChat,
-                            itemCount: chatProvider.messages.length + 1,
-                            separatorBuilder: (context, index) {
-                              if (index == 0) {
-                                return const SizedBox.shrink();
-                              }
-
-                              if (chatProvider.messages[index].createdAt.day !=
-                                      chatProvider
-                                          .messages[index - 1].createdAt.day ||
-                                  chatProvider
-                                          .messages[index].createdAt.month !=
-                                      chatProvider.messages[index - 1].createdAt
-                                          .month ||
-                                  chatProvider.messages[index].createdAt.year !=
-                                      chatProvider
-                                          .messages[index - 1].createdAt.year) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    CalculatingFunction.getDay(
-                                        chatProvider.messages[index].createdAt),
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 14,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Text(
-                                    chatProvider.messages.isEmpty
-                                        ? 'Today'
-                                        : CalculatingFunction.getDay(
-                                            chatProvider
-                                                .messages[index].createdAt),
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          fontSize: 14,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary,
-                                        ),
-                                  ),
-                                );
-                              }
-
-                              Message message =
-                                  chatProvider.messages[index - 1];
-                              return InkWell(
-                                focusColor: Colors.transparent,
-                                hoverColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
-                                onLongPress: () {
-                                  if (message.sender.isOwner) {
-                                    AlertBoxes.acceptRejectAlertBox(
-                                      context: context,
-                                      title: "Unsend Message",
-                                      content: const Text(
-                                          "Are you sure you want to unsend this message?"),
-                                      onAccept: () async {
-                                        socketHelper.emit('unsend-message', {
-                                          'messageId': message.id,
-                                          'roomId': roomModel.room.id,
-                                        });
-                                      },
-                                      onReject: () {},
-                                    );
-                                  }
-                                },
-                                child: getMessageWidget(message),
-                              );
-                            },
-                          );
-                        },
-                      ))),
-              ChatInputWidget(
-                roomId: roomModel.room.id,
-                socketHelper: socketHelper,
-              ),
-            ]),
     );
   }
-}
 
-class ChatInputWidget extends StatefulWidget {
-  final String roomId;
-  final IO.Socket socketHelper;
-  const ChatInputWidget(
-      {super.key, required this.roomId, required this.socketHelper});
-
-  @override
-  _ChatInputWidgetState createState() => _ChatInputWidgetState();
-}
-
-class _ChatInputWidgetState extends State<ChatInputWidget> {
-  TextEditingController message = TextEditingController();
-  @override
-  void initState() {
-    message.addListener(() {
-      if (message.text.trim() != "") {
-        widget.socketHelper.emit('typing', {
-          'isTyping': true,
-          'roomId': widget.roomId,
-        });
-      } else {
-        widget.socketHelper.emit('typing', {
-          'isTyping': false,
-          'roomId': widget.roomId,
-        });
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  void _sendMessage() {
-    if (message.text.trim() != "") {
-      widget.socketHelper.emit('message', {
-        'message': message.text,
-        'image': null,
-        'thread': null,
-        'roomId': widget.roomId,
-      });
-      message.clear();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Padding chatInput(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        left: 10,
-        right: 10,
-        bottom: 20,
-      ),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
       child: Row(
         children: [
           IconButton(
@@ -663,12 +788,12 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                 for (int i = 0; i < images.length; i++) {
                   String url = await FirebaseHelper.uploadFile(images[i].path,
                       const Uuid().v4(), "chat_images", FirebaseHelper.Image);
-                  widget.socketHelper.emit('message', {
-                    'message': null,
-                    'image': url,
-                    'thread': null,
-                    'roomId': widget.roomId,
-                  });
+                  if (!mounted) return;
+                  await _initializeRoom();
+                  MessagesSocket(context).emitMessageImage(
+                    roomModel.room!.roomId,
+                    url,
+                  );
                 }
               }
             },
@@ -679,39 +804,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
             ),
           ),
           Flexible(
-            child: TextField(
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              controller: message,
-              onChanged: (value) {},
-              cursorOpacityAnimates: true,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    fontSize: 16,
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-              decoration: InputDecoration(
-                filled: true,
-                contentPadding: const EdgeInsets.all(20),
-                fillColor: Theme.of(context).colorScheme.secondary,
-                hintText: "Type message...",
-                hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
-                      fontSize: 16,
-                    ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-              ),
-            ),
+            child: messageTextField(context),
           ),
           const SizedBox(
             width: 10,

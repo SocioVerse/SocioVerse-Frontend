@@ -10,8 +10,8 @@ import 'package:http/http.dart' as http;
 import '../ServiceHelpers/appExceptions.dart';
 
 class ApiHelper {
-  late ApiResponse _response;
-  Future<dynamic> get(String path,
+  static late ApiResponse _response;
+  static Future<dynamic> get(String path,
       {dynamic querryParam, bool isPublic = false}) async {
     Map<String, String>? headers;
     String token = await getStringFromCache(SharedPreferenceString.accessToken);
@@ -20,14 +20,15 @@ class ApiHelper {
     try {
       Uri uri =
           Uri.https(ApiStringConstants.baseUrl, "/api/$path", querryParam);
+      log(uri.toString());
       final response = await http.get(
         uri,
         headers: headers,
       );
 
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
-
+        String? updatedToken = await RefreshToken.updateToken();
+        if (updatedToken == null) return null;
         final response = await http.get(
           uri,
           headers: {
@@ -46,7 +47,7 @@ class ApiHelper {
     return _response;
   }
 
-  ApiResponse _returnResponse(
+  static ApiResponse _returnResponse(
       http.Response response, dynamic uri, dynamic querryParam) {
     ApiResponse baseRes =
         ApiResponse.fromJson(json.decode(response.body.toString()));
@@ -73,7 +74,7 @@ class ApiHelper {
     }
   }
 
-  Future<ApiResponse> post(String path,
+  static Future<ApiResponse> post(String path,
       {dynamic querryParam, bool isPublic = false}) async {
     try {
       Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
@@ -89,7 +90,7 @@ class ApiHelper {
           await http.post(uri, body: jsonEncode(querryParam), headers: headers);
       if (response.statusCode == 401) {
         headers = null;
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken.updateToken();
 
         var response = await http.post(
           uri,
@@ -112,7 +113,7 @@ class ApiHelper {
     return _response;
   }
 
-  Future<Map<String, String>> GetContentType(dynamic header) async {
+  static Future<Map<String, String>> GetContentType(dynamic header) async {
     dynamic contentType;
     contentType = {'Content-Type': 'application/json'};
 
@@ -120,7 +121,7 @@ class ApiHelper {
     return header;
   }
 
-  Future<ApiResponse> postMultiPart(String path,
+  static Future<ApiResponse> postMultiPart(String path,
       {Map<String, String>? queryParam,
       List<File>? files,
       String? fileParamName}) async {
@@ -174,7 +175,7 @@ class ApiHelper {
     return _response;
   }
 
-  Future<ApiResponse> putMultiPart(String path,
+  static Future<ApiResponse> putMultiPart(String path,
       {Map<String, String>? queryParam,
       List<File>? files,
       String? fileParamName}) async {
@@ -228,7 +229,7 @@ class ApiHelper {
     return _response;
   }
 
-  Future<ApiResponse> put(String path, {dynamic querryParam}) async {
+  static Future<ApiResponse> put(String path, {dynamic querryParam}) async {
     try {
       Uri uri = Uri.https(ApiStringConstants.baseUrl, "/api/$path");
       String token =
@@ -241,7 +242,7 @@ class ApiHelper {
       var response =
           await http.put(uri, headers: _headers, body: jsonEncode(querryParam));
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken.updateToken();
 
         var response = await http.put(
           uri,
@@ -263,7 +264,7 @@ class ApiHelper {
     return _response;
   }
 
-  Future<dynamic> delete(String path,
+  static Future<dynamic> delete(String path,
       {dynamic queryParam, bool isPublic = false}) async {
     Map<String, String>? headers;
     String token = await getStringFromCache(SharedPreferenceString.accessToken);
@@ -277,7 +278,7 @@ class ApiHelper {
       );
 
       if (response.statusCode == 401) {
-        String updatedToken = await RefreshToken().updateToken();
+        String? updatedToken = await RefreshToken.updateToken();
 
         final response = await http.delete(
           uri,

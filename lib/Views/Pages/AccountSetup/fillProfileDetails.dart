@@ -13,6 +13,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:socioverse/Controllers/fillProfileDetailsPageProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ImagePickerHelper/imagePickerHelper.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
@@ -22,6 +23,7 @@ import 'package:socioverse/Views/Pages/AccountSetup/faceDetectionPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Services/authentication_services.dart';
+import 'package:uuid/uuid.dart';
 import '../../Widgets/buttons.dart';
 
 class FillProfilePage extends StatefulWidget {
@@ -39,10 +41,10 @@ class _FillProfilePageState extends State<FillProfilePage> {
   TextEditingController phone = TextEditingController();
   TextEditingController cCode = TextEditingController();
   TextEditingController occupation = TextEditingController();
-  String? currentImage;
+  File? currentImage;
   List<String>? faceImages;
   String initValue = "Select your Birth Date";
-
+  File? faceDetectImages;
   late SignupUser signupUser;
   @override
   void initState() {
@@ -67,7 +69,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
       keyboardType: hintTexxt == "Phone number*"
           ? TextInputType.phone
           : TextInputType.text,
-      readOnly: readOnly == null ? false : readOnly,
+      readOnly: readOnly ?? false,
       cursorOpacityAnimates: true,
       style: Theme.of(context)
           .textTheme
@@ -155,9 +157,9 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                     ? const Center(
                                         child: CircularProgressIndicator(),
                                       )
-                                    : CircularNetworkImageWithoutSize(
-                                        imageUrl: currentImage!,
-                                        fit: BoxFit.cover,
+                                    : ClipOval(
+                                        child: Image.file(currentImage!,
+                                            fit: BoxFit.cover),
                                       ),
                           );
                         }),
@@ -177,29 +179,14 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                 iconSize: 30,
                                 padding: const EdgeInsets.all(0),
                                 onPressed: () async {
+                                  prov.profileImageLoading = true;
                                   currentImage =
                                       await ImagePickerFunctionsHelper
-                                              .requestPermissionsAndPickFile(
-                                                  context)
-                                          .then((value) async {
-                                    if (value != null) {
-                                      prov.profileImageLoading = true;
-                                      await FirebaseHelper.deleteFolder(
-                                          "${signupUser!.email!}/profilepic");
-                                      return await FirebaseHelper.uploadFile(
-                                          value.path,
-                                          signupUser.email!,
-                                          "${signupUser.email!}/profilepic",
-                                          FirebaseHelper.Image);
-                                    } else {
-                                      return null;
-                                    }
-                                  });
+                                          .requestPermissionsAndPickFile(
+                                              context);
 
-                                  print(currentImage.toString());
-                                  if (currentImage != null) {
-                                    prov.profileImageLoading = false;
-                                  }
+                                  log(currentImage.toString());
+                                  prov.profileImageLoading = false;
                                 },
                                 icon: Icon(
                                   Icons.edit,
@@ -313,31 +300,20 @@ class _FillProfilePageState extends State<FillProfilePage> {
                         builder: (context, prov, child) {
                       return TextButton(
                         onPressed: () async {
-                          faceImages = await ImagePickerFunctionsHelper
-                                  .pickMultipleImage(context)
-                              .then((value) async {
-                            if (value != null) {
-                              List<String> faceImagesList = [];
-                              prov.faceImageLoading = true;
-                              await FirebaseHelper.deleteFolder(
-                                  "${signupUser.email!}/faceImages");
-                              for (int i = 0; i < value.length; i++) {
-                                String? faceImage =
-                                    await FirebaseHelper.uploadFile(
-                                        value[i].path,
-                                        "${signupUser.email!}-face-dataset-$i",
-                                        "${signupUser.email!}/faceImages",
-                                        FirebaseHelper.Image);
-                                faceImagesList.add(faceImage);
-                              }
-                              return faceImagesList;
-                            } else {
-                              return null;
-                            }
-                          });
-                          if (faceImages != null) {
-                            prov.faceImageLoading = false;
+                          prov.faceImageLoading = true;
+                          List<dynamic>? image = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const FaceDetectionPage()));
+                          if (image != null) {
+                            faceDetectImages = image[0] as File;
+
+                            log(faceDetectImages!.path.toString());
+                          } else {
+                            faceDetectImages = null;
                           }
+                          prov.faceImageLoading = false;
                         },
                         child: Row(
                           children: [
@@ -369,7 +345,7 @@ class _FillProfilePageState extends State<FillProfilePage> {
                         builder: (context, prov, child) {
                       return prov.faceImageLoading == true
                           ? SpinKit.threeBounce
-                          : faceImages != null
+                          : faceDetectImages != null
                               ? Icon(
                                   Icons.done,
                                   color: Theme.of(context).colorScheme.primary,
@@ -390,15 +366,8 @@ class _FillProfilePageState extends State<FillProfilePage> {
                         title: "Continue",
                         onPressed: () async {
                           if (prov.faceImageLoading == true) {
-                            Fluttertoast.showToast(
-                              msg: "Wait for face images to upload",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              fontSize: 16.0,
-                            );
+                            FlutterToast.flutterWhiteToast(
+                                "Wait for face images to upload");
                             return;
                           }
                           if (fullName.text.isEmpty ||
@@ -407,28 +376,38 @@ class _FillProfilePageState extends State<FillProfilePage> {
                               occupation.text.isEmpty ||
                               prov.dob.text.isEmpty ||
                               currentImage == null) {
-                            Fluttertoast.showToast(
-                              msg: "Fill all details",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.BOTTOM,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
-                              fontSize: 16.0,
-                            );
+                            FlutterToast.flutterWhiteToast("Fill all details");
                             return;
                           } else {
+                            context.loaderOverlay.show();
+                            String? faceImage, dp;
+                            if (faceDetectImages != null) {
+                              faceImage = await FirebaseHelper.uploadFile(
+                                  faceDetectImages!.path,
+                                  "${signupUser.email!}\$${const Uuid().v4()}.jpg",
+                                  "Faces",
+                                  FirebaseHelper.Image);
+                            }
+                            if (currentImage != null) {
+                              await FirebaseHelper.deleteFolder(
+                                  "${signupUser!.email!}/profilepic");
+                              dp = await FirebaseHelper.uploadFile(
+                                  currentImage!.path,
+                                  signupUser.email!,
+                                  "${signupUser.email!}/profilepic",
+                                  FirebaseHelper.Image);
+                            }
                             signupUser.name = fullName.text;
                             signupUser.username = username.text;
                             signupUser.phoneNumber = phone.text;
                             signupUser.occupation = occupation.text;
                             signupUser.dob = prov.birthDate;
-                            signupUser.profilePic = currentImage;
-                            signupUser.faceImageDataset = faceImages;
+                            signupUser.profilePic = dp;
+                            signupUser.faceImageDataset = faceImage;
                             log(signupUser.toJson().toString());
-                            context.loaderOverlay.show();
+
                             ApiResponse? response =
-                                await AuthServices().userSignUp(
+                                await AuthServices.userSignUp(
                               signupUser: signupUser,
                             );
                             context.loaderOverlay.hide();
@@ -439,15 +418,8 @@ class _FillProfilePageState extends State<FillProfilePage> {
                                       builder: (context) => const MainPage()),
                                   (route) => false);
                             } else {
-                              Fluttertoast.showToast(
-                                msg: response!.message.toString(),
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
-                                backgroundColor: Colors.white,
-                                textColor: Colors.black,
-                                fontSize: 16.0,
-                              );
+                              FlutterToast.flutterWhiteToast(
+                                  response!.message.toString());
                             }
                           }
                         },

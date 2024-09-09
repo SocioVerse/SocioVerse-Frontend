@@ -1,24 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/createNewPasswordPageProvider.dart';
+import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
+import 'package:socioverse/Helper/get_Routes.dart';
+import 'package:socioverse/Services/user_services.dart';
+import 'package:socioverse/Utils/CalculatingFunctions.dart';
 import 'package:socioverse/Views/Pages/Authentication/passwordSignUpPage.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
+import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 
 class CreateNewPasswordPage extends StatefulWidget {
-  const CreateNewPasswordPage({super.key});
+  CreateNewPasswordPage({super.key});
 
   @override
   State<CreateNewPasswordPage> createState() => _CreateNewPasswordPageState();
 }
 
 class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
-  var isChecked = false;
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
+  final TextEditingController newPasswordController = TextEditingController();
+
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,191 +42,117 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
         elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(child: Container()),
-            const SizedBox(
-              height: 20,
-            ),
-            Text(
-              "Create Your New Password",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(fontSize: 15),
-              textAlign: TextAlign.start,
-            ),
-            const SizedBox(
-              height: 40,
-            ),
-            TextField(
-              cursorOpacityAnimates: true,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16, color: Theme.of(context).colorScheme.surface),
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Icon(
-                    Icons.lock_rounded,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
-                fillColor: Theme.of(context).colorScheme.secondary,
-                hintText: "Password",
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontSize: 16),
-                suffixIcon: const Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Icon(
-                    Icons.visibility_rounded,
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                focusColor: Theme.of(context).colorScheme.primary,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextField(
-              cursorOpacityAnimates: true,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 16, color: Theme.of(context).colorScheme.surface),
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                prefixIcon: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Icon(
-                    Ionicons.lock_closed,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
-                fillColor: Theme.of(context).colorScheme.secondary,
-                hintText: "Confirm Password",
-                hintStyle: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(fontSize: 16),
-                suffixIcon: const Padding(
-                  padding: EdgeInsets.all(20.0),
-                  child: Icon(
-                    Icons.visibility_rounded,
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.onBackground,
-                  ),
-                ),
-                focusColor: Theme.of(context).colorScheme.primary,
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Checkbox(
-                    value: isChecked,
-                    activeColor: Theme.of(context).colorScheme.primary,
-                    checkColor: Theme.of(context).colorScheme.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value!;
-                      });
-                    }),
                 Text(
-                  "Remember me",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 16,
-                      ),
+                  "Create Your New Password",
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium!
+                      .copyWith(fontSize: 15),
+                  textAlign: TextAlign.start,
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                CustomInputField(
+                  controller: newPasswordController,
+                  hintText: "New Password",
+                  obscureText: true,
+                  prefixIcon: Icons.lock_outline_rounded,
+                ),
+                // confirm password
+
+                const SizedBox(
+                  height: 20,
+                ),
+                CustomInputField(
+                  controller: confirmPasswordController,
+                  hintText: "Confirm New Password",
+                  obscureText: true,
+                  prefixIcon: Icons.lock_outline_rounded,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                MyElevatedButton1(
+                  ctx: context,
+                  title: "Continue",
+                  onPressed: () async {
+                    // validate the form
+
+                    if (newPasswordController.text.isEmpty ||
+                        confirmPasswordController.text.isEmpty) {
+                      // show error message
+                      return;
+                    }
+                    if (!CalculatingFunction.isStrongPassword(
+                        newPasswordController.text)) {
+                      Fluttertoast.showToast(
+                          msg:
+                              "Password should contain at least 8 characters, 1 uppercase, 1 lowercase, 1 number and 1 special character",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                      return;
+                    }
+                    if (newPasswordController.text !=
+                        confirmPasswordController.text) {
+                      Fluttertoast.showToast(
+                          msg: "Passwords do not match",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                      return;
+                    }
+                    // call the api
+                    ApiResponse message = await UserServices.changePassword(
+                        oldPassword: null,
+                        newPassword: newPasswordController.text);
+
+                    if (message.data["success"] == true) {
+                      Fluttertoast.showToast(
+                          msg: message.data["message"],
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.green,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => const GetInitPage()),
+                          (route) => false);
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: message.data["message"],
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    }
+                  },
                 ),
               ],
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            MyElevatedButton1(
-              ctx: context,
-              title: "Continue",
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => PasswordSignUpPage()));
-              },
-            ),
-            // SizedBox(
-            //   width: double.infinity,
-            //   child: ElevatedButton(
-            //     style: ElevatedButton.styleFrom(
-            //       padding: EdgeInsets.symmetric(vertical: 15),
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(20),
-            //       ),
-            //     ),
-            //     onPressed: () {
-            //       Navigator.push(
-            //           context,
-            //           CupertinoPageRoute(
-            //               builder: (context) => PasswordSignUpPage()));
-            //     },
-            //     child: Text("Continue",
-            //         style: GoogleFonts.openSans(
-            //             fontSize: 15,
-            //             fontWeight: FontWeight.bold,
-            //             color: Theme.of(context).colorScheme.onPrimary),
-            //         textAlign: TextAlign.center),
-            //   ),
-            // ),
-            SizedBox(
-              height: 40,
-            ),
-          ],
+          ),
         ),
       ),
     );

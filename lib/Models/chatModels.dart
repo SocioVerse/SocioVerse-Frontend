@@ -7,7 +7,7 @@ import 'dart:convert';
 String roomModelToJson(RoomModel data) => json.encode(data.toJson());
 
 class RoomModel {
-  Room room;
+  Room? room;
   List<Message> messages;
 
   RoomModel({
@@ -17,13 +17,13 @@ class RoomModel {
 
   factory RoomModel.fromJson(Map<String, dynamic> json, String? userId) =>
       RoomModel(
-        room: Room.fromJson(json["room"]),
+        room: json["room"] == null ? null : Room.fromJson(json["room"]),
         messages: List<Message>.from(
             json["messages"].map((x) => Message.fromJson(x, userId))),
       );
 
   Map<String, dynamic> toJson() => {
-        "room": room.toJson(),
+        "room": room!.toJson(),
         "messages": List<dynamic>.from(messages.map((x) => x.toJson())),
       };
 }
@@ -33,6 +33,9 @@ class Message {
   String? message;
   String? image;
   String? thread;
+  String? feed;
+  String? story;
+  String? profile;
   DateTime createdAt;
   Sender sender;
   bool isSeenByAll;
@@ -42,6 +45,9 @@ class Message {
     this.message,
     this.image,
     this.thread,
+    this.feed,
+    this.story,
+    this.profile,
     required this.createdAt,
     required this.sender,
     required this.isSeenByAll,
@@ -53,6 +59,9 @@ class Message {
         message: json["message"],
         image: json["image"],
         thread: json["thread"],
+        feed: json["feed"],
+        story: json["story"],
+        profile: json["profile"],
         createdAt: DateTime.parse(json["createdAt"]).toLocal(),
         sender: Sender.fromJson(json["sender"], userId),
         isSeenByAll: json["isSeenByAll"],

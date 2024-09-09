@@ -54,7 +54,7 @@ class _AddCommentPageState extends State<AddCommentPage> {
   }
 
   void fetchUserdata() async {
-    user = await UserServices().getUserDetails();
+    user = await UserServices.getUserDetails();
     setState(() {});
   }
 
@@ -147,8 +147,8 @@ class _AddCommentPageState extends State<AddCommentPage> {
                       ));
                     }
 
-                    await ThreadServices()
-                        .createComment(createThreadModel: createThreadModel)
+                    await ThreadServices.createComment(
+                            createThreadModel: createThreadModel)
                         .then((value) {
                       context.loaderOverlay.hide();
                       Navigator.pop(context);

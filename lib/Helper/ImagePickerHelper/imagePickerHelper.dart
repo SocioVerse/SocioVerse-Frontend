@@ -15,6 +15,7 @@ class ImagePickerFunctionsHelper {
     print("Image Uploadinng.....");
     final pickedFile = await picker.pickImage(
       source: ImageSource.gallery,
+      imageQuality: 85,
     );
 
     if (pickedFile != null) {
@@ -51,7 +52,9 @@ class ImagePickerFunctionsHelper {
   static Future<List<File>?> pickMultipleImage(BuildContext context,
       {bool forStory = false}) async {
     print("Image Uploading.....");
-    final pickedFiles = await picker.pickMultiImage();
+    final pickedFiles = await picker.pickMultiImage(
+      imageQuality: 85,
+    );
     List<File>? croppedFileList = pickedFiles.map((e) => File(e.path)).toList();
     if (croppedFileList.isNotEmpty) {
       return cropMultipleImages(context, croppedFileList, forStory);

@@ -4,11 +4,10 @@ import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/followRequestModel.dart';
 
 class FollowRequestsServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<List<FollowRequestModel>> fetchAllFolloweRequests() async {
-    _response = await _helper.get(
+  static Future<List<FollowRequestModel>> fetchAllFolloweRequests() async {
+    _response = await ApiHelper.get(
       ApiStringConstants.fetchAllFolloweRequests,
       isPublic: false,
     );
@@ -24,8 +23,8 @@ class FollowRequestsServices {
     }
   }
 
-  Future<void> acceptFollowRequest(String id) async {
-    _response = await _helper.put(
+  static Future<void> acceptFollowRequest(String id) async {
+    _response = await ApiHelper.put(
       ApiStringConstants.acceptFollowRequest,
       querryParam: {
         "targetUserId": id,
@@ -33,8 +32,8 @@ class FollowRequestsServices {
     );
   }
 
-  Future<void> rejectFollowRequest(String id) async {
-    _response = await _helper.delete(
+  static Future<void> rejectFollowRequest(String id) async {
+    _response = await ApiHelper.delete(
       ApiStringConstants.rejectFollowRequest,
       queryParam: {
         "targetUserId": id,

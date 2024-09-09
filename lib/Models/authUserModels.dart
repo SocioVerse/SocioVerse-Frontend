@@ -9,9 +9,9 @@ class SignupUser {
   String? occupation;
   String? country;
   DateTime? dob;
-  List<String>? faceImageDataset;
+  String? faceImageDataset;
   String? profilePic;
-  String fcmtoken;
+  String? fcmtoken;
 
   SignupUser({
     this.name,
@@ -23,7 +23,7 @@ class SignupUser {
     this.country,
     this.dob,
     this.profilePic,
-    required this.fcmtoken,
+    this.fcmtoken,
   });
 
   String toRawJson() => json.encode(toJson());
@@ -44,15 +44,18 @@ class SignupUser {
 }
 
 class LoginUser {
-  String usernameAndEmail;
-  String password;
-  String fcmtoken;
+  String? usernameAndEmail;
+  String? password;
+  String? fcmtoken;
+  String? email;
+  String? otp;
 
-  LoginUser({
-    required this.usernameAndEmail,
-    required this.password,
-    required this.fcmtoken,
-  });
+  LoginUser(
+      {this.usernameAndEmail,
+      this.password,
+      this.fcmtoken,
+      this.email,
+      this.otp});
 
   String toRawJson() => json.encode(toJson());
 
@@ -60,5 +63,7 @@ class LoginUser {
         "usernameOrEmail": usernameAndEmail,
         "password": password,
         "fcmToken": fcmtoken,
+        "email": email,
+        "otp": otp
       };
 }

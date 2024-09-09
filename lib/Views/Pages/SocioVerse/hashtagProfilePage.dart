@@ -85,7 +85,7 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
             height: 20,
           ),
           // SizedBox(
-          //   width: MyApp.width! - 30,
+          //   width: MediaQuery.of(context).size.width - 30,
           //   height: 50,
           //   child: MyEleButtonsmall(
           //     title: "Follow",
@@ -123,146 +123,6 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
                         fontSize: 18,
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
-                ),
-                // DropdownButton(
-                //   dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                //   focusColor: Theme.of(context).scaffoldBackgroundColor,
-                //   underline: const SizedBox.shrink(),
-                //   value: __value1,
-                //   items: [
-                //     DropdownMenuItem(
-                //       value: 1,
-                //       child: Row(
-                //         crossAxisAlignment: CrossAxisAlignment.end,
-                //         children: [
-                //           const Padding(
-                //             padding: EdgeInsets.all(3.0),
-                //             child: Icon(
-                //               Ionicons.grid_outline,
-                //               size: 15,
-                //             ),
-                //           ),
-                //           const SizedBox(
-                //             width: 5,
-                //           ),
-                //           Text(
-                //             "Feeds ",
-                //             style: Theme.of(context)
-                //                 .textTheme
-                //                 .bodyMedium!
-                //                 .copyWith(
-                //                   fontWeight: FontWeight.w500,
-                //                   fontSize: 18,
-                //                   color:
-                //                       Theme.of(context).colorScheme.onPrimary,
-                //                 ),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //     DropdownMenuItem(
-                //       value: 2,
-                //       child: Row(
-                //         crossAxisAlignment: CrossAxisAlignment.end,
-                //         children: [
-                //           const Padding(
-                //             padding: EdgeInsets.all(3.0),
-                //             child: Icon(
-                //               Ionicons.text,
-                //               size: 15,
-                //             ),
-                //           ),
-                //           const SizedBox(
-                //             width: 5,
-                //           ),
-                //           Text(
-                //             "Threads",
-                //             style: Theme.of(context)
-                //                 .textTheme
-                //                 .bodyMedium!
-                //                 .copyWith(
-                //                   fontWeight: FontWeight.w500,
-                //                   fontSize: 18,
-                //                   color:
-                //                       Theme.of(context).colorScheme.onPrimary,
-                //                 ),
-                //           ),
-                //         ],
-                //       ),
-                //     )
-                //   ],
-                //   onChanged: (value) {
-                //     setState(() {
-                //       __value1 = value as int;
-                //     });
-                //   },
-                // ),
-                const Spacer(),
-                DropdownButton(
-                  dropdownColor: Theme.of(context).scaffoldBackgroundColor,
-                  value: __value,
-                  padding: const EdgeInsets.all(0),
-                  items: [
-                    DropdownMenuItem(
-                      value: 1,
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(3.0),
-                            child: Icon(
-                              Ionicons.time_outline,
-                              size: 15,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 1,
-                          ),
-                          Text(
-                            "Recent",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 15,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    DropdownMenuItem(
-                      value: 2,
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(3.0),
-                            child: Icon(
-                              Ionicons.trending_up,
-                              size: 15,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 1,
-                          ),
-                          Text(
-                            "Top",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: 15,
-                                ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      __value = value as int;
-                    });
-                  },
                 ),
               ],
             ),
@@ -323,7 +183,7 @@ class _HashtagProfilePageState extends State<HashtagProfilePage> {
                     );
                   });
             },
-            future: HashtagsServices().getHashtagsFeed(
+            future: HashtagsServices.getHashtagsFeed(
                 tagId: widget.id, isRecent: __value == 1 ? true : false),
           ),
         ]),

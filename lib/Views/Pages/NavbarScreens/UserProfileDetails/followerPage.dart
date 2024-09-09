@@ -38,8 +38,7 @@ class _FollowersPageState extends State<FollowersPage> {
     setState(() {
       isLoading = true;
     });
-    _followersModelList =
-        await FollowersServices().fetchFollowers(widget.userId);
+    _followersModelList = await FollowersServices.fetchFollowers(widget.userId);
     setState(() {
       isLoading = false;
     });
@@ -49,6 +48,7 @@ class _FollowersPageState extends State<FollowersPage> {
       {required String ttl1,
       required String ttl2,
       required FollowersModel followersModel,
+      required int index,
       required bool isPressed}) {
     return ListTile(
       onTap: () {
@@ -87,27 +87,18 @@ class _FollowersPageState extends State<FollowersPage> {
       ),
       trailing: followersModel.state == 3
           ? const SizedBox.shrink()
-          : MyEleButtonsmall(
-              title2: ttl2,
-              title: ttl1,
-              ispressed: isPressed,
+          : CustomOutlineButton(
+              ctx: context,
+              title: 'Remove',
               onPressed: () async {
-                if (followersModel.state == 2) {
-                  await FollowUnfollowServices().unFollow(
-                    userId: followersModel.user.id,
-                  );
-                  setState(() {
-                    if (followersModel.state == 2) {
-                      followersModel.state = 0;
-                    }
-                  });
-                } else {
-                  await FollowUnfollowServices().toogleFollow(
-                    userId: followersModel.user.id,
-                  );
+                await FollowersServices.removeFollower(followersModel.user.id);
+                setState(() {
+                  _followersModelList!.removeAt(index);
+                });
+                if (_followersModelList!.isEmpty) {
+                  Navigator.pop(context);
                 }
-              },
-              ctx: context),
+              }),
     );
   }
 
@@ -136,6 +127,7 @@ class _FollowersPageState extends State<FollowersPage> {
                 return Column(
                   children: [
                     personListTile(
+                        index: index,
                         followersModel: _followersModelList![index],
                         ttl1: _followersModelList![index].state == 0
                             ? "Follow"
@@ -148,7 +140,7 @@ class _FollowersPageState extends State<FollowersPage> {
                         ttl2: _followersModelList![index].state == 0
                             ? "Requested"
                             : "Follow"),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
                   ],

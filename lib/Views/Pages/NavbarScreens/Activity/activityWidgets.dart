@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/followRequestsPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/Activity/Activities/followRequestsPage.dart';
 import 'package:socioverse/Models/activityModels.dart';
-import 'package:socioverse/Views/Pages/NavbarScreens/Activity/activityPage.dart';
 import 'package:socioverse/Views/Widgets/Global/imageLoadingWidgets.dart';
 import 'package:socioverse/Views/Widgets/buttons.dart';
 
@@ -22,130 +21,10 @@ String getTimeDiff(DateTime dateTime) {
   return time;
 }
 
-class FollowTile extends StatelessWidget {
-  final String ttl1;
-  final String ttl2;
-  final String name;
-  final String imgUrl;
-  final DateTime dateTime;
-
-  FollowTile({
-    required this.ttl1,
-    required this.ttl2,
-    required this.name,
-    required this.imgUrl,
-    required this.dateTime,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String time = getTimeDiff(dateTime);
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 30,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: CircleAvatar(
-            radius: 28,
-            backgroundImage: AssetImage(
-              "assets/Country_flag/in.png",
-            )),
-      ),
-      title: Text(
-        "Fatima",
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Started following you",
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-          Text(
-            time,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-        ],
-      ),
-      trailing: MyEleButtonsmall(
-          title2: ttl2, title: ttl1, onPressed: () {}, ctx: context),
-    );
-  }
-}
-
-class LikedTile extends StatelessWidget {
-  final String name;
-  final String imgUrl;
-  final String postUrl;
-  final DateTime dateTime;
-
-  LikedTile({
-    required this.name,
-    required this.imgUrl,
-    required this.postUrl,
-    required this.dateTime,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    String time = getTimeDiff(dateTime);
-    return ListTile(
-      leading: CircleAvatar(
-        radius: 30,
-        backgroundColor: Theme.of(context).colorScheme.secondary,
-        child: CircleAvatar(
-            radius: 28,
-            backgroundImage: AssetImage(
-              "assets/Country_flag/in.png",
-            )),
-      ),
-      title: Text(
-        "Fatima",
-        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Liked your post",
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-          Text(
-            time,
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  fontSize: 14,
-                ),
-          ),
-        ],
-      ),
-      trailing: ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          child: Image.asset(
-            "assets/Country_flag/in.png",
-            height: 40,
-            width: 40,
-            fit: BoxFit.cover,
-          )),
-    );
-  }
-}
-
 class StackOfTwo extends StatelessWidget {
-  List<String> images;
+  final List<String> images;
 
-  StackOfTwo({required this.images});
+  const StackOfTwo({required this.images});
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +61,10 @@ class StackOfTwo extends StatelessWidget {
 }
 
 class RequestsTile extends StatelessWidget {
-  LatestFollowRequestModel latestFollowRequestModel;
+  final LatestFollowRequestModel latestFollowRequestModel;
   final Function onTap;
-  RequestsTile({required this.latestFollowRequestModel, required this.onTap});
+  const RequestsTile(
+      {super.key, required this.latestFollowRequestModel, required this.onTap});
 
   String getText() {
     if (latestFollowRequestModel.followRequestCount == 1) {
@@ -210,36 +90,42 @@ class RequestsTile extends StatelessWidget {
               onTap();
             });
           },
-          leading: Stack(
-            children: [
-              latestFollowRequestModel.followRequestCount == 1
-                  ? CircularNetworkImageWithoutSize(
-                      imageUrl: latestFollowRequestModel.profilePics[0],
-                      fit: BoxFit.cover,
-                    )
-                  : StackOfTwo(
-                      images: latestFollowRequestModel.profilePics,
+          leading: SizedBox(
+            height: 55,
+            width: 55,
+            child: Stack(
+              children: [
+                //     Positioned.fill(
+                // child:
+                latestFollowRequestModel.followRequestCount == 1
+                    ? CircularNetworkImageWithoutSize(
+                        imageUrl: latestFollowRequestModel.profilePics[0],
+                        fit: BoxFit.cover,
+                      )
+                    : StackOfTwo(
+                        images: latestFollowRequestModel.profilePics,
+                      ),
+                //       ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
                     ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle),
-                  child: Center(
-                      child: Text(
-                    "${latestFollowRequestModel.followRequestCount}",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  )),
-                ),
-              )
-            ],
+                    child: Text(
+                      "${latestFollowRequestModel.followRequestCount}",
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +138,7 @@ class RequestsTile extends StatelessWidget {
                       color: Theme.of(context).colorScheme.onPrimary,
                     ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 5,
               ),
               Text(

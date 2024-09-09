@@ -10,7 +10,7 @@ class UserSignUpModel {
   String profilePic;
   String country;
   DateTime dob;
-  List<dynamic> faceImageDataset;
+  String? faceImageDataset;
   String id;
   DateTime createdAt;
   DateTime updatedAt;
@@ -53,8 +53,7 @@ class UserSignUpModel {
         profilePic: json["profile_pic"],
         country: json["country"],
         dob: DateTime.parse(json["dob"]),
-        faceImageDataset:
-            List<dynamic>.from(json["face_image_dataset"].map((x) => x)),
+        faceImageDataset: json["face_image_dataset"],
         id: json["_id"],
         createdAt: DateTime.parse(json["createdAt"]).toLocal(),
         updatedAt: DateTime.parse(json["updatedAt"]).toLocal(),
@@ -73,8 +72,7 @@ class UserSignUpModel {
         "profile_pic": profilePic,
         "country": country,
         "dob": dob.toIso8601String(),
-        "face_image_dataset":
-            List<dynamic>.from(faceImageDataset.map((x) => x)),
+        "face_image_dataset": faceImageDataset,
         "_id": id,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),

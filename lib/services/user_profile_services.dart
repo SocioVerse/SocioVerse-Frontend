@@ -6,19 +6,19 @@ import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/userProfileModels.dart';
 
 class UserProfileDetailsServices {
-  final ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
+  static ApiResponse _response = ApiResponse();
 
-  Future<UserProfileDetailsModel?> fetchUserProfileDetails(String? id) async {
+  static Future<UserProfileDetailsModel?> fetchUserProfileDetails(
+      String? id) async {
     _response = id != null
-        ? await _helper.get(
+        ? await ApiHelper.get(
             ApiStringConstants.fetchUserProfileDetails,
             querryParam: {
               "userId": id,
             },
             isPublic: false,
           )
-        : await _helper.get(
+        : await ApiHelper.get(
             ApiStringConstants.fetchUserProfileDetails,
             isPublic: false,
           );
@@ -29,23 +29,23 @@ class UserProfileDetailsServices {
     }
   }
 
-  Future<void> addBio(String bio) async {
-    _response = await _helper.post(ApiStringConstants.addBio, querryParam: {
+  static Future<void> addBio(String bio) async {
+    _response = await ApiHelper.post(ApiStringConstants.addBio, querryParam: {
       "bio": bio,
     });
   }
 
-  Future<List<ThreadModel>> getRepostThreads(String? id) async {
+  static Future<List<ThreadModel>> getRepostThreads(String? id) async {
     List<ThreadModel> fetchedThreads = [];
     _response = id != null
-        ? await _helper.get(
+        ? await ApiHelper.get(
             ApiStringConstants.fetchRepostThreads,
             querryParam: {
               "userId": id,
             },
             isPublic: false,
           )
-        : await _helper.get(
+        : await ApiHelper.get(
             ApiStringConstants.fetchRepostThreads,
             isPublic: false,
           );
@@ -57,14 +57,14 @@ class UserProfileDetailsServices {
     return fetchedThreads;
   }
 
-  Future<List<FeedThumbnail>> getUserFeeds({String? userId}) async {
+  static Future<List<FeedThumbnail>> getUserFeeds({String? userId}) async {
     List<FeedThumbnail> fetchedFeeds = [];
     _response = userId == null
-        ? await _helper.get(
+        ? await ApiHelper.get(
             ApiStringConstants.fetchUserFeeds,
             isPublic: false,
           )
-        : await _helper.get(
+        : await ApiHelper.get(
             ApiStringConstants.fetchUserFeeds,
             querryParam: {
               "userId": userId,

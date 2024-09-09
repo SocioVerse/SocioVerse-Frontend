@@ -33,6 +33,11 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  clearMessages() {
+    _messages.clear();
+    notifyListeners();
+  }
+
   removeMessage(String messageId) {
     _messages.removeWhere((element) => element.id == messageId);
     notifyListeners();

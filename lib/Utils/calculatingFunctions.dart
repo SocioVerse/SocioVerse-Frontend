@@ -36,18 +36,18 @@ class CalculatingFunction {
 
     int minutesAgo = difference.inMinutes;
     if (minutesAgo < 60) {
-      return '$minutesAgo min';
+      return '${minutesAgo}min';
     }
 
     int hoursAgo = difference.inHours;
     if (hoursAgo == 1) {
       return '1 hr';
     } else if (hoursAgo < 24) {
-      return '$hoursAgo hrs';
+      return '${hoursAgo}hrs';
     }
 
     int daysAgo = difference.inDays;
-    return '$daysAgo days';
+    return '${daysAgo}d';
   }
 
   static bool isStrongPassword(String password) {

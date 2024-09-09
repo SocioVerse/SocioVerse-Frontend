@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/changePasswordPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/deleteAccountPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/helpSuppoertPage.dart';
+import 'package:socioverse/Views/Pages/NavbarScreens/UserProfileDetails/UserProfileSettings/storyHideSettingsPage.dart';
+import 'package:socioverse/Views/Widgets/Global/alertBoxes.dart';
+import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 
 class ProfileSettings extends StatefulWidget {
   const ProfileSettings({super.key});
@@ -9,6 +15,8 @@ class ProfileSettings extends StatefulWidget {
 }
 
 class _ProfileSettingsState extends State<ProfileSettings> {
+  bool isSwitched = false;
+  TextEditingController currentPasswordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,112 +40,84 @@ class _ProfileSettingsState extends State<ProfileSettings> {
               SizedBox(
                 height: 20,
               ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.person_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  "Account",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                trailing: Icon(
-                  Ionicons.chevron_forward_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.chatbubble_ellipses_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  "Chats",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                trailing: Icon(
-                  Ionicons.chevron_forward_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
+
+              // Notification Switch
+              _customSettingTile(
+                context,
+                title: "Notifications",
+                icon: Icons.notifications_outlined,
+                onTap: () {
+                  setState(() {
+                    isSwitched = !isSwitched;
+                  });
+                },
+                trailing: Switch(
+                  value: isSwitched,
+                  onChanged: (value) {
+                    setState(() {
+                      isSwitched = value;
+                    });
+                  },
+                  activeColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
-              SizedBox(
-                height: 20,
+              // Hide Story Settings
+              _customSettingTile(
+                context,
+                title: "Story Hide Settings",
+                icon: Icons.visibility_off_outlined,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return StoryHideSettingsPage();
+                  }));
+                },
               ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.notifications_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  "Notifications",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                trailing: Icon(
-                  Ionicons.chevron_forward_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.lock_closed_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  "Privacy",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                trailing: Icon(
-                  Ionicons.chevron_forward_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              ListTile(
-                leading: Icon(
-                  Ionicons.help_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-                title: Text(
-                  "Help",
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                trailing: Icon(
-                  Ionicons.chevron_forward_outline,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
+              //change password
+              _customSettingTile(
+                context,
+                title: "Change Password",
+                icon: Icons.lock_outline,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ChangePasswordPage();
+                  }));
+                },
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  ListTile _customSettingTile(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Function onTap,
+    Color? color,
+    Widget? trailing,
+  }) {
+    return ListTile(
+      onTap: () {
+        onTap();
+      },
+      leading: Icon(
+        icon,
+        color: color ?? Theme.of(context).colorScheme.onPrimary,
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontSize: 17,
+              color: color ?? Theme.of(context).colorScheme.onPrimary,
+            ),
+      ),
+      trailing: trailing ??
+          Icon(
+            Ionicons.chevron_forward_outline,
+            color: color ?? Theme.of(context).colorScheme.onPrimary,
+          ),
     );
   }
 }

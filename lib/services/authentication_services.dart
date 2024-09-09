@@ -9,9 +9,8 @@ import 'package:socioverse/Models/authUserModels.dart';
 import 'package:socioverse/Models/userSignUpModel.dart';
 
 class AuthServices {
-  final ApiHelper _helper = ApiHelper();
-  Future<ApiResponse> isEmailExists({required String email}) async {
-    ApiResponse response = await _helper.get(
+  static Future<ApiResponse> isEmailExists({required String email}) async {
+    ApiResponse response = await ApiHelper.get(
       ApiStringConstants.isEmailExists,
       querryParam: {"email": email},
       isPublic: true,
@@ -19,9 +18,10 @@ class AuthServices {
     return response;
   }
 
-  Future<ApiResponse?> userSignUp({required SignupUser signupUser}) async {
+  static Future<ApiResponse?> userSignUp(
+      {required SignupUser signupUser}) async {
     print(signupUser.toJson());
-    ApiResponse? response = await _helper.post(
+    ApiResponse? response = await ApiHelper.post(
       ApiStringConstants.userSignUp,
       querryParam: signupUser.toJson(),
       isPublic: true,
@@ -30,6 +30,7 @@ class AuthServices {
       UserSignUpModel user = UserSignUpModel.fromJson(response.data);
       setStringIntoCache(
           SharedPreferenceString.refreshToken, user.refreshToken);
+      setStringIntoCache(SharedPreferenceString.email, user.email);
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
@@ -38,9 +39,9 @@ class AuthServices {
     return response;
   }
 
-  Future<ApiResponse?> userLogin({required LoginUser loginUser}) async {
+  static Future<ApiResponse?> userLogin({required LoginUser loginUser}) async {
     print(loginUser.toJson().toString());
-    ApiResponse? response = await _helper.post(
+    ApiResponse? response = await ApiHelper.post(
       ApiStringConstants.userLogin,
       querryParam: loginUser.toJson(),
       isPublic: true,
@@ -52,15 +53,15 @@ class AuthServices {
       setStringIntoCache(SharedPreferenceString.accessToken, user.accessToken);
       setBooleanIntoCache(SharedPreferenceString.isLoggedIn, true);
       setStringIntoCache(SharedPreferenceString.userId, user.id);
-      String at = await getStringFromCache(SharedPreferenceString.accessToken);
+      String at = await getStringFromCache(SharedPreferenceString.userId);
       log(at);
     }
 
     return response;
   }
 
-  Future<ApiResponse?> userLogout({required String? fcmToken}) async {
-    ApiResponse? response = await _helper.delete(
+  static Future<ApiResponse?> userLogout({required String? fcmToken}) async {
+    ApiResponse? response = await ApiHelper.delete(
       ApiStringConstants.userLogout,
       queryParam: {"fcm_token": fcmToken},
       isPublic: false,
@@ -70,6 +71,26 @@ class AuthServices {
     setStringIntoCache(SharedPreferenceString.refreshToken, null);
     setStringIntoCache(SharedPreferenceString.userId, null);
 
+    return response;
+  }
+
+  static Future<ApiResponse?> generateOtp(bool isSignup,
+      {required String email}) async {
+    ApiResponse? response = await ApiHelper.get(
+      querryParam: {"email": email, "isSignup": isSignup.toString()},
+      ApiStringConstants.generateOtp,
+      isPublic: true,
+    );
+    return response;
+  }
+
+  static Future<ApiResponse> verifyOtp(
+      {required String email, required String otp}) async {
+    ApiResponse response = await ApiHelper.get(
+      ApiStringConstants.verifyOtp,
+      querryParam: {"otp": otp, "email": email},
+      isPublic: true,
+    );
     return response;
   }
 }

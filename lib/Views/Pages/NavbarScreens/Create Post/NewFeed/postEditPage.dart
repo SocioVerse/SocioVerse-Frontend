@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:provider/provider.dart';
+import 'package:socioverse/Controllers/multiProviderList.dart';
+import 'package:socioverse/Controllers/postEditingProvider.dart';
 import 'package:socioverse/Helper/FirebaseHelper/firebaseHelperFunctions.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Models/searchedUser.dart';
@@ -18,6 +21,7 @@ import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Widgets/textfield_widgets.dart';
 import 'package:socioverse/Services/feed_services.dart';
 import 'package:socioverse/Services/user_services.dart';
+import 'package:socioverse/main.dart';
 import 'package:uuid/uuid.dart';
 
 class PostEditPage extends StatefulWidget {
@@ -29,40 +33,29 @@ class PostEditPage extends StatefulWidget {
 }
 
 class _PostEditPageState extends State<PostEditPage> {
-  bool autoEnhance = false;
-  bool public = false;
-  bool allowComments = false;
-  bool allowSave = false;
-  LocationSearchModel? selectedLocation;
-  List<SearchedUser> taggedUser = [];
-  List<HashtagsSearchModel> hashtagList = [];
-  String? userEmail;
   TextEditingController captionController = TextEditingController();
   @override
   void initState() {
-    autoEnhance = true;
-    public = true;
-    allowComments = true;
-    allowSave = true;
-    getUserInfo();
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      Provider.of<PostEditAdditionalFeatureProvider>(context, listen: false)
+          .init();
+      Provider.of<PostEditProvider>(context, listen: false).init();
+      Provider.of<PostEditingEmailProvider>(context, listen: false)
+          .getUserInfo();
+    });
+
     super.initState();
   }
 
   @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
-
-  getUserInfo() async {
-    userEmail =
-        await UserServices().getUserDetails().then((value) => value[0].email);
-    setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
+    var addtionalFeatureProvider =
+        Provider.of<PostEditAdditionalFeatureProvider>(context, listen: false);
+    var postEditProvider =
+        Provider.of<PostEditProvider>(context, listen: false);
+
+    var emailProvider =
+        Provider.of<PostEditingEmailProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -80,40 +73,47 @@ class _PostEditPageState extends State<PostEditPage> {
             padding: const EdgeInsets.all(8.0),
             child: IconButton(
                 onPressed: () async {
-                  if (userEmail == null) {
+                  if (emailProvider.userEmail == null) {
                     return;
                   }
-                  context.loaderOverlay.show();
+                  context.loaderOverlay.show(
+                    progress: 'Doing progress #0',
+                  );
+
+                  log("starting upload");
                   List<String> images = [];
                   //use for loop
-                  for (var i = 0; i < widget.images.length; i++) {
-                    log(widget.images[i].path.toString());
+                  await Future.forEach(widget.images, (File image) async {
+                    log(image.path.toString());
                     String url = await FirebaseHelper.uploadFile(
-                        widget.images[i].path,
-                        "${Uuid().v4()}.jpg",
-                        "$userEmail/feeds",
+                        image.path,
+                        "${const Uuid().v4()}.jpg",
+                        "${emailProvider.userEmail}/feeds",
                         FirebaseHelper.Image);
                     images.add(url);
-                  }
-                  await FeedServices().createFeed(
+                  });
+                  await FeedServices.createFeed(
                       postData: FeedData(
                           caption: captionController.text,
-                          allowComments: allowComments,
-                          allowSave: allowSave,
-                          autoEnhanced: autoEnhance,
-                          isPrivate: !public,
-                          location: selectedLocation,
+                          allowComments: addtionalFeatureProvider.allowComments,
+                          allowSave: addtionalFeatureProvider.allowSave,
+                          autoEnhanced: addtionalFeatureProvider.autoEnhance,
+                          isPrivate: !addtionalFeatureProvider.public,
+                          location: postEditProvider.selectedLocation,
                           images: images,
-                          mentions: taggedUser.map((e) => e.username).toList(),
-                          tags: hashtagList.map((e) => e.hashtag).toList()));
+                          mentions: postEditProvider.taggedUser
+                              .map((e) => e.username)
+                              .toList(),
+                          tags: postEditProvider.hashtagList
+                              .map((e) => e.hashtag)
+                              .toList()));
                   if (context.mounted) {
+                    log("upload done");
                     context.loaderOverlay.hide();
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const MainPage(
-                                  index: 0,
-                                )),
+                            builder: (context) => const MainPage()),
                         (route) => false);
                   }
                 },
@@ -125,368 +125,380 @@ class _PostEditPageState extends State<PostEditPage> {
           ),
         ],
       ),
-      body: userEmail == null
-          ? SpinKit.ring
-          : SingleChildScrollView(
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.width - 40,
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: widget.images.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Container(
-                                  height:
-                                      MediaQuery.of(context).size.width - 40,
-                                  width: MediaQuery.of(context).size.width - 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    image: DecorationImage(
-                                      image: FileImage(widget.images[index]),
-                                      fit: BoxFit.contain,
+      body: Consumer<PostEditingEmailProvider>(builder: (context, prov, child) {
+        return prov.userEmail == null
+            ? SpinKit.ring
+            : SingleChildScrollView(
+                child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.width - 40,
+                          child: ListView.builder(
+                              shrinkWrap: true,
+                              scrollDirection: Axis.horizontal,
+                              itemCount: widget.images.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Container(
+                                    height:
+                                        MediaQuery.of(context).size.width - 40,
+                                    width:
+                                        MediaQuery.of(context).size.width - 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      image: DecorationImage(
+                                        image: FileImage(widget.images[index]),
+                                        fit: BoxFit.contain,
+                                      ),
                                     ),
                                   ),
+                                );
+                              }),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        TextFieldBuilder2(
+                          tcontroller: captionController,
+                          hintTexxt: "Write a caption...",
+                          onChangedf: () {},
+                          maxLines: null,
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ListTile(
+                          leading: Text(
+                            "#",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                 ),
+                          ),
+                          onTap: () async {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return SearchHashtagPage(
+                                hashtagList: postEditProvider.hashtagList,
                               );
-                            }),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      TextFieldBuilder2(
-                        tcontroller: captionController,
-                        hintTexxt: "Write a caption...",
-                        onChangedf: () {},
-                        maxLines: null,
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Divider(
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ListTile(
-                        leading: Text(
-                          "#",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
+                            }));
+                          },
+                          title: Consumer<PostEditProvider>(
+                              builder: (context, prov, child) {
+                            return prov.hashtagList.isEmpty
+                                ? Text(
+                                    "Add Hashtags",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  )
+                                : Consumer<PostEditProvider>(
+                                    builder: (context, prov, child) {
+                                    return SizedBox(
+                                      height: 40,
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: prov.hashtagList.length,
+                                        itemBuilder: (context, index) {
+                                          return Chip(
+                                            label: Text(
+                                                prov.hashtagList[index].hashtag,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall!
+                                                    .copyWith(
+                                                      fontSize: 12,
+                                                    )),
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            deleteIconColor: Colors.white,
+                                            onDeleted: () {
+                                              prov.removeHashtag(
+                                                  prov.hashtagList[index]);
+                                            },
+                                          );
+                                        },
+                                        separatorBuilder: (context, index) {
+                                          return const SizedBox(
+                                            width: 10,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  });
+                          }),
                         ),
-                        onTap: () async {
-                          dynamic taggedUser = await Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return SearchHashtagPage(
-                              hashtagList: hashtagList,
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            Ionicons.person_add,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          onTap: () async {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return TagPeoplePage();
+                            }));
+                          },
+                          title: Consumer<PostEditProvider>(
+                              builder: (context, prov, child) {
+                            return prov.taggedUser.isEmpty
+                                ? Text(
+                                    "Tag People",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary,
+                                        ),
+                                  )
+                                : Consumer<PostEditProvider>(
+                                    builder: (context, prov, child) {
+                                    return SizedBox(
+                                      height: 40,
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: prov.taggedUser.length,
+                                        itemBuilder: (context, index) {
+                                          return Chip(
+                                            label: Text(
+                                                prov.taggedUser[index].name,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodySmall!
+                                                    .copyWith(
+                                                      fontSize: 12,
+                                                    )),
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .secondary,
+                                            deleteIconColor: Colors.white,
+                                            onDeleted: () {
+                                              prov.removeTaggedUser(
+                                                  prov.taggedUser[index]);
+                                            },
+                                          );
+                                        },
+                                        separatorBuilder: (context, index) {
+                                          return const SizedBox(
+                                            width: 10,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  });
+                          }),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          onTap: () async {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const LocationSearchPage();
+                            }));
+                          },
+                          leading: Icon(
+                            Ionicons.location,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          title: Consumer<PostEditProvider>(
+                              builder: (context, prov, child) {
+                            return Text(
+                              prov.selectedLocation == null
+                                  ? "Add Location"
+                                  : prov.selectedLocation!.name,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                  ),
                             );
-                          }));
-                          if (taggedUser != null) {
-                            setState(() {
-                              hashtagList = hashtagList;
-                            });
-                          }
-                        },
-                        title: hashtagList.isEmpty
-                            ? Text(
-                                "Add Hashtags",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                              )
-                            : SizedBox(
-                                height: 40,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: hashtagList.length,
-                                  itemBuilder: (context, index) {
-                                    return Chip(
-                                      label: Text(hashtagList[index].hashtag,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 12,
-                                              )),
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      onDeleted: () {
-                                        setState(() {
-                                          hashtagList.removeWhere((element) =>
-                                              element.id ==
-                                              hashtagList[index].id);
-                                        });
-                                      },
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) {
-                                    return const SizedBox(
-                                      width: 10,
-                                    );
-                                  },
-                                ),
-                              ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Ionicons.person_add,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          }),
                         ),
-                        onTap: () async {
-                          dynamic taggedUser = await Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return TagPeoplePage(
-                              taggedUser: this.taggedUser,
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Divider(
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Text("Additional Features"),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            Ionicons.sparkles,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          title: Text(
+                            "Auto Enhance",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                          ),
+                          trailing: Consumer<PostEditAdditionalFeatureProvider>(
+                              builder: (context, prov, child) {
+                            return Switch(
+                              value: prov.autoEnhance,
+                              onChanged: (value) {
+                                prov.autoEnhance = value;
+                              },
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
                             );
-                          }));
-                          if (taggedUser != null) {
-                            setState(() {
-                              this.taggedUser = taggedUser;
-                            });
-                          }
-                        },
-                        title: taggedUser.isEmpty
-                            ? Text(
-                                "Tag People",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                              )
-                            : SizedBox(
-                                height: 40,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: taggedUser.length,
-                                  itemBuilder: (context, index) {
-                                    return Chip(
-                                      label: Text(taggedUser[index].name,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall!
-                                              .copyWith(
-                                                fontSize: 12,
-                                              )),
-                                      backgroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
-                                      onDeleted: () {
-                                        setState(() {
-                                          taggedUser.removeWhere((element) =>
-                                              element.id ==
-                                              taggedUser[index].id);
-                                        });
-                                      },
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) {
-                                    return const SizedBox(
-                                      width: 10,
-                                    );
-                                  },
+                          }),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        ListTile(
+                          leading: Icon(
+                            Ionicons.people,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          title: Text(
+                            "Public",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                 ),
-                              ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListTile(
-                        onTap: () async {
-                          dynamic location = await Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return const LocationSearchPage();
-                          }));
-                          if (location != null) {
-                            location = location as LocationSearchModel;
-                            setState(() {
-                              selectedLocation = location;
-                            });
-                          }
-                        },
-                        leading: Icon(
-                          Ionicons.location,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          trailing: Consumer<PostEditAdditionalFeatureProvider>(
+                              builder: (context, prov, child) {
+                            return Switch(
+                              value: prov.public,
+                              onChanged: (value) {
+                                prov.public = value;
+                              },
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                            );
+                          }),
                         ),
-                        title: Text(
-                          selectedLocation == null
-                              ? "Add Location"
-                              : selectedLocation!.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
+                        const SizedBox(
+                          height: 10,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Divider(
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text("Additional Features"),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Ionicons.sparkles,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                        ListTile(
+                          leading: Icon(
+                            Ionicons.chatbubble_ellipses,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          title: Text(
+                            "Allow Comments",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                          ),
+                          trailing: Consumer<PostEditAdditionalFeatureProvider>(
+                              builder: (context, prov, child) {
+                            return Switch(
+                              value: prov.allowComments,
+                              onChanged: (value) {
+                                prov.allowComments = value;
+                              },
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                            );
+                          }),
                         ),
-                        title: Text(
-                          "Auto Enhance",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
+                        const SizedBox(
+                          height: 10,
                         ),
-                        trailing: Switch(
-                          value: autoEnhance,
-                          onChanged: (value) {
-                            setState(() {
-                              autoEnhance = value;
-                            });
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
+                        ListTile(
+                          leading: Icon(
+                            Ionicons.bookmark_outline,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
+                          title: Text(
+                            "Allow Save",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                          ),
+                          trailing: Consumer<PostEditAdditionalFeatureProvider>(
+                              builder: (context, prov, child) {
+                            return Switch(
+                              value: prov.allowSave,
+                              onChanged: (value) {
+                                prov.allowSave = value;
+                              },
+                              activeColor:
+                                  Theme.of(context).colorScheme.primary,
+                            );
+                          }),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Ionicons.people,
-                          color: Theme.of(context).colorScheme.onPrimary,
+                        const SizedBox(
+                          height: 50,
                         ),
-                        title: Text(
-                          "Public",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                        trailing: Switch(
-                          value: public,
-                          onChanged: (value) {
-                            setState(() {
-                              public = value;
-                            });
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Ionicons.chatbubble_ellipses,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                        title: Text(
-                          "Allow Comments",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                        trailing: Switch(
-                          value: allowComments,
-                          onChanged: (value) {
-                            setState(() {
-                              allowComments = value;
-                            });
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      ListTile(
-                        leading: Icon(
-                          Ionicons.bookmark_outline,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                        title: Text(
-                          "Allow Save",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium!
-                              .copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onPrimary,
-                              ),
-                        ),
-                        trailing: Switch(
-                          value: allowSave,
-                          onChanged: (value) {
-                            setState(() {
-                              allowSave = value;
-                            });
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                    ],
-                  ))),
+                      ],
+                    )));
+      }),
     );
   }
 }

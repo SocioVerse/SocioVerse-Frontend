@@ -6,15 +6,30 @@ import 'package:socioverse/Helper/api_constants.dart';
 import 'package:socioverse/Models/chatModels.dart';
 
 class ChattingServices {
-  final ApiHelper _helper = ApiHelper();
-  Future<RoomModel> getChatroomInfoByUser(
+  static Future<RoomModel> getChatroomInfoByUser(
       String userId, String ownerUserId) async {
     Map<String, String> querryParam = {"userId": userId};
-    ApiResponse response = await _helper.get(
+    ApiResponse response = await ApiHelper.get(
       ApiStringConstants.getChatroomInfoByUser,
       querryParam: querryParam,
     );
     log(ownerUserId);
     return RoomModel.fromJson(response.data, ownerUserId);
+  }
+
+  static Future<Room> createRoom(String userId) async {
+    Map<String, String> querryParam = {"userId": userId};
+    ApiResponse response = await ApiHelper.post(
+      ApiStringConstants.createRoom,
+      querryParam: querryParam,
+    );
+    return Room.fromJson(response.data);
+  }
+
+  static Future<int> unReadMessageCount() async {
+    ApiResponse response = await ApiHelper.get(
+      ApiStringConstants.unReadMessageCount,
+    );
+    return response.data;
   }
 }

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:socioverse/Helper/FlutterToasts/flutterToast.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiHelper.dart';
 import 'package:socioverse/Helper/ServiceHelpers/apiResponse.dart';
 import 'package:socioverse/Helper/api_constants.dart';
@@ -9,12 +10,12 @@ import 'package:socioverse/Models/commentModel.dart';
 import 'package:socioverse/Models/feedModel.dart';
 import 'package:socioverse/Models/threadModel.dart';
 import 'package:socioverse/Views/Pages/NavbarScreens/Create%20Post/NewFeed/newFeedModels.dart';
+import 'package:socioverse/Models/inboxModel.dart' as inbox;
 
 class FeedServices {
-  ApiHelper _helper = ApiHelper();
-  ApiResponse _response = ApiResponse();
-  Future<ApiResponse> createFeed({required FeedData postData}) async {
-    _response = await _helper.post(
+  static ApiResponse _response = ApiResponse();
+  static Future<ApiResponse> createFeed({required FeedData postData}) async {
+    _response = await ApiHelper.post(
       ApiStringConstants.createFeed,
       querryParam: postData.toJson(),
     );
@@ -22,9 +23,9 @@ class FeedServices {
     return _response;
   }
 
-  Future<List<FeedModel>> getFollowingFeeds() async {
+  static Future<List<FeedModel>> getFollowingFeeds() async {
     List<FeedModel> fetchedFeeds = [];
-    _response = await _helper.get(ApiStringConstants.getFollowingFeed);
+    _response = await ApiHelper.get(ApiStringConstants.getFollowingFeed);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedFeeds.add(FeedModel.fromJson(thread));
@@ -33,33 +34,36 @@ class FeedServices {
     return fetchedFeeds;
   }
 
-  Future<FeedModel> getFeed({required String feedId}) async {
-    _response = await _helper
-        .get(ApiStringConstants.getFeedById, querryParam: {'feedId': feedId});
-
+  static Future<FeedModel?> getFeed({required String feedId}) async {
+    _response = await ApiHelper.get(ApiStringConstants.getFeedById,
+        querryParam: {'feedId': feedId});
+    if (_response.success == false) {
+      FlutterToast.flutterWhiteToast(_response.message);
+      return null;
+    }
     return FeedModel.fromJson(_response.data);
   }
 
-  Future<bool> toogleLikeFeeds({
+  static Future<bool> toggleLikeFeeds({
     required String feedId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleLikeFeed,
+    _response = await ApiHelper.post(ApiStringConstants.toggleLikeFeed,
         querryParam: {'feedId': feedId});
     return _response.success;
   }
 
-  Future<String> toogleSaveFeeds({
+  static Future<String> toggleSaveFeeds({
     required String feedId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toogleSaveFeed,
+    _response = await ApiHelper.post(ApiStringConstants.toggleSaveFeed,
         querryParam: {'feedId': feedId});
     return _response.data;
   }
 
-  Future<List<User>> fetchFeedMentions({
+  static Future<List<User>> fetchFeedMentions({
     required String feedId,
   }) async {
-    _response = await _helper.get(ApiStringConstants.fetchFeedsMentions,
+    _response = await ApiHelper.get(ApiStringConstants.fetchFeedsMentions,
         querryParam: {'feedId': feedId});
     List<User> fetchedUsers = [];
     if (_response.success == true) {
@@ -70,9 +74,23 @@ class FeedServices {
     return fetchedUsers;
   }
 
-  Future<FeedComment> createComment(
+  static Future<List<User>> fetchFeedLikes({
+    required String feedId,
+  }) async {
+    _response = await ApiHelper.get(ApiStringConstants.fetchFeedLikes,
+        querryParam: {'feedId': feedId});
+    List<User> fetchedUsers = [];
+    if (_response.success == true) {
+      for (var user in _response.data) {
+        fetchedUsers.add(User.fromJson(user));
+      }
+    }
+    return fetchedUsers;
+  }
+
+  static Future<FeedComment> createComment(
       {required String content, required String feedId}) async {
-    _response = await _helper.post(
+    _response = await ApiHelper.post(
       ApiStringConstants.createFeedComment,
       isPublic: false,
       querryParam: {'content': content, 'feedId': feedId},
@@ -80,9 +98,10 @@ class FeedServices {
     return FeedComment.fromJson(_response.data['comment']);
   }
 
-  Future<List<FeedComment>> fetchFeedComments({required String feedId}) async {
+  static Future<List<FeedComment>> fetchFeedComments(
+      {required String feedId}) async {
     List<FeedComment> fetchedComments = [];
-    _response = await _helper.get(ApiStringConstants.fetchFeedComments,
+    _response = await ApiHelper.get(ApiStringConstants.fetchFeedComments,
         querryParam: {'feedId': feedId});
 
     if (_response.success == true) {
@@ -93,53 +112,37 @@ class FeedServices {
     return fetchedComments;
   }
 
-  Future<void> deleteFeed({required String feedId}) async {
-    _response = await _helper.delete(
+  static Future<void> deleteFeed({required String feedId}) async {
+    _response = await ApiHelper.delete(
       ApiStringConstants.deleteFeeds,
       queryParam: {'feedId': feedId},
     );
     if (_response.success == true) {
-      Fluttertoast.showToast(
-        msg: "Feed Deleted Successfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 16.0,
-      );
+      FlutterToast.flutterWhiteToast("Feed Deleted Successfully");
     }
   }
 
-  Future<void> deleteFeedComment({required String commentId}) async {
-    _response = await _helper.delete(
+  static Future<void> deleteFeedComment({required String commentId}) async {
+    _response = await ApiHelper.delete(
       ApiStringConstants.deleteFeedComment,
       queryParam: {'commentId': commentId},
     );
     if (_response.success == true) {
-      Fluttertoast.showToast(
-        msg: "Comment Deleted Successfully",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.white,
-        textColor: Colors.black,
-        fontSize: 16.0,
-      );
+      FlutterToast.flutterWhiteToast("Comment Deleted Successfully");
     }
   }
 
-  Future<String> toggleFeedCommentLike({
+  static Future<String> toggleFeedCommentLike({
     required String commentId,
   }) async {
-    _response = await _helper.post(ApiStringConstants.toggleFeedCommentLike,
+    _response = await ApiHelper.post(ApiStringConstants.toggleFeedCommentLike,
         querryParam: {'commentId': commentId});
     return _response.data;
   }
 
-  Future<List<FeedThumbnail>> getSavedFeeds() async {
+  static Future<List<FeedThumbnail>> getSavedFeeds() async {
     List<FeedThumbnail> fetchedFeeds = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllSavedFeeds);
+    _response = await ApiHelper.get(ApiStringConstants.fetchAllSavedFeeds);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedFeeds.add(FeedThumbnail.fromJson(thread));
@@ -148,10 +151,10 @@ class FeedServices {
     return fetchedFeeds;
   }
 
-  Future<List<FeedComment>> fetchcommentReplies(
+  static Future<List<FeedComment>> fetchcommentReplies(
       {required String commentId}) async {
     List<FeedComment> fetchedComments = [];
-    _response = await _helper.get(ApiStringConstants.fetchcommentReplies,
+    _response = await ApiHelper.get(ApiStringConstants.fetchcommentReplies,
         querryParam: {'commentId': commentId});
 
     if (_response.success == true) {
@@ -162,21 +165,39 @@ class FeedServices {
     return fetchedComments;
   }
 
-  Future<FeedComment> createCommentReply(
+  static Future<FeedComment> createCommentReply(
       {required String content, required String commentId}) async {
-    _response = await _helper.post(ApiStringConstants.createCommentReply,
+    _response = await ApiHelper.post(ApiStringConstants.createCommentReply,
         querryParam: {'commentId': commentId, 'content': content});
     return FeedComment.fromJson(_response.data);
   }
 
-  Future<List<FeedThumbnail>> getLikedFeeds() async {
+  static Future<List<FeedThumbnail>> getLikedFeeds() async {
     List<FeedThumbnail> fetchedFeeds = [];
-    _response = await _helper.get(ApiStringConstants.fetchAllLikedFeeds);
+    _response = await ApiHelper.get(ApiStringConstants.fetchAllLikedFeeds);
     if (_response.success == true) {
       for (var thread in _response.data) {
         fetchedFeeds.add(FeedThumbnail.fromJson(thread));
       }
     }
     return fetchedFeeds;
+  }
+
+  static Future<List<FeedModel>> getTrendingFeeds() async {
+    List<FeedModel> fetchedFeeds = [];
+    _response = await ApiHelper.get(ApiStringConstants.fetchTrendingFeeds);
+    if (_response.success == true) {
+      for (var thread in _response.data) {
+        fetchedFeeds.add(FeedModel.fromJson(thread));
+      }
+    }
+    return fetchedFeeds;
+  }
+
+  static Future<FeedComment> fetchCommentById(
+      {required String commentId}) async {
+    _response = await ApiHelper.get(ApiStringConstants.fetchCommentById,
+        querryParam: {'commentId': commentId});
+    return FeedComment.fromJson(_response.data);
   }
 }

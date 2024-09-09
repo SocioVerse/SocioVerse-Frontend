@@ -43,11 +43,17 @@ class _CommentPageState extends State<CommentPage> {
       isLoading = true;
     });
     if (widget.feedId != null) {
-      feed = await FeedServices().getFeed(feedId: widget.feedId!);
+      feed = await FeedServices.getFeed(feedId: widget.feedId!);
+      if (feed == null) {
+        if (context.mounted) {
+          Navigator.pop(context);
+          return;
+        }
+      }
     } else {
       feed = widget.feed;
     }
-    feedReplies = await FeedServices().fetchFeedComments(feedId: feed!.id);
+    feedReplies = await FeedServices.fetchFeedComments(feedId: feed!.id);
     setState(() {
       isLoading = false;
     });
@@ -110,8 +116,8 @@ class _CommentPageState extends State<CommentPage> {
           TextButton(
             onPressed: () async {
               context.loaderOverlay.show();
-              FeedComment newComment = await FeedServices()
-                  .createComment(content: content.text, feedId: feed!.id);
+              FeedComment newComment = await FeedServices.createComment(
+                  content: content.text, feedId: feed!.id);
 
               content.clear();
 
@@ -199,8 +205,10 @@ class _CommentPageState extends State<CommentPage> {
 
 class CommentReplyPage extends StatefulWidget {
   Function? onDeleted;
-  final FeedComment feedComment;
-  CommentReplyPage({super.key, required this.feedComment, this.onDeleted});
+  FeedComment? feedComment;
+  String? feedCommentId;
+  CommentReplyPage(
+      {super.key, this.feedComment, this.onDeleted, this.feedCommentId});
 
   @override
   State<CommentReplyPage> createState() => _CommentReplyPageState();
@@ -220,8 +228,12 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
     setState(() {
       isLoading = true;
     });
-    feedReplies = await FeedServices()
-        .fetchcommentReplies(commentId: widget.feedComment.id);
+    if (widget.feedCommentId != null) {
+      widget.feedComment =
+          await FeedServices.fetchCommentById(commentId: widget.feedCommentId!);
+    }
+    feedReplies = await FeedServices.fetchcommentReplies(
+        commentId: widget.feedCommentId ?? widget.feedComment!.id);
     setState(() {
       isLoading = false;
     });
@@ -290,7 +302,7 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
           TextButton(
             onPressed: () async {
               context.loaderOverlay.show();
-              FeedComment newComment = await FeedServices().createCommentReply(
+              FeedComment newComment = await FeedServices.createCommentReply(
                   content: content.text, commentId: feedComment.id);
 
               content.clear();
@@ -325,53 +337,53 @@ class _CommentReplyPageState extends State<CommentReplyPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
+      body: isLoading
+          ? Center(
+              child: SpinKit.ring,
+            )
+          : Stack(
               children: [
-                FeedCommentWidget(
-                  isComment: true,
-                  onDelete: () {
-                    widget.onDeleted!();
-                    Navigator.pop(context, [true]);
-                  },
-                  feedComment: widget.feedComment,
+                SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      FeedCommentWidget(
+                        isComment: true,
+                        onDelete: () {
+                          widget.onDeleted!();
+                          Navigator.pop(context, [true]);
+                        },
+                        feedComment: widget.feedComment!,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: feedReplies.length,
+                          itemBuilder: (context, index) {
+                            return FeedCommentWidget(
+                              onDelete: () {
+                                widget.feedComment!.commentCount--;
+                                feedReplies.removeAt(index);
+                                setState(() {});
+                              },
+                              feedComment: feedReplies[index],
+                            );
+                          }),
+                      const SizedBox(
+                        height: 100,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                isLoading
-                    ? Center(
-                        child: SpinKit.ring,
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: feedReplies.length,
-                        itemBuilder: (context, index) {
-                          return FeedCommentWidget(
-                            onDelete: () {
-                              widget.feedComment.commentCount--;
-                              feedReplies.removeAt(index);
-                              setState(() {});
-                            },
-                            feedComment: feedReplies[index],
-                          );
-                        }),
-                const SizedBox(
-                  height: 100,
-                ),
+                Align(
+                    alignment: Alignment.bottomCenter,
+                    child: commentField(
+                      feedComment: widget.feedComment!,
+                    )),
               ],
             ),
-          ),
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: commentField(
-                feedComment: widget.feedComment,
-              )),
-        ],
-      ),
     );
   }
 }

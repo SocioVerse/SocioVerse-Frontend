@@ -5,11 +5,13 @@ class StoryIndexProvider extends ChangeNotifier {
 
   int get currentIndex => _currentIndex;
 
-  void updateIndex(int newIndex) {
-    // Schedule the notification for the next microtask
-    Future.microtask(() {
-      _currentIndex = newIndex;
-      notifyListeners();
-    });
+  set currentIndex(int index) {
+    _currentIndex = index;
+    notifyListeners();
+  }
+
+  void reset() {
+    _currentIndex = 0;
+    notifyListeners();
   }
 }
