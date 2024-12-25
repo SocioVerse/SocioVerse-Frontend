@@ -23,7 +23,8 @@ class WelcomePage extends StatelessWidget {
     'Unlock endless possibilities with this app, empowering you to explore, create, connect, and more. Discover it now!'
   ];
 
-  final CarouselController buttonCarouselController = CarouselController();
+  final CarouselSliderController buttonCarouselController =
+      CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {

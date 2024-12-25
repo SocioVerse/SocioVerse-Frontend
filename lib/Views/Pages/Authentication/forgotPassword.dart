@@ -75,7 +75,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       return;
                     }
                     if (!CalculatingFunction.isEmailValid(
-                        _emailController.text)) return;
+                        _emailController.text.trim())) {
+                      Fluttertoast.showToast(
+                          msg: "Please enter a valid email address",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                      return;
+                    }
                     context.loaderOverlay.show();
                     AuthServices.isEmailExists(
                             email: _emailController.text.trim())
