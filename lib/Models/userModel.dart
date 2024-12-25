@@ -10,7 +10,7 @@ class UserModel {
   String profilePic;
   String country;
   DateTime dob;
-  List<dynamic> faceImageDataset;
+  String? faceImageDataset;
   DateTime createdAt;
   DateTime updatedAt;
   int v;
@@ -25,7 +25,7 @@ class UserModel {
     required this.profilePic,
     required this.country,
     required this.dob,
-    required this.faceImageDataset,
+    this.faceImageDataset,
     required this.createdAt,
     required this.updatedAt,
     required this.v,
@@ -46,8 +46,7 @@ class UserModel {
         profilePic: json["profile_pic"],
         country: json["country"],
         dob: DateTime.parse(json["dob"]),
-        faceImageDataset:
-            List<dynamic>.from(json["face_image_dataset"].map((x) => x)),
+        faceImageDataset: json["face_image_dataset"],
         createdAt: DateTime.parse(json["createdAt"]).toLocal(),
         updatedAt: DateTime.parse(json["updatedAt"]).toLocal(),
         v: json["__v"],
@@ -63,8 +62,7 @@ class UserModel {
         "profile_pic": profilePic,
         "country": country,
         "dob": dob.toIso8601String(),
-        "face_image_dataset":
-            List<dynamic>.from(faceImageDataset.map((x) => x)),
+        "face_image_dataset": faceImageDataset,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
         "__v": v,
