@@ -15,8 +15,18 @@ class FaceDetectionPage extends StatefulWidget {
 }
 
 class _FaceDetectionPageState extends State<FaceDetectionPage> {
+  late FaceCameraController _faceController;
+
   @override
   void initState() {
+    _faceController = FaceCameraController(
+      defaultCameraLens: CameraLens.front,
+      autoCapture: true,
+      onFaceDetected: (face) => log("Face detected: $face"),
+      onCapture: (image) {
+        Navigator.pop(context, [image]);
+      },
+    );
     super.initState();
   }
 
@@ -25,16 +35,12 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     return Scaffold(
         body: SafeArea(
       child: SmartFaceCamera(
-        autoCapture: true,
-        defaultCameraLens: CameraLens.front,
+        controller: _faceController,
         showControls: false,
-        showCaptureControl: false,
+        showCaptureControl: true,
         showCameraLensControl: false,
         showFlashControl: false,
         indicatorShape: IndicatorShape.defaultShape,
-        onCapture: (File? image) {
-          Navigator.pop(context, [image]);
-        },
       ),
     ));
   }

@@ -24,7 +24,7 @@ dependencies:
   photo_view: ^0.14.0
   shared_preferences: ^2.1.2
   http: ^1.1.0
-  face_camera: ^0.0.8
+  face_camera: ^0.1.4
   fluttertoast: ^8.2.6
   image_picker: ^1.0.4
   firebase_core: ^3.2.0
@@ -39,7 +39,6 @@ dependencies:
   cached_network_image: ^3.3.0
   flutter_launcher_icons: ^0.13.1
   firebase_messaging: ^15.0.3
-  flutter_local_notifications: ^18.0.1
   story_view: ^0.16.5
   provider: ^6.1.1
   shimmer: ^3.0.0
