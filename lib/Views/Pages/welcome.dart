@@ -112,11 +112,12 @@ class WelcomePage extends StatelessWidget {
                         ),
                         onPressed: () {
                           if (value.currentPage >= 2) {
-                            Navigator.push(
+                            Navigator.pushAndRemoveUntil(
                                 context,
                                 CupertinoPageRoute(
                                     builder: (context) =>
-                                        const SocialMediaSignUpPage()));
+                                        const PasswordSignInPage()),
+                                (route) => false);
                           }
                           value.currentPage = value.currentPage + 1;
                           buttonCarouselController.nextPage(
@@ -145,11 +146,12 @@ class WelcomePage extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             CupertinoPageRoute(
                                 builder: (context) =>
-                                    const PasswordSignInPage()));
+                                    const PasswordSignInPage()),
+                            (route) => false);
                       },
                       child: Text("Skip",
                           style: GoogleFonts.openSans(

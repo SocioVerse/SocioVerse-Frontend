@@ -8,12 +8,15 @@ class UserProfileSettingsServices {
 
   static Future<ApiResponse> updateProfile(
       UserProfileDetailsModelUser user, String? faceImage) async {
+    user.toJson().addAll({
+      'face_image_dataset': faceImage,
+    });
     _response = await ApiHelper.put(
       ApiStringConstants.updateProfile,
-      querryParam: user.toJson()
-        ..addAll({
-          'face_image_dataset': faceImage,
-        }),
+      querryParam: {
+        ...user.toJson(),
+        'face_image_dataset': faceImage,
+      },
     );
     return _response;
   }
