@@ -561,6 +561,7 @@ class _UserProfilePageState extends State<UserProfilePage>
                                 userProfileDetailsModel!.user.bio =
                                     bioController.text;
                               });
+                              Navigator.pop(context);
                             }
                           },
                           onReject: () {},

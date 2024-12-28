@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:socioverse/Helper/Loading/spinKitLoaders.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_constants.dart';
 import 'package:socioverse/Helper/SharedPreference/shared_preferences_methods.dart';
@@ -6,8 +9,19 @@ import 'package:socioverse/Views/Pages/Authentication/passwordSignInPage.dart';
 import 'package:socioverse/Views/Pages/SocioVerse/MainPage.dart';
 import 'package:socioverse/Views/Pages/welcome.dart';
 
-class GetInitPage extends StatelessWidget {
+class GetInitPage extends StatefulWidget {
   const GetInitPage({super.key});
+
+  @override
+  State<GetInitPage> createState() => _GetInitPageState();
+}
+
+class _GetInitPageState extends State<GetInitPage> {
+  @override
+  void initState() {
+    super.initState();
+    _requestNotificationPermission();
+  }
 
   Future<bool?> isLoggedIn() async {
     return await getBooleanFromCache(SharedPreferenceString.isLoggedIn);
@@ -15,6 +29,14 @@ class GetInitPage extends StatelessWidget {
 
   Future<bool?> isIntroDone() async {
     return await getBooleanFromCache(SharedPreferenceString.isIntroDone);
+  }
+
+  Future<void> _requestNotificationPermission() async {
+    var status = await Permission.notification.status;
+    if (!status.isGranted) {
+      log('Requesting Notification Permission');
+      await Permission.notification.request();
+    }
   }
 
   @override
